@@ -402,6 +402,16 @@ if os.path.exists(TPL):
     if os.path.exists(hero):
         html = html.replace("__HERO__", "data:image/jpeg;base64," +
                             base64.b64encode(open(hero, "rb").read()).decode())
+    # 요리 사진. 없는 요리는 앱에서 그릇 글리프로 남는다.
+    photos = {}
+    for st in out["sets"]:
+        for d in st["dishes"]:
+            f = os.path.join(HERE, "_design", "dish_%s.jpg" % d["name"])
+            if d["name"] not in photos and os.path.exists(f):
+                photos[d["name"]] = "data:image/jpeg;base64," + \
+                    base64.b64encode(open(f, "rb").read()).decode()
+    html = html.replace("__DISHIMG__", json.dumps(photos, ensure_ascii=False, separators=(",", ":")))
+    print("   요리 사진 %d장 인라인" % len(photos))
     idx = os.path.join(HERE, "index.html")
     open(idx, "w", encoding="utf-8").write(html)
     print("→ %s  (%.0f KB)" % (idx, os.path.getsize(idx) / 1024))

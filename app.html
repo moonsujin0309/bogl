@@ -16,9 +16,14 @@
   /* 아이폰 기준: 100vh는 주소창 때문에 튀므로 dvh를 쓰고, 노치·홈바는 safe-area로 피한다. */
   :root{ --sa-t:env(safe-area-inset-top,0px); --sa-b:env(safe-area-inset-bottom,0px) }
   html,body{overscroll-behavior-y:none}
+  /* 바탕은 현재 화면 색을 따라간다. 밝은 회색으로 두면 좌우 끝과
+     스크롤 바운스에서 흰 띠가 비친다. */
+  html{background:var(--d-bg)}
   body{margin:0;font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
-       -webkit-font-smoothing:antialiased;background:oklch(.88 .004 80);
+       -webkit-font-smoothing:antialiased;background:var(--d-bg);
        text-size-adjust:100%;-webkit-text-size-adjust:100%}
+  body.light{background:var(--l-bg)}
+  html:has(body.light){background:var(--l-bg)}
   a{color:inherit;text-decoration:none}
   .app{max-width:480px;margin:0 auto;min-height:100dvh;position:relative}
   .view{display:none;min-height:100dvh;flex-direction:column}
@@ -36,9 +41,11 @@
   .tab{font-size:15px;font-weight:500;letter-spacing:-.03em;color:var(--d-tx3);
        height:44px;display:flex;align-items:center;border-bottom:2px solid transparent;margin-bottom:-1px}
   .tab.on{font-weight:900;color:var(--cream);border-bottom-color:var(--cream)}
-  .arch{margin:0 20px 14px;aspect-ratio:5/4;max-height:200px;border-radius:999px 999px 18px 18px;
+  /* 아치는 위쪽 반지름이 가로폭의 절반이다. 그래서 높이가 폭의 0.66은 돼야
+     반원 아래에 사각 부분이 남아 아치로 읽힌다. 5:4로 두면 반원이 다 먹는다. */
+  .arch{margin:0 20px 14px;aspect-ratio:3/2;border-radius:999px 999px 18px 18px;
         overflow:hidden;background:var(--d-card)}
-  .arch img{display:block;width:100%;height:100%;object-fit:cover}
+  .arch img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 62%}
   .badge{font-size:10px;letter-spacing:.16em;color:var(--d-tx3);padding:0 20px;
          white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   /* 제목은 한 줄로 앉힌다. 좁으면 글자만 조금 줄어들고 줄바꿈은 하지 않는다. */
@@ -46,8 +53,10 @@
          padding:7px 20px 14px;white-space:nowrap}
   .dishrow{display:flex;justify-content:space-between;padding:0 16px 4px;gap:2px;width:100%}
   .dish{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0}
-  .dish .cir{width:46px;height:46px;border-radius:23px;background:var(--d-card);
+  .dish .cir{width:52px;height:52px;border-radius:26px;background:var(--d-card);
              display:flex;align-items:center;justify-content:center;color:var(--d-tx3);flex-shrink:0}
+  .dish .cir.ph{overflow:hidden}
+  .dish .cir.ph img{display:block;width:100%;height:100%;object-fit:cover}
   .dish span{font-size:10px;color:var(--d-tx3);text-align:center;line-height:1.25;word-break:keep-all;
              width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .more{display:flex;align-items:center;gap:5px;padding:10px 20px 12px;font-size:11.5px;color:var(--d-tx3);
@@ -221,6 +230,11 @@ const ICONS = {
   '우유 · 유제품':'<path d="M5.6 7.6h8.8v8.6a1.3 1.3 0 0 1-1.3 1.3H6.9a1.3 1.3 0 0 1-1.3-1.3z" fill="currentColor"/><path d="M5.6 7.6L10 3.2l4.4 4.4z" fill="currentColor" opacity=".55"/>'
 };
 const BOWL = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 11h18l-1.7 7.3a3 3 0 0 1-2.9 2.3H7.6a3 3 0 0 1-2.9-2.3z" fill="currentColor"/><ellipse cx="12" cy="11" rx="9" ry="2.3" fill="currentColor" opacity=".45"/></svg>';
+// 요리 사진. 없는 요리는 그릇 글리프로 남는다.
+const PHOTO = __DISHIMG__;
+const dishFace = n => PHOTO[n]
+  ? `<span class="cir ph"><img src="${PHOTO[n]}" alt=""></span>`
+  : `<span class="cir">${BOWL}</span>`;
 const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 // 파이썬 build.py의 fmt()와 같은 규칙. 장볼 양이라 모자라지 않게 올림한다.
@@ -247,7 +261,7 @@ function renderPick(){
   $('badge').textContent = s.badge;
   $('title').textContent = s.title;
   $('dishes').innerHTML = s.dishes.slice(0, 5).map(d =>
-    `<span class="dish"><span class="cir">${BOWL}</span><span>${esc(d.name)}</span></span>`).join('') +
+    `<span class="dish">${dishFace(d.name)}<span>${esc(d.name)}</span></span>`).join('') +
     (s.dishes.length > 5 ? `<span class="dish"><span class="cir" style="background:var(--d-card2);font-size:13px;font-weight:900;color:var(--d-tx2)">+${s.dishes.length-5}</span><span>더 있어요</span></span>` : '');
   $('dishmore').innerHTML = `요리 ${s.dishes.length}가지 · 조리법과 출처 보기
     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>`;
@@ -281,7 +295,15 @@ function renderList(){
     </section>`).join('');
 }
 
-const show = id => document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === id));
+/** 화면이 바뀌면 바탕색과 상태바 색도 같이 바꾼다. 안 그러면 좌우 끝과
+ *  스크롤 바운스에서 반대 색이 비친다. */
+function show(id){
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === id));
+  const light = id === 'list';
+  document.body.classList.toggle('light', light);
+  const m = document.querySelector('meta[name=theme-color]');
+  if(m) m.setAttribute('content', light ? '#f5f4f1' : '#2b2926');
+}
 let tt;
 function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('on');
   clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 1900); }

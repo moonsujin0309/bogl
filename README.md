@@ -39,4 +39,23 @@ python build.py --fresh  # API에서 다시 받기
 레시피는 **농림수산식품교육문화정보원** 공공데이터(레시피 기본정보 · 레시피 재료정보)입니다.
 출처는 화면에서 **레시피마다** 표시됩니다 — 다른 곳 레시피를 더해도 그대로 드러나도록 만들었습니다.
 
-대표 사진은 위키미디어 공용에서 받은 임시 자산이며, 배포 전에 교체 대상입니다.
+### 사진은 임시 자산입니다
+
+대표 사진과 요리 사진 10장은 **위키미디어 공용**에서 받았습니다. 화면이 어떻게 보이는지 확인하려고 넣은 것이고, **정식 공개 전에 교체하거나 표기를 갖춰야 합니다.**
+
+| 요리 | 원본 | 라이선스 |
+|---|---|---|
+| 양파전 | Spring Onion Pancake - SOJU 2024-06-02 | **CC0** |
+| 김치볶음밥(대표) | Kimchi fried rice | **CC0** |
+| 밥상(대표) | Bapsang | CC BY-SA 2.0 kr |
+| 북어국 | Bugeo-guk 2 | CC BY-SA 2.0 kr |
+| 두부두루치기 | Gimchi-duruchigi-ssam | CC BY-SA 4.0 |
+| 된장찌개 | Doenjang-jjigae 2 | CC BY 4.0 |
+| 된장채소수제비 | Korean.cuisine-Sujebi-01 | CC BY 2.0 |
+| 동태찌개 | Dongtae-jjigae 3 | CC BY 4.0 |
+| 갈치조림 | Galchi-jorim | CC BY 4.0 |
+| 돼지갈비찜 | Dwaeji-galbi-jjim | CC BY 2.0 |
+| 나박김치 | Korean cuisine-Nabak kimchi-01 | CC BY-SA 2.0 |
+| 계란말이주먹밥 | Gyeran-mari | CC BY 2.0 |
+
+**CC BY / CC BY-SA는 저작자·출처·라이선스 표시를 요구하고, SA는 2차 저작물도 같은 조건으로 배포해야 합니다.** 자체 촬영본이나 표기 부담이 없는 스톡으로 바꾸는 쪽을 권합니다.
