@@ -35,63 +35,63 @@
 
   /* ── 고르기 (다크) ───────────────────────────── */
   #pick{background:var(--d-bg);color:var(--cream)}
-  .top{display:flex;align-items:center;gap:10px;padding:calc(16px + var(--sa-t)) 20px 8px}
-  .tabs{display:flex;gap:22px;padding:0 20px;border-bottom:1px solid var(--d-line);margin-bottom:14px}
+  .top{display:flex;align-items:center;gap:10px;padding:calc(14px + var(--sa-t)) 26px 6px}
+  .tabs{display:flex;gap:22px;padding:0 26px;border-bottom:1px solid var(--d-line);margin-bottom:12px}
   /* 탭은 눌리는 것이므로 44px 세로 영역을 확보한다 */
-  .tab{font-size:15px;font-weight:500;letter-spacing:-.03em;color:var(--d-tx3);
-       height:44px;display:flex;align-items:center;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab{font-size:14.5px;font-weight:500;letter-spacing:-.03em;color:var(--d-tx3);
+       height:42px;display:flex;align-items:center;border-bottom:2px solid transparent;margin-bottom:-1px}
   .tab.on{font-weight:900;color:var(--cream);border-bottom-color:var(--cream)}
   /* 아치는 위쪽 반지름이 가로폭의 절반이다. 그래서 높이가 폭의 0.66은 돼야
      반원 아래에 사각 부분이 남아 아치로 읽힌다. 5:4로 두면 반원이 다 먹는다. */
-  .arch{margin:0 20px 14px;aspect-ratio:3/2;border-radius:999px 999px 18px 18px;
+  .arch{margin:0 26px 12px;aspect-ratio:3/2;border-radius:999px 999px 18px 18px;
         overflow:hidden;background:var(--d-card)}
   .arch img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 62%}
-  .badge{font-size:10px;letter-spacing:.16em;color:var(--d-tx3);padding:0 20px;
+  .badge{font-size:9.5px;letter-spacing:.16em;color:var(--d-tx3);padding:0 26px;
          white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   /* 제목은 한 줄로 앉힌다. 좁으면 글자만 조금 줄어들고 줄바꿈은 하지 않는다. */
-  .title{font-size:clamp(20px,6.2vw,25px);font-weight:900;line-height:1.25;letter-spacing:-.045em;
-         padding:7px 20px 14px;white-space:nowrap}
-  .dishrow{display:flex;justify-content:space-between;padding:0 16px 4px;gap:2px;width:100%}
+  .title{font-size:clamp(19px,5.7vw,23px);font-weight:900;line-height:1.25;letter-spacing:-.045em;
+         padding:6px 26px 12px;white-space:nowrap}
+  .dishrow{display:flex;justify-content:space-between;padding:0 22px 4px;gap:2px;width:100%}
   .dish{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0}
-  .dish .cir{width:52px;height:52px;border-radius:26px;background:var(--d-card);
+  .dish .cir{width:46px;height:46px;border-radius:23px;background:var(--d-card);
              display:flex;align-items:center;justify-content:center;color:var(--d-tx3);flex-shrink:0}
   .dish .cir.ph{overflow:hidden}
   .dish .cir.ph img{display:block;width:100%;height:100%;object-fit:cover}
-  .dish span{font-size:10px;color:var(--d-tx3);text-align:center;line-height:1.25;word-break:keep-all;
+  .dish span{font-size:9.5px;color:var(--d-tx3);text-align:center;line-height:1.25;word-break:keep-all;
              width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .more{display:flex;align-items:center;gap:5px;padding:10px 20px 12px;font-size:11.5px;color:var(--d-tx3);
-        min-height:40px}
-  .rule{height:1px;background:var(--d-line);margin:0 20px}
-  .count{display:flex;align-items:baseline;gap:9px;padding:14px 20px 12px}
+  .more{display:flex;align-items:center;gap:5px;padding:8px 26px 10px;font-size:11px;color:var(--d-tx3);
+        min-height:34px}
+  .rule{height:1px;background:var(--d-line);margin:0 26px}
+  .count{display:flex;align-items:baseline;gap:9px;padding:12px 26px 10px}
   .count .strike{font-size:12px;color:var(--d-tx3);text-decoration:line-through}
-  .count .big{font-size:29px;font-weight:900;letter-spacing:-.045em;line-height:1}
-  .ppl{display:flex;align-items:center;gap:9px;padding:0 20px 9px;flex-wrap:wrap}
+  .count .big{font-size:26px;font-weight:900;letter-spacing:-.045em;line-height:1}
+  .ppl{display:flex;align-items:center;gap:9px;padding:0 26px 8px;flex-wrap:wrap}
   .lbl{font-size:10px;letter-spacing:.16em;color:var(--d-tx3);white-space:nowrap}
-  .chip{display:flex;align-items:center;gap:8px;height:38px;padding:0 6px 0 13px;border-radius:12px;
-        background:var(--d-card2);font-size:13px;font-weight:700}
+  .chip{display:flex;align-items:center;gap:8px;height:36px;padding:0 5px 0 12px;border-radius:11px;
+        background:var(--d-card2);font-size:12.5px;font-weight:700}
   .chip b{font-weight:500;color:var(--d-tx3);min-width:14px;text-align:center}
-  .step{width:28px;height:28px;border-radius:9px;background:oklch(.40 .008 60);color:var(--cream);
+  .step{width:26px;height:26px;border-radius:8px;background:oklch(.40 .008 60);color:var(--cream);
         display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1}
-  .dials{display:flex;gap:8px;padding:0 20px}
+  .dials{display:flex;gap:8px;padding:0 26px}
   /* 좁은 화면에서 한 줄로 두면 "아무렇게나 고르면"이 잘린다. 라벨을 위로 올린다. */
   .dial{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-        min-height:56px;flex:1;min-width:0;padding:8px 6px;
+        min-height:50px;flex:1;min-width:0;padding:7px 6px;
         border-radius:15px;background:var(--d-card);font-size:10.5px;color:var(--d-tx3);text-align:center}
-  .dial b{font-size:15px;font-weight:900;color:var(--cream);letter-spacing:-.02em}
+  .dial b{font-size:14px;font-weight:900;color:var(--cream);letter-spacing:-.02em}
   /* 하단 버튼은 화면에 붙여 둔다. 목록이 길어져도 밀려나지 않게. */
-  .footD{position:sticky;bottom:0;padding:14px 20px calc(18px + var(--sa-b));
+  .footD{position:sticky;bottom:0;padding:12px 26px calc(16px + var(--sa-b));
          background:linear-gradient(to top,var(--d-bg) 68%,transparent)}
-  .cta{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;height:60px;border-radius:16px;
-       background:var(--cream);color:var(--ink);font-size:17px;font-weight:900;letter-spacing:-.02em}
+  .cta{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;height:56px;border-radius:15px;
+       background:var(--cream);color:var(--ink);font-size:16px;font-weight:900;letter-spacing:-.02em}
 
   /* ── 장보기 목록 (라이트) ───────────────────── */
   #list{background:var(--l-bg);color:var(--ink)}
-  .lhead{display:flex;align-items:center;gap:4px;padding:calc(16px + var(--sa-t)) 20px 12px}
+  .lhead{display:flex;align-items:center;gap:4px;padding:calc(14px + var(--sa-t)) 26px 10px}
   .back{width:44px;height:44px;margin-left:-13px;display:flex;align-items:center;justify-content:center;color:var(--l-tx2)}
-  .lhead h1{margin:0;font-size:21px;font-weight:900;letter-spacing:-.04em}
+  .lhead h1{margin:0;font-size:20px;font-weight:900;letter-spacing:-.04em}
   .lhead p{margin:3px 0 0;font-size:11.5px;color:var(--l-tx3)}
 
-  .ovl{margin:0 20px 12px;padding:16px 18px 14px;border-radius:18px;background:var(--ink);color:var(--cream)}
+  .ovl{margin:0 26px 10px;padding:15px 17px 13px;border-radius:18px;background:var(--ink);color:var(--cream)}
   .ovl .k{font-size:10.5px;letter-spacing:.14em;color:var(--d-tx3)}
   .ovl .tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px}
   .ovl .tg{display:flex;align-items:baseline;gap:4px;padding:6px 10px;border-radius:9px;background:oklch(.31 .008 60);
@@ -99,17 +99,17 @@
   .ovl .tg i{font-style:normal;font-size:11px;font-weight:900;color:var(--d-tx2)}
   .ovl .sum{display:flex;align-items:baseline;gap:7px;padding-top:12px;border-top:1px solid oklch(.35 .008 60);
             font-size:12px;color:var(--d-tx2);flex-wrap:wrap}
-  .ovl .sum b{font-size:22px;font-weight:900;letter-spacing:-.04em;color:var(--cream)}
+  .ovl .sum b{font-size:21px;font-weight:900;letter-spacing:-.04em;color:var(--cream)}
   .ovl .sum s{color:var(--d-tx3)}
 
-  .cat{margin:0 20px 9px;border-radius:18px;background:var(--l-card);overflow:hidden}
+  .cat{margin:0 26px 8px;border-radius:18px;background:var(--l-card);overflow:hidden}
   .cat h2{margin:0;display:flex;align-items:center;gap:10px;padding:12px 18px 9px;font-size:12.5px;font-weight:900}
   .cat h2 .ic{width:27px;height:27px;border-radius:9px;background:var(--l-thumb);
               display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .cat h2 .n{flex:1}
   .cat h2 .c{font-size:11px;font-weight:700;color:var(--l-tx3)}
   /* 긴 재료명(돼지고기 앞다리살)이 수량과 체크를 밀어내지 않게 이름만 줄인다. */
-  .row{display:flex;align-items:center;gap:8px;width:100%;min-height:52px;padding:6px 16px 6px 18px;
+  .row{display:flex;align-items:center;gap:8px;width:100%;min-height:50px;padding:6px 14px 6px 17px;
        border-top:1px solid var(--l-line)}
   .row .nm{font-size:14.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .row .ov{font-size:10px;font-weight:900;color:var(--ink);background:oklch(.93 .012 80);
@@ -121,11 +121,11 @@
   .row.done .nm,.row.done .qt{color:var(--l-tx3);text-decoration:line-through}
   .row.done .ov{opacity:.35}
   .row.done .ck{background:var(--ink);border-color:var(--ink);color:var(--cream)}
-  .bar{position:sticky;bottom:0;display:flex;gap:8px;padding:12px 20px calc(16px + var(--sa-b));
+  .bar{position:sticky;bottom:0;display:flex;gap:8px;padding:12px 26px calc(14px + var(--sa-b));
        background:linear-gradient(to top,var(--l-bg) 68%,transparent)}
-  .b1{display:flex;align-items:center;justify-content:center;gap:8px;flex:1;height:56px;border-radius:15px;
-      background:var(--ink);color:var(--cream);font-size:15.5px;font-weight:900;white-space:nowrap}
-  .b2{display:flex;align-items:center;justify-content:center;gap:7px;height:56px;padding:0 16px;border-radius:15px;
+  .b1{display:flex;align-items:center;justify-content:center;gap:8px;flex:1;height:54px;border-radius:14px;
+      background:var(--ink);color:var(--cream);font-size:15px;font-weight:900;white-space:nowrap}
+  .b2{display:flex;align-items:center;justify-content:center;gap:7px;height:54px;padding:0 15px;border-radius:14px;
       border:1.5px solid oklch(.87 .006 80);color:var(--l-tx2);font-size:13.5px;font-weight:700;
       white-space:nowrap;flex-shrink:0}
 
