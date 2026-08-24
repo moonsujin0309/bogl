@@ -321,7 +321,7 @@ def greedy(cands, seed, k, max_kind, max_main, max_fresh=99):
 
 def variants(cands, k, max_kind, max_main, max_share, limit, max_fresh=99):
     """seed 하나가 조합 하나를 만든다. 예전에는 제일 좋은 하나만 남기고 나머지를 버렸는데,
-    그 버리던 것이 곧 `다시 뽑기`다.
+    그 버리던 것이 곧 `다른 조합` 목록이다.
 
     max_share: 앞에 뽑힌 조합과 요리를 이만큼까지만 공유한다. 안 걸면 요리 하나만
     바뀐 조합이 줄줄이 나와서 다시 뽑아도 같은 화면으로 보인다.

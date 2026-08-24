@@ -85,7 +85,7 @@
   .cta{display:flex;align-items:center;justify-content:center;gap:9px;flex:1;min-width:0;
        width:100%;height:56px;border-radius:15px;
        background:var(--cream);color:var(--ink);font-size:16px;font-weight:900;letter-spacing:-.02em}
-  /* 다시 뽑기는 부속이다. 1순위(크림 CTA)는 화면당 하나라 여기는 카드색으로 가라앉힌다. */
+  /* 조합 고르기는 부속이다. 1순위(크림 CTA)는 화면당 하나라 여기는 카드색으로 가라앉힌다. */
   .alt{display:flex;align-items:center;justify-content:center;gap:7px;height:56px;padding:0 15px;
        border-radius:15px;background:var(--d-card);color:var(--d-tx2);
        font-size:13px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
@@ -237,7 +237,7 @@ let si = 0, people = D.sets[0].people, done = {};
 const $ = id => document.getElementById(id);
 const set = () => D.sets[si];
 
-/** 축(탭)마다 조합이 여러 개다. 탭은 축 하나에 하나만 두고, `다시 뽑기`가 그 안에서 돈다.
+/** 축(탭)마다 조합이 여러 개다. 탭은 축 하나에 하나만 두고, `다른 조합` 시트가 그 안에서 고른다.
  *  a.i는 그 축에서 마지막으로 보던 조합이라, 탭을 오갔다 와도 보던 자리로 돌아온다. */
 const AXES = [];
 D.sets.forEach((s, i) => { if(!AXES.some(a => a.type === s.type)) AXES.push({type: s.type, label: s.tabLabel, i}); });
