@@ -44,9 +44,13 @@
   .tab.on{font-weight:900;color:var(--cream);border-bottom-color:var(--cream)}
   /* 아치는 위쪽 반지름이 가로폭의 절반이다. 그래서 높이가 폭의 0.66은 돼야
      반원 아래에 사각 부분이 남아 아치로 읽힌다. 5:4로 두면 반원이 다 먹는다. */
+  /* 아치에는 이 조합의 대표 요리 한 장만 건다. 화면에서 제일 큰 자리라
+     여러 장으로 쪼개면 무엇을 만드는 건지가 안 읽힌다. 대표는 build.py가 고른다. */
   .arch{margin:0 26px 12px;aspect-ratio:3/2;border-radius:999px 999px 18px 18px;
         overflow:hidden;background:var(--d-card)}
-  .arch img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 62%}
+  .arch img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+  /* 대표 요리 사진이 없는 조합에서만 쓰는 대비책. 상차림 스톡 사진이라 아래쪽을 보여준다. */
+  .arch.stock img{object-position:center 62%}
   .badge{font-size:9.5px;letter-spacing:.16em;color:var(--d-tx3);padding:0 26px;
          white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   /* 제목은 한 줄로 앉힌다. 좁으면 글자만 조금 줄어들고 줄바꿈은 하지 않는다. */
@@ -54,18 +58,24 @@
          padding:6px 26px 12px;white-space:nowrap}
   .dishrow{display:flex;justify-content:space-between;padding:0 22px 4px;gap:2px;width:100%}
   .dish{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0}
-  .dish .cir{width:46px;height:46px;border-radius:23px;background:var(--d-card);
+  /* 아치가 "무엇을 만드는지"를 보여주면, 이 줄은 "이름"을 맡는다. 이름이 읽혀야 메뉴다. */
+  .dish .cir{width:54px;height:54px;border-radius:27px;background:var(--d-card);
              display:flex;align-items:center;justify-content:center;color:var(--d-tx3);flex-shrink:0}
   .dish .cir.ph{overflow:hidden}
   .dish .cir.ph img{display:block;width:100%;height:100%;object-fit:cover}
-  .dish span{font-size:9.5px;color:var(--d-tx3);text-align:center;line-height:1.25;word-break:keep-all;
-             width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* 한 줄로 두면 `두부두루치기`·`된장채소수제비`가 잘린다. 이름이 안 읽히면 메뉴가 아니다.
+     한국어 긴 낱말은 keep-all로 안 쪼개지므로 anywhere로 풀고 두 줄까지 준다. */
+  .dish span{font-size:10.5px;color:var(--d-tx2);text-align:center;line-height:1.25;
+             overflow-wrap:anywhere;width:100%;overflow:hidden;
+             display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
   .more{display:flex;align-items:center;gap:5px;padding:8px 26px 10px;font-size:11px;color:var(--d-tx3);
         min-height:34px}
   .rule{height:1px;background:var(--d-line);margin:0 26px}
   .count{display:flex;align-items:baseline;gap:9px;padding:12px 26px 10px}
   .count .strike{font-size:12px;color:var(--d-tx3);text-decoration:line-through}
-  .count .big{font-size:26px;font-weight:900;letter-spacing:-.045em;line-height:1}
+  /* 살 것 숫자는 이 화면의 답이 아니라 근거다. 답은 위의 요리다.
+     26px일 때는 화면에서 제일 큰 것이 숫자였다 — 그게 뒤집기 전 상태다. */
+  .count .big{font-size:19px;font-weight:900;letter-spacing:-.045em;line-height:1}
   .ppl{display:flex;align-items:center;gap:9px;padding:0 26px 8px;flex-wrap:wrap}
   .lbl{font-size:10px;letter-spacing:.16em;color:var(--d-tx3);white-space:nowrap}
   .chip{display:flex;align-items:center;gap:8px;height:36px;padding:0 5px 0 12px;border-radius:11px;
@@ -91,6 +101,44 @@
        border-radius:15px;background:var(--d-card);color:var(--d-tx2);
        font-size:13px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
   .alt b{color:var(--cream);font-weight:900;font-size:12px}
+
+  /* ── 모든 요리 (다크) ─────────────────────────
+     고르기 화면은 "조합 하나"를 보여주지만 여기는 "낱낱을 훑는" 자리라 형식이 아예 다르다.
+     레시피 앱 문법 그대로 2열 썸네일 그리드 + 분류 칩. */
+  #browse{display:none;flex-direction:column;flex:1;min-height:0}
+  #pick.browsing #browse{display:flex}
+  #pick.browsing .arch,#pick.browsing .badge,#pick.browsing .title,#pick.browsing .dishrow,
+  #pick.browsing .more,#pick.browsing .rule,#pick.browsing .count,#pick.browsing .ppl,
+  #pick.browsing .dials,#pick.browsing .footD,#pick.browsing .grow{display:none}
+  /* 섹션 머리. 왼쪽에 굵은 제목, 오른쪽에 곁들이는 값. */
+  .sec{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:16px 26px 11px}
+  .sec h2{margin:0;font-size:17px;font-weight:900;letter-spacing:-.045em;color:var(--cream)}
+  .sec .side{font-size:11.5px;color:var(--d-tx3);white-space:nowrap}
+  /* 탐색 카드 — 글자 왼쪽, 사진 오른쪽. 세 줄로 쌓고 가로로 흐른다. */
+  .explore{display:grid;grid-auto-flow:column;grid-template-rows:repeat(3,auto);gap:8px;
+           padding:0 26px 4px;overflow-x:auto;scrollbar-width:none}
+  .explore::-webkit-scrollbar{display:none}
+  .ec{display:flex;align-items:center;justify-content:space-between;gap:6px;width:152px;height:54px;
+      padding-left:14px;border-radius:13px;background:var(--d-card);overflow:hidden}
+  .ec .el{font-size:12.5px;font-weight:800;letter-spacing:-.03em;color:var(--cream);
+          white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ec .ep{width:58px;height:54px;flex:0 0 auto;background:var(--d-card2)}
+  .ec .ep img{display:block;width:100%;height:100%;object-fit:cover}
+  .ec.on{background:var(--cream)}
+  .ec.on .el{color:var(--ink)}
+  /* 사진이 주인공이다. 제목은 사진 아래 굵게 두 줄, 곁들이는 값은 태그로. */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 11px;
+        padding:0 26px calc(28px + var(--sa-b))}
+  .card{display:flex;flex-direction:column;gap:9px}
+  .card .th{aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--d-card)}
+  .card .th img{display:block;width:100%;height:100%;object-fit:cover}
+  .card .cn{font-size:14px;font-weight:700;letter-spacing:-.035em;line-height:1.35;color:var(--cream);
+            overflow-wrap:anywhere;overflow:hidden;
+            display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .card .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:-2px}
+  .card .tg2{font-size:10.5px;font-weight:600;color:var(--d-tx2);background:var(--d-card2);
+             padding:4px 8px;border-radius:6px;white-space:nowrap}
+  .empty{padding:40px 26px;text-align:center;font-size:13px;color:var(--d-tx3)}
 
   /* ── 장보기 목록 (라이트) ───────────────────── */
   #list{background:var(--l-bg);color:var(--ink)}
@@ -163,6 +211,8 @@
   .dt[open] summary{border-bottom-color:transparent}
   .steps{margin:0;padding:2px 4px 16px 35px;border-bottom:1px solid var(--l-line);
          font-size:13px;line-height:1.65;color:var(--l-tx2)}
+  /* 요리 하나만 볼 때는 펼침 안에 들어있지 않으니 들여쓰기도 밑줄도 필요 없다. */
+  .steps.solo{padding:2px 4px 4px 22px;border-bottom:0}
   .steps li{margin-bottom:9px;padding-left:3px}
   .steps li::marker{font-weight:900;font-size:11px;color:var(--l-tx3)}
   .steps .tip{display:block;margin-top:5px;padding:8px 11px;border-radius:9px;background:var(--l-thumb);
@@ -190,7 +240,7 @@
       </div>
     </div>
     <div class="tabs" id="tabs"></div>
-    <div class="arch"><img src="__HERO__" alt="차려진 한식 밥상"></div>
+    <div class="arch" id="arch"></div>
     <div class="badge" id="badge"></div>
     <div class="title" id="title"></div>
     <button class="dishrow" id="dishes" aria-label="요리 목록 보기"></button>
@@ -209,6 +259,12 @@
       </div>
     </div>
     <div class="dials" id="dials"></div>
+    <div id="browse">
+      <div class="sec"><h2>탐색하기</h2></div>
+      <div class="explore" id="explore"></div>
+      <div class="sec"><h2 id="gtitle"></h2><span class="side" id="gcount"></span></div>
+      <div class="grid" id="grid"></div>
+    </div>
     <div class="grow"></div>
     <div class="footD">
       <div class="footRow">
@@ -251,6 +307,8 @@
 <script>
 const D = JSON.parse(document.getElementById('bogl-data').textContent);
 let si = 0, people = D.sets[0].people, done = {};
+// `모든 요리` 탭 상태. 조합 축과 달리 세트가 아니라 요리 낱낱을 훑는다.
+let browsing = false, ci = 0;
 const $ = id => document.getElementById(id);
 const set = () => D.sets[si];
 
@@ -271,12 +329,17 @@ const ICONS = {
   '라면 · 통조림':'<rect x="5.4" y="4.6" width="9.2" height="12.4" rx="1.5" fill="currentColor"/><rect x="5.4" y="7.6" width="9.2" height="2.6" fill="var(--l-thumb)"/>',
   '우유 · 유제품':'<path d="M5.6 7.6h8.8v8.6a1.3 1.3 0 0 1-1.3 1.3H6.9a1.3 1.3 0 0 1-1.3-1.3z" fill="currentColor"/><path d="M5.6 7.6L10 3.2l4.4 4.4z" fill="currentColor" opacity=".55"/>'
 };
+// 지금은 임시 사진(HERO)이 빈자리를 메우고 있어 쓰이지 않는다. 그걸 걷어내면 다시 이 글리프로 돌아온다.
 const BOWL = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 11h18l-1.7 7.3a3 3 0 0 1-2.9 2.3H7.6a3 3 0 0 1-2.9-2.3z" fill="currentColor"/><ellipse cx="12" cy="11" rx="9" ry="2.3" fill="currentColor" opacity=".45"/></svg>';
 // 요리 사진. 없는 요리는 그릇 글리프로 남는다.
 const PHOTO = __DISHIMG__;
-const dishFace = n => PHOTO[n]
-  ? `<span class="cir ph"><img src="${PHOTO[n]}" alt=""></span>`
-  : `<span class="cir">${BOWL}</span>`;
+// 사진이 하나도 없는 조합에서만 쓴다. 지금은 어느 조합에나 최소 두 장은 있다.
+const HERO = '__HERO__';
+/** ⚠ 임시 — 사진이 없는 13가지에 상차림 스톡 사진을 대신 건다(2026-08-25).
+ *  느낌을 보려고 넣은 것이고, 그 요리의 사진이 아니다. 진짜 사진이 붙으면 이 함수를
+ *  `PHOTO[n] || ''`로 되돌리고 없는 자리는 다시 그릇 글리프로 둔다. */
+const dishPic = n => PHOTO[n] || HERO;
+const dishFace = n => `<span class="cir ph"><img src="${dishPic(n)}" alt=""></span>`;
 const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 // 파이썬 build.py의 fmt()와 같은 규칙. 장볼 양이라 모자라지 않게 올림한다.
@@ -299,9 +362,20 @@ function sourceCounts(){
 function renderPick(){
   const s = set();
   $('tabs').innerHTML = AXES.map(a =>
-    `<button class="tab${a.type===s.type?' on':''}" data-i="${a.i}">${esc(a.label)}</button>`).join('');
+    `<button class="tab${!browsing && a.type===s.type?' on':''}" data-i="${a.i}">${esc(a.label)}</button>`).join('')
+    + `<button class="tab${browsing?' on':''}" data-b="1">모든 요리</button>`;
+  $('pick').classList.toggle('browsing', browsing);
+  // 조합 화면 요소는 전부 숨겨져 있으니 그릴 이유가 없다.
+  if(browsing) return renderBrowse();
   $('again').style.display = s.vn > 1 ? '' : 'none';
   $('againN').textContent = s.vi + '/' + s.vn;
+  // 아치는 이 조합의 대표 요리 한 장. 누구를 대표로 볼지는 build.py가 정해 `hero`로 준다.
+  const hero = s.hero && PHOTO[s.hero];
+  const arch = $('arch');
+  arch.className = hero ? 'arch' : 'arch stock';
+  arch.innerHTML = hero
+    ? `<img src="${hero}" alt="${esc(s.hero)}">`
+    : `<img src="${HERO}" alt="차려진 한식 밥상">`;
   $('badge').textContent = s.badge;
   $('title').textContent = s.title;
   $('dishes').innerHTML = s.dishes.slice(0, 5).map(d =>
@@ -315,6 +389,47 @@ function renderPick(){
   $('dials').innerHTML =
     `<div class="dial">겹치는 재료 <b>${s.overlaps.length}가지</b></div>` +
     `<div class="dial">아무렇게나 고르면 <b>${s.randomAvg}가지</b></div>`;
+}
+
+/** 모든 요리 — 조합과 상관없이 요리 낱낱을 훑고 눌러서 레시피를 본다.
+ *  탐색 카드는 분류만이 아니라 난이도·시간도 섞는다. 고르는 이유가 그것뿐이 아니다. */
+const catMatch = (c, cat) =>
+  cat.f === 'all' || (cat.f === 'bucket' && c.bucket === cat.v)
+  || (cat.f === 'level' && c.level === cat.v) || (cat.f === 'maxmin' && c.min <= cat.v);
+
+function renderBrowse(){
+  const cats = D.cats || [], cur = cats[ci] || { f: 'all', label: '모든 요리' };
+  const items = (D.catalog || []).filter(c => catMatch(c, cur));
+  $('explore').innerHTML = cats.map((c, i) => `
+    <button class="ec${i === ci ? ' on' : ''}" data-i="${i}">
+      <span class="el">${esc(c.label)}</span>
+      <span class="ep">${c.pic && PHOTO[c.pic] ? `<img src="${PHOTO[c.pic]}" alt="">` : ''}</span>
+    </button>`).join('');
+  $('gtitle').textContent = cur.f === 'all' ? '모든 요리' : cur.label;
+  $('gcount').textContent = `${items.length}가지 · 눌러서 만드는 법 보기`;
+  $('grid').innerHTML = items.length ? items.map(c => `
+    <button class="card" data-n="${esc(c.name)}">
+      <span class="th"><img src="${dishPic(c.name)}" alt=""></span>
+      <span class="cn">${esc(c.name)}</span>
+      <span class="tags"><i class="tg2">${esc(c.time)}</i><i class="tg2">${esc(c.level)}</i></span>
+    </button>`).join('') : `<div class="empty" style="grid-column:span 2">여기엔 아직 요리가 없어요</div>`;
+}
+$('explore').onclick = e => { const b = e.target.closest('.ec'); if(!b) return;
+  ci = +b.dataset.i; renderBrowse(); scrollTo(0, 0); };
+$('grid').onclick  = e => { const c = e.target.closest('.card'); if(!c) return; recipeSheet(c.dataset.n); };
+
+/** 요리 하나의 레시피. `모든 요리`에서 카드를 누르면 열린다. */
+function recipeSheet(name){
+  const c = (D.catalog || []).find(x => x.name === name) || {};
+  const st = (D.recipes || {})[name];
+  const pc = (D.photos || {})[name];
+  openSheet(
+    `<h3>${esc(name)}</h3>
+     <p class="sub">${esc(c.kind)} · ${esc(c.time)} · ${esc(c.level)} · ${esc(c.servings)}인분 기준<br>
+      레시피 ${esc(c.source)}${pc ? `<br>사진 <a class="cr" href="${esc(pc.u)}" target="_blank" rel="noopener">${esc(pc.t)}</a> · ${esc(pc.l)} · 위키미디어 공용` : ''}</p>` +
+    (st ? `<ol class="steps solo">${st.map(s =>
+            `<li>${esc(s.d)}${s.t ? `<span class="tip">${esc(s.t)}</span>` : ''}</li>`).join('')}</ol>`
+        : `<p class="sub">이 요리는 아직 만드는 법이 없어요.</p>`));
 }
 
 function renderList(){
@@ -361,7 +476,9 @@ function openSheet(html){
 }
 
 $('tabs').onclick = e => { const b = e.target.closest('.tab'); if(!b) return;
-  si = +b.dataset.i; people = set().people; done = {}; renderPick(); };
+  if(b.dataset.b){ browsing = true; renderPick(); scrollTo(0, 0); return; }
+  browsing = false; si = +b.dataset.i; people = set().people; done = {};
+  renderPick(); scrollTo(0, 0); };
 /** 조합 고르기 — 하나씩 넘기면 3번이 좋았는데 7번까지 가버렸을 때 되돌아갈 수가 없다.
  *  전부 펼쳐 두고 한 번에 고른다. 먹을 사람은 그대로 두고(축이 같으면 인원도 같은 맥락)
  *  체크만 비운다 — 조합이 바뀌면 재료가 달라진다. */

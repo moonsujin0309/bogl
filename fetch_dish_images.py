@@ -21,8 +21,25 @@ API = "https://commons.wikimedia.org/w/api.php"
 # 앱에서 원은 46px로 그려진다. 3배 화면을 쳐도 138px면 충분하다.
 # 220으로 두면 35장이 index.html을 753KB까지 밀어올린다 — 눈에 보이지도 않는 화소값이다.
 SIZE = 150
+# 아치는 화면에서 323px로 그려진다. 150px을 걸면 2.1배로 늘어나 뿌옇다.
+# 대표로 쓰이는 요리만 크게 둔다 — 전부 키우면 index.html이 1MB를 넘는다.
+# 480·품질78로 두니 열 장이 index.html을 1,034KB까지 밀어올렸다. 아치는 323px이라
+# 400이면 1.24배로 충분히 선명하고, 사진은 압축을 조금 더 먹여도 티가 안 난다.
+HERO_SIZE = 400
 QUALITY = 78
+HERO_QUALITY = 66
 REDO = "--all" in sys.argv
+
+# 어떤 요리가 대표인지는 build.py가 정해 data.json의 sets[].hero에 적는다.
+# 여기서 그걸 읽어 그 요리만 큰 크기로 맞춘다. 없으면 전부 SIZE.
+HEROES = set()
+_dj = os.path.join(HERE, "data.json")
+if os.path.exists(_dj):
+    HEROES = {s["hero"] for s in json.load(open(_dj, encoding="utf-8"))["sets"] if s.get("hero")}
+
+
+def target(name):
+    return (HERO_SIZE, HERO_QUALITY) if name in HEROES else (SIZE, QUALITY)
 
 # (요리이름, [검색어들], [제목에 반드시 들어가야 할 낱말])
 # must는 좁게 준다. 넓게 주면 "Banchans.jpg" 같은 모둠 사진이 호박무침 자리에 들어온다.
@@ -148,19 +165,21 @@ def square(img, n):
     return img.crop(((W - n) // 2, (H - n) // 2, (W - n) // 2 + n, (H - n) // 2 + n))
 
 
-# SIZE를 줄이면 이미 받아둔 사진도 같이 줄인다. 안 그러면 파일과 설정이 어긋난 채로 남는다.
-# 다시 받지 않으므로 검색 결과가 달라질 걱정이 없다.
+# 파일 크기를 설정과 맞춘다. 대표 요리는 HERO_SIZE, 나머지는 SIZE.
+# 다시 받지 않고 줄이기만 하므로 검색 결과가 달라질 걱정이 없다.
 shrunk = 0
 for f in sorted(os.listdir(OUT)):
     if not (f.startswith("dish_") and f.endswith(".jpg")):
         continue
-    p = os.path.join(OUT, f)
-    im = Image.open(p)
-    if im.width > SIZE:
-        square(im.convert("RGB"), SIZE).save(p, "JPEG", quality=QUALITY, optimize=True)
+    fp = os.path.join(OUT, f)
+    nm = f[5:-4]
+    im = Image.open(fp)
+    tsize, tq = target(nm)
+    if im.width > tsize:
+        square(im.convert("RGB"), tsize).save(fp, "JPEG", quality=tq, optimize=True)
         shrunk += 1
 if shrunk:
-    print("이미 있던 사진 %d장을 %dpx로 줄였다\n" % (shrunk, SIZE))
+    print("이미 있던 사진 %d장을 설정 크기로 줄였다" % shrunk)
 
 CREDITS = os.path.join(OUT, "dish_credits.json")
 credits = {}
@@ -187,7 +206,8 @@ for name, terms, must in JOBS:
             except Exception as e:
                 print("  skip", c["title"][:40], type(e).__name__)
                 continue
-            square(img, SIZE).save(path, "JPEG", quality=QUALITY, optimize=True)
+            _s, _q = target(name)
+            square(img, _s).save(path, "JPEG", quality=_q, optimize=True)
             print("%-16s %5.1f KB  %s  [%s]" % (name, os.path.getsize(path) / 1024,
                                                 c["title"][5:45], c["license"]))
             credits[name] = {"dish": name, "title": c["title"],
@@ -227,3 +247,39 @@ if cells:
 json.dump(credits, open(CREDITS, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 print("\n못 찾음 %d개: %s" % (len(fail), " · ".join(fail) or "없음"))
 print("출처: _design/dish_credits.json")
+
+# ── 대표 요리만 큰 크기로 맞춘다 ──────────────────────────────
+# 검색을 다시 돌리지 않는다. dish_credits.json에 박아둔 그 파일을 제목으로 집어 다시 받는다.
+# 검색은 결과가 흔들려서, 눈으로 통과시킨 사진이 다른 것으로 바뀔 수 있다.
+def by_title(title):
+    q = urllib.parse.urlencode({"action": "query", "titles": title, "prop": "imageinfo",
+                                "iiprop": "url", "iiurlwidth": "1000", "format": "json"})
+    with urllib.request.urlopen(urllib.request.Request(API + "?" + q, headers=UA), timeout=30) as r:
+        data = json.load(r)
+    time.sleep(PAUSE)
+    for pg in ((data.get("query") or {}).get("pages") or {}).values():
+        ii = (pg.get("imageinfo") or [{}])[0]
+        return ii.get("thumburl") or ii.get("url")
+    return None
+
+
+big = 0
+for name in sorted(HEROES):
+    fp = os.path.join(OUT, "dish_%s.jpg" % name)
+    if not os.path.exists(fp) or Image.open(fp).width >= HERO_SIZE:
+        continue
+    c = credits.get(name)
+    if not c:
+        print("대표 %-14s 출처 기록이 없어 건너뜀" % name)
+        continue
+    try:
+        u = by_title(c["title"])
+        img = grab(u) if u else None
+    except Exception as e:
+        print("대표 %-14s 실패 %s" % (name, type(e).__name__))
+        continue
+    if img:
+        square(img, HERO_SIZE).save(fp, "JPEG", quality=HERO_QUALITY, optimize=True)
+        print("대표 %-14s %dpx  %5.1f KB" % (name, HERO_SIZE, os.path.getsize(fp) / 1024))
+        big += 1
+print("대표 %d종 중 %d장을 %dpx로 올렸다" % (len(HEROES), big, HERO_SIZE))

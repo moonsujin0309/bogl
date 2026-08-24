@@ -253,6 +253,35 @@ def daunting(r):
 # 한 상에 여럿이면 손님이 앉아서 기다리게 된다.
 FRESH_KINDS = {"부침", "구이", "밥", "만두/면류"}
 
+# 아치에 크게 걸 대표 요리를 고르는 순서. 상의 주인공은 고기·생선 메인이고,
+# 김치·나물은 곁들임이라 뒤로 간다. 숫자가 작을수록 대표에 가깝다.
+HERO_RANK = {"찜": 1, "조림": 2, "구이": 3, "볶음": 4, "찌개/전골/스튜": 5, "탕": 5,
+             "국": 6, "만두/면류": 7, "밥": 8, "부침": 9,
+             "나물/생채/샐러드": 10, "밑반찬/김치": 11, "도시락/간식": 12}
+
+# 사진이 한 그릇이 아니라 상차림이라 크게 걸면 무엇을 만드는 건지 안 읽힌다.
+# 원형 54px에서는 문제가 없으므로 사진 자체는 남기고 대표 후보에서만 뺀다.
+# (2026-08-25 대조표 육안 확인)
+NO_HERO = {"된장채소수제비": "여러 그릇이 놓인 상 사진",
+           "고등어양념구이": "생선구이 정식 상차림",
+           "김치수제비": "수제비와 김치 두 그릇"}
+
+
+def has_photo(name):
+    return os.path.exists(os.path.join(HERE, "_design", "dish_%s.jpg" % name))
+
+
+def hero_of(ids):
+    """아치에 걸 한 장. 사진이 있고 상차림 컷이 아닌 것 중 가장 대표적인 요리."""
+    cand = [i for i in ids if has_photo(meta[i]["RECIPE_NM_KO"])
+            and meta[i]["RECIPE_NM_KO"] not in NO_HERO]
+    if not cand:   # 전부 상차림 컷이면 그거라도 쓴다. 빈 아치보다 낫다.
+        cand = [i for i in ids if has_photo(meta[i]["RECIPE_NM_KO"])]
+    if not cand:
+        return None
+    # 순위가 같으면 조합에서 먼저 뽑힌 쪽(겹침이 가장 큰 씨앗)을 쓴다.
+    return meta[min(cand, key=lambda i: (HERO_RANK.get(kind[i], 13), ids.index(i)))]["RECIPE_NM_KO"]
+
 
 pool = {}
 for rid, items in ing.items():
@@ -404,7 +433,7 @@ def build_set(sid, stype, title, badge, tab, ids, union, apart, people, portion=
                        for n, a in agg.items() if a["used"] >= 2),
                       key=lambda x: (-x["used"], x["name"]))
     return {
-        "id": sid, "type": stype, "title": title, "badge": badge,
+        "id": sid, "type": stype, "title": title, "badge": badge, "hero": hero_of(ids),
         "tabLabel": tab, "people": people, "portion": portion,
         "apart": apart, "buyCount": len(union),
         "qtyCoverage": round(parsed_ok / len(union) * 100),
@@ -459,6 +488,58 @@ for s in sets:
     for d in s["dishes"]:
         used.setdefault(d["name"], d["rid"])
 recipes = {n: steps[rid] for n, rid in used.items() if steps.get(rid)}
+
+# `모든 요리` 탭 — 조합에 쓰인 요리를 한 곳에 늘어놓고 눌러서 레시피를 본다.
+# 칩은 요리분류 12종을 그대로 늘어놓지 않고 다섯 묶음으로 줄인다. 칩이 열두 개면 고르는 게 일이 된다.
+BUCKETS = [("국 · 찌개", {"국", "찌개/전골/스튜", "탕"}),
+           ("밥 · 면", {"밥", "만두/면류", "도시락/간식"}),
+           ("볶음 · 조림", {"볶음", "조림"}),
+           ("찜 · 구이", {"찜", "구이"}),
+           ("전 · 반찬", {"부침", "나물/생채/샐러드", "밑반찬/김치"})]
+
+
+def bucket_of(k):
+    for name, ks in BUCKETS:
+        if k in ks:
+            return name
+    return "그 밖에"
+
+
+catalog = []
+for n, rid in sorted(used.items()):
+    m = meta[rid]
+    catalog.append({"name": n, "kind": kind[rid], "bucket": bucket_of(kind[rid]),
+                    "time": m.get("COOKING_TIME"), "min": minutes(m), "level": m.get("LEVEL_NM"),
+                    "servings": servings(m), "source": "농림수산식품교육문화정보원",
+                    "rank": HERO_RANK.get(kind[rid], 13)})
+buckets = [b for b, _ in BUCKETS if any(c["bucket"] == b for c in catalog)]
+if any(c["bucket"] == "그 밖에" for c in catalog):
+    buckets.append("그 밖에")
+
+# 탐색 카드. 컬리 `탐색하기`처럼 분류만 늘어놓지 않고 축을 섞는다 —
+# 무엇을 만드느냐(분류)뿐 아니라 얼마나 쉽고 빠른가도 고르는 이유가 된다.
+cats = [{"label": "전체", "f": "all"}]
+cats += [{"label": b, "f": "bucket", "v": b} for b in buckets]
+cats += [{"label": "초보환영", "f": "level", "v": "초보환영"},
+         {"label": "30분 안에", "f": "maxmin", "v": 30}]
+
+
+def cat_match(c, cat):
+    return (cat["f"] == "all"
+            or (cat["f"] == "bucket" and c["bucket"] == cat["v"])
+            or (cat["f"] == "level" and c["level"] == cat["v"])
+            or (cat["f"] == "maxmin" and c["min"] <= cat["v"]))
+
+
+# 카드마다 대표 사진을 붙인다. 사진이 있고 가장 대표적인(순위가 낮은) 요리를 쓴다.
+for cat in cats:
+    hit = [c for c in catalog if cat_match(c, cat) and has_photo(c["name"])
+           and c["name"] not in NO_HERO]
+    cat["n"] = sum(1 for c in catalog if cat_match(c, cat))
+    cat["pic"] = min(hit, key=lambda c: (c["rank"], c["name"]))["name"] if hit else None
+
+print("모든 요리 %d개 · 탐색 카드 %s"
+      % (len(catalog), " / ".join("%s %d" % (c["label"], c["n"]) for c in cats)))
 missing = [n for n in used if not steps.get(used[n])]
 print("\n조리법 %d/%d 요리" % (len(recipes), len(used)) + ("  ※ 없음: " + " · ".join(missing) if missing else ""))
 for s in sets:
@@ -480,6 +561,7 @@ if os.path.exists(CRED):
     print("사진 출처 %d개" % len(photo_credit))
 
 out = {"generated": "2026-08-25", "recipes": recipes, "photos": photo_credit,
+       "catalog": catalog, "cats": cats,
        "source": {"name": "농림수산식품교육문화정보원", "portal": "농림축산식품 공공데이터 포털",
                   "note": "레시피 기본정보 · 레시피 재료정보"},
        "stats": {"recipes": len(base), "korean": sum(1 for r in base if r.get("NATION_NM") == "한식"),
