@@ -81,8 +81,18 @@
   /* 하단 버튼은 화면에 붙여 둔다. 목록이 길어져도 밀려나지 않게. */
   .footD{position:sticky;bottom:0;padding:12px 26px calc(16px + var(--sa-b));
          background:linear-gradient(to top,var(--d-bg) 68%,transparent)}
-  .cta{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;height:56px;border-radius:15px;
+  .footRow{display:flex;gap:9px}
+  .cta{display:flex;align-items:center;justify-content:center;gap:9px;flex:1;min-width:0;
+       width:100%;height:56px;border-radius:15px;
        background:var(--cream);color:var(--ink);font-size:16px;font-weight:900;letter-spacing:-.02em}
+  /* 다시 뽑기는 부속이다. 1순위(크림 CTA)는 화면당 하나라 여기는 카드색으로 가라앉힌다. */
+  .alt{display:flex;align-items:center;justify-content:center;gap:7px;height:56px;padding:0 15px;
+       border-radius:15px;background:var(--d-card);color:var(--d-tx2);
+       font-size:13px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
+  .alt b{color:var(--cream);font-weight:900;font-size:12px}
+  .alt.spin svg{animation:turn .5s cubic-bezier(.4,0,.2,1)}
+  @keyframes turn{from{transform:rotate(0)}to{transform:rotate(-360deg)}}
+  @media (prefers-reduced-motion:reduce){.alt.spin svg{animation:none}}
 
   /* ── 장보기 목록 (라이트) ───────────────────── */
   #list{background:var(--l-bg);color:var(--ink)}
@@ -182,9 +192,15 @@
     <div class="dials" id="dials"></div>
     <div class="grow"></div>
     <div class="footD">
-      <button class="cta" id="go">장볼 것 보기
-        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-      </button>
+      <div class="footRow">
+        <button class="alt" id="again" aria-label="다른 조합으로 다시 뽑기">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 7a5.5 5.5 0 1 0-1.3 4.4"/><path d="M13.6 3.2v3.5h-3.5"/></svg>
+          다시 뽑기<b id="againN"></b>
+        </button>
+        <button class="cta" id="go">장볼 것 보기
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </button>
+      </div>
     </div>
   </section>
 
@@ -218,6 +234,13 @@ const D = JSON.parse(document.getElementById('bogl-data').textContent);
 let si = 0, people = D.sets[0].people, done = {};
 const $ = id => document.getElementById(id);
 const set = () => D.sets[si];
+
+/** 축(탭)마다 조합이 여러 개다. 탭은 축 하나에 하나만 두고, `다시 뽑기`가 그 안에서 돈다.
+ *  a.i는 그 축에서 마지막으로 보던 조합이라, 탭을 오갔다 와도 보던 자리로 돌아온다. */
+const AXES = [];
+D.sets.forEach((s, i) => { if(!AXES.some(a => a.type === s.type)) AXES.push({type: s.type, label: s.tabLabel, i}); });
+const axis = () => AXES.find(a => a.type === set().type);
+const siblings = () => D.sets.reduce((a, s, i) => (s.type === set().type && a.push(i), a), []);
 
 const ICONS = {
   '정육 · 계란':'<path d="M2.6 10.6c0-3.9 3.2-6.8 7.4-6.8s7.4 2.9 7.4 6.8c0 2.2-1.5 3.6-3.6 3.6H6.2c-2.1 0-3.6-1.4-3.6-3.6z" fill="currentColor"/><ellipse cx="10" cy="10.2" rx="2.5" ry="1.9" fill="var(--l-thumb)"/>',
@@ -256,8 +279,10 @@ function sourceCounts(){
 
 function renderPick(){
   const s = set();
-  $('tabs').innerHTML = D.sets.map((x, i) =>
-    `<button class="tab${i===si?' on':''}" data-i="${i}">${esc(x.tabLabel)}</button>`).join('');
+  $('tabs').innerHTML = AXES.map(a =>
+    `<button class="tab${a.type===s.type?' on':''}" data-i="${a.i}">${esc(a.label)}</button>`).join('');
+  $('again').style.display = s.vn > 1 ? '' : 'none';
+  $('againN').textContent = s.vi + '/' + s.vn;
   $('badge').textContent = s.badge;
   $('title').textContent = s.title;
   $('dishes').innerHTML = s.dishes.slice(0, 5).map(d =>
@@ -318,6 +343,14 @@ function openSheet(html){
 
 $('tabs').onclick = e => { const b = e.target.closest('.tab'); if(!b) return;
   si = +b.dataset.i; people = set().people; done = {}; renderPick(); };
+/** 다시 뽑기 — 같은 축의 다음 조합으로. 먹을 사람은 그대로 둔다(축이 같으면 인원도 같은 맥락).
+ *  체크는 조합이 바뀌면 재료가 달라지므로 비운다. */
+$('again').onclick = () => {
+  const ix = siblings();
+  si = ix[(ix.indexOf(si) + 1) % ix.length];
+  axis().i = si; done = {}; renderPick();
+  const b = $('again'); b.classList.remove('spin'); void b.offsetWidth; b.classList.add('spin');
+};
 $('minus').onclick = () => { people = Math.max(1, people - 1); renderPick(); };
 $('plus').onclick  = () => { people = Math.min(12, people + 1); renderPick(); };
 $('go').onclick    = () => { renderList(); show('list'); scrollTo(0, 0); };

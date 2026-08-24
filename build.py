@@ -285,17 +285,31 @@ def greedy(cands, seed, k, max_kind, max_main):
     return chosen, cur
 
 
-def best_set(cands, k, max_kind, max_main):
+def variants(cands, k, max_kind, max_main, max_share, limit):
+    """seed 하나가 조합 하나를 만든다. 예전에는 제일 좋은 하나만 남기고 나머지를 버렸는데,
+    그 버리던 것이 곧 `다시 뽑기`다.
+
+    max_share: 앞에 뽑힌 조합과 요리를 이만큼까지만 공유한다. 안 걸면 요리 하나만
+    바뀐 조합이 줄줄이 나와서 다시 뽑아도 같은 화면으로 보인다.
+    정렬은 살 것이 적은 순 — 화면에 나가는 숫자가 그것이라 사용자 기준과 같아야 한다."""
     ordered = sorted(cands, key=lambda r: -sum(freq[n] for n in pool[r]) / len(pool[r]))
-    best = None
-    for seed in ordered[:120]:
+    seen, found = set(), []
+    for seed in ordered:
         ch, u = greedy(cands, seed, k, max_kind, max_main)
-        if not ch:
+        if not ch or frozenset(ch) in seen:
             continue
+        seen.add(frozenset(ch))
         apart = sum(len(pool[i]) for i in ch)
-        if best is None or len(u) / apart < best[0]:
-            best = (len(u) / apart, ch, u, apart)
-    return best
+        found.append((len(u), -apart, ch, u))
+    found.sort(key=lambda x: (x[0], x[1]))
+
+    kept = []
+    for buy, negapart, ch, u in found:
+        if all(len(set(ch) & set(x[0])) <= max_share for x in kept):
+            kept.append((ch, u, -negapart))
+        if len(kept) >= limit:
+            break
+    return kept
 
 
 def build_set(sid, stype, title, badge, tab, ids, union, apart, people, portion=1.0):
@@ -356,22 +370,29 @@ special = list(pool)
 
 print("전체 %d개 · 이번 주 후보(초보환영·30분 이하) %d개" % (len(pool), len(weekday)))
 
-sets = []
-b = best_set(weekday, 5, 1, 1)
-sets.append(build_set("week-1", "week", "장 한 번으로 다섯 끼",
-                      "초보환영 · 30분 이하 · 재료 겹침이 가장 많은 조합",
-                      "이번 주", b[1], b[2], b[3], 2))
-b = best_set(special, 8, 1, 2)
-sets.append(build_set("occasion-1", "occasion", "집들이 한 상 여덟 가지",
-                      "손님 상차림 · 미리 만들어 두는 것 위주",
-                      "집들이", b[1], b[2], b[3], 6, portion=0.6))
+# 축마다 조합을 여러 개 뽑는다. 하나만 두면 다음 주에 열어도 같은 화면이라 다시 열 이유가 없다.
+# LIMIT: 뽑을 수 있는 전부(이번 주 22 · 집들이 39)를 다 넣으면 파일만 커진다. 12주치면 넉넉하다.
+AXES = [
+    dict(type="week", cands=weekday, k=5, max_kind=1, max_main=1, max_share=2, limit=12,
+         title="장 한 번으로 다섯 끼", tab="이번 주", people=2, portion=1.0,
+         badge="초보환영 · 30분 이하 · 재료 겹침이 가장 많은 조합"),
+    dict(type="occasion", cands=special, k=8, max_kind=1, max_main=2, max_share=3, limit=12,
+         title="집들이 한 상 여덟 가지", tab="집들이", people=6, portion=0.6,
+         badge="손님 상차림 · 미리 만들어 두는 것 위주"),
+]
 
 random.seed(11)
-for s in sets:
-    k = len(s["dishes"])
-    cands = weekday if s["type"] == "week" else special
-    rs = [random.sample(cands, k) for _ in range(500)]
-    s["randomAvg"] = round(sum(len(set().union(*[set(pool[i]) for i in x])) for x in rs) / len(rs), 1)
+sets = []
+for ax in AXES:
+    vs = variants(ax["cands"], ax["k"], ax["max_kind"], ax["max_main"], ax["max_share"], ax["limit"])
+    # 무작위 평균은 축마다 하나면 된다. 조합이 달라도 후보 풀과 요리 수가 같다.
+    rs = [random.sample(ax["cands"], ax["k"]) for _ in range(500)]
+    ravg = round(sum(len(set().union(*[set(pool[i]) for i in x])) for x in rs) / len(rs), 1)
+    for i, (ch, union, apart) in enumerate(vs, 1):
+        s = build_set("%s-%d" % (ax["type"], i), ax["type"], ax["title"], ax["badge"],
+                      ax["tab"], ch, union, apart, ax["people"], portion=ax["portion"])
+        s["vi"], s["vn"], s["randomAvg"] = i, len(vs), ravg
+        sets.append(s)
 
 out = {"generated": "2026-08-24",
        "source": {"name": "농림수산식품교육문화정보원", "portal": "농림축산식품 공공데이터 포털",
@@ -382,13 +403,16 @@ out = {"generated": "2026-08-24",
 json.dump(out, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 
 for s in sets:
-    print("\n=== %s ===  따로 %d → 합치면 %d (%.0f%%) · 무작위 %.1f · 수량 표기 %d%%"
-          % (s["title"], s["apart"], s["buyCount"],
-             (1 - s["buyCount"] / s["apart"]) * 100, s["randomAvg"], s["qtyCoverage"]))
-    for d in s["dishes"]:
-        print("  · %-12s %-14s %s %s" % (d["name"], d["kind"], d["time"], d["level"]))
-    for g in s["groups"]:
-        print("  [%s] " % g["cat"] + " · ".join("%s %s" % (i["name"], i["qty"]) for i in g["items"]))
+    if s["vi"] == 1:
+        print("\n=== %s === 조합 %d개 · 무작위 %.1f가지"
+              % (s["title"], s["vn"], s["randomAvg"]))
+    print(" %2d/%d  따로 %2d → 살 것 %2d (%.0f%%) · 수량 표기 %3d%%  %s"
+          % (s["vi"], s["vn"], s["apart"], s["buyCount"],
+             (1 - s["buyCount"] / s["apart"]) * 100, s["qtyCoverage"],
+             " · ".join(d["name"] for d in s["dishes"])))
+    if s["vi"] == 1:
+        for g in s["groups"]:
+            print("        [%s] " % g["cat"] + " · ".join("%s %s" % (i["name"], i["qty"]) for i in g["items"]))
 print("\n→ %s" % OUT)
 
 # ──────────────────────────── app.html 템플릿에 데이터·이미지를 박아 index.html을 만든다.
