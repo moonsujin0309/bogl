@@ -90,9 +90,6 @@
        border-radius:15px;background:var(--d-card);color:var(--d-tx2);
        font-size:13px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
   .alt b{color:var(--cream);font-weight:900;font-size:12px}
-  .alt.spin svg{animation:turn .5s cubic-bezier(.4,0,.2,1)}
-  @keyframes turn{from{transform:rotate(0)}to{transform:rotate(-360deg)}}
-  @media (prefers-reduced-motion:reduce){.alt.spin svg{animation:none}}
 
   /* ── 장보기 목록 (라이트) ───────────────────── */
   #list{background:var(--l-bg);color:var(--ink)}
@@ -155,6 +152,11 @@
   .rc .no{width:20px;font-size:11px;font-weight:900;color:var(--l-tx3);padding-top:2px}
   .rc .nm{font-size:14.5px;font-weight:700}
   .rc .mt{font-size:10.5px;color:var(--l-tx3);margin-top:3px;line-height:1.5}
+  /* 조합 고르기. 지금 보고 있는 것만 밝기를 뒤집는다 — 위계는 색이 아니라 반전으로. */
+  button.rc{width:100%;text-align:left;min-height:44px}
+  button.rc.now{background:var(--ink);border-radius:12px;padding:12px 12px;border-bottom-color:transparent}
+  button.rc.now .no,button.rc.now .nm{color:var(--cream)}
+  button.rc.now .mt{color:var(--cream);opacity:.62}
   .close{display:flex;align-items:center;justify-content:center;height:52px;border-radius:14px;
          background:var(--ink);color:var(--cream);font-size:15px;font-weight:900;margin-top:16px;width:100%}
   .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,14px);background:var(--ink);color:var(--cream);
@@ -193,9 +195,9 @@
     <div class="grow"></div>
     <div class="footD">
       <div class="footRow">
-        <button class="alt" id="again" aria-label="다른 조합으로 다시 뽑기">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 7a5.5 5.5 0 1 0-1.3 4.4"/><path d="M13.6 3.2v3.5h-3.5"/></svg>
-          다시 뽑기<b id="againN"></b>
+        <button class="alt" id="again" aria-label="다른 조합 골라 보기">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.6 4h10.8M2.6 8h10.8M2.6 12h10.8"/></svg>
+          다른 조합<b id="againN"></b>
         </button>
         <button class="cta" id="go">장볼 것 보기
           <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
@@ -343,13 +345,26 @@ function openSheet(html){
 
 $('tabs').onclick = e => { const b = e.target.closest('.tab'); if(!b) return;
   si = +b.dataset.i; people = set().people; done = {}; renderPick(); };
-/** 다시 뽑기 — 같은 축의 다음 조합으로. 먹을 사람은 그대로 둔다(축이 같으면 인원도 같은 맥락).
- *  체크는 조합이 바뀌면 재료가 달라지므로 비운다. */
+/** 조합 고르기 — 하나씩 넘기면 3번이 좋았는데 7번까지 가버렸을 때 되돌아갈 수가 없다.
+ *  전부 펼쳐 두고 한 번에 고른다. 먹을 사람은 그대로 두고(축이 같으면 인원도 같은 맥락)
+ *  체크만 비운다 — 조합이 바뀌면 재료가 달라진다. */
+function pickCombo(next){
+  si = next; axis().i = si; done = {}; renderPick();
+  sheet.classList.remove('on'); scrollTo(0, 0);
+}
 $('again').onclick = () => {
   const ix = siblings();
-  si = ix[(ix.indexOf(si) + 1) % ix.length];
-  axis().i = si; done = {}; renderPick();
-  const b = $('again'); b.classList.remove('spin'); void b.offsetWidth; b.classList.add('spin');
+  openSheet(`<h3>조합 ${ix.length}가지</h3>
+    <p class="sub">재료가 가장 많이 겹치는 순서예요. 무엇을 고르든 아무렇게나 고를 때보다 적게 삽니다.</p>` +
+    ix.map(i => { const s = D.sets[i]; return `
+      <button class="rc${i===si?' now':''}" data-i="${i}">
+        <div class="no">${s.vi}</div>
+        <div><div class="nm">살 것 ${s.buyCount}가지</div>
+          <div class="mt">${s.dishes.map(d => esc(d.name)).join(' · ')}</div></div>
+      </button>`; }).join(''));
+  box.querySelectorAll('.rc').forEach(b => b.onclick = () => pickCombo(+b.dataset.i));
+  const now = box.querySelector('.rc.now');
+  if(now) now.scrollIntoView({block: 'nearest'});
 };
 $('minus').onclick = () => { people = Math.max(1, people - 1); renderPick(); };
 $('plus').onclick  = () => { people = Math.min(12, people + 1); renderPick(); };

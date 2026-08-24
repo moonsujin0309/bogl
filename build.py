@@ -49,8 +49,17 @@ PANTRY = {"물", "식용유", "소금", "설탕", "간장", "참기름", "들기
           "다시마", "멸치", "국수장국", "설탕시럽", "튀김가루", "빵가루", "베이킹파우더",
           "밥", "찬밥", "쌀뜨물", "육수용멸치", "국물"}
 
-PREFIX = ["국물용", "손질한", "손질", "삶은", "데친", "불린", "다진", "채썬", "굵은", "고운",
+PREFIX = ["국물용", "육수용", "손질한", "손질", "삶은", "데친", "불린", "다진", "채썬", "굵은", "고운",
           "마른", "말린", "건", "냉동", "생", "간", "썰은", "썬", "구운", "볶은"]
+
+# 육수·국물은 사는 게 아니라 만들어 쓰는 것이다. 표기가 25종이라 낱개로 못 막는다
+# (`쇠고기육수`·`쇠고기 육수`·`닭 육수`·`정수물(쇠고기육수)`…). 접두어를 떼고 나서도
+# 이 말이 남아 있으면 장볼 것이 아니다 — `육수용 무`는 위 PREFIX에서 `무`로 살아남는다.
+BROTH = ("육수", "국물", "장국")
+
+
+def is_pantry(n):
+    return n in PANTRY or any(w in n for w in BROTH)
 
 ALIAS = {"계란노른자": "계란", "계란흰자": "계란", "계란후라이": "계란", "달걀": "계란",
          "소고기": "쇠고기", "쇠뼈": "쇠고기", "쇠고기육수": "쇠고기",
@@ -215,12 +224,30 @@ def servings(r):
     return int(m.group(1)) if m else 4
 
 
+def price(r):
+    m = re.search(r"([\d,]+)", r.get("PC_NM") or "")
+    return int(m.group(1).replace(",", "")) if m else 0
+
+
+def daunting(r):
+    """엄두가 안 나는 요리. 초보가 대상이면 첫 화면에 있으면 안 된다.
+    난이도만으로는 꼬리곰탕(어려움)만 걸리고 곰탕(보통·120분)이 남는다.
+    가격대와 시간을 같이 보면 뼈를 오래 고는 탕 · 장 담그기 · 떡이 함께 걸린다.
+    쓰지 않을 뿐 데이터에서 지우는 게 아니다 — `도전` 축을 열면 그때 이 조건을 뒤집어 쓴다."""
+    return r.get("LEVEL_NM") == "어려움" or (price(r) >= 20000 and minutes(r) >= 60)
+
+
+# 손님 앞에서 그 자리에 해야 하는 것. 전은 눅눅해지고 구이는 질겨지고 면은 분다.
+# 한 상에 여럿이면 손님이 앉아서 기다리게 된다.
+FRESH_KINDS = {"부침", "구이", "밥", "만두/면류"}
+
+
 pool = {}
 for rid, items in ing.items():
     m = meta.get(rid) or {}
     if m.get("NATION_NM") != "한식":
         continue
-    buy = {n: q for n, (ty, q) in items.items() if ty != "양념" and n not in PANTRY}
+    buy = {n: q for n, (ty, q) in items.items() if ty != "양념" and not is_pantry(n)}
     if len(buy) >= 5:
         pool[rid] = buy
 
@@ -264,13 +291,20 @@ def same_dish(a, b):
         or bool(name_words(a) & name_words(b)) or jac(set(pool[a]), set(pool[b])) >= 0.55
 
 
-def greedy(cands, seed, k, max_kind, max_main):
+def fresh(rid):
+    return kind[rid] in FRESH_KINDS
+
+
+def greedy(cands, seed, k, max_kind, max_main, max_fresh=99):
     chosen, cur = [seed], set(pool[seed])
     kc, mc = Counter([kind[seed]]), Counter([main[seed]])
+    fc = int(fresh(seed))
     while len(chosen) < k:
         best, bkey = None, None
         for rid in cands:
             if rid in chosen or kc[kind[rid]] >= max_kind or mc[main[rid]] >= max_main:
+                continue
+            if fresh(rid) and fc >= max_fresh:
                 continue
             if any(same_dish(rid, c) for c in chosen):
                 continue
@@ -281,11 +315,11 @@ def greedy(cands, seed, k, max_kind, max_main):
         if best is None:
             return None, None
         chosen.append(best); cur |= set(pool[best])
-        kc[kind[best]] += 1; mc[main[best]] += 1
+        kc[kind[best]] += 1; mc[main[best]] += 1; fc += int(fresh(best))
     return chosen, cur
 
 
-def variants(cands, k, max_kind, max_main, max_share, limit):
+def variants(cands, k, max_kind, max_main, max_share, limit, max_fresh=99):
     """seed 하나가 조합 하나를 만든다. 예전에는 제일 좋은 하나만 남기고 나머지를 버렸는데,
     그 버리던 것이 곧 `다시 뽑기`다.
 
@@ -295,7 +329,7 @@ def variants(cands, k, max_kind, max_main, max_share, limit):
     ordered = sorted(cands, key=lambda r: -sum(freq[n] for n in pool[r]) / len(pool[r]))
     seen, found = set(), []
     for seed in ordered:
-        ch, u = greedy(cands, seed, k, max_kind, max_main)
+        ch, u = greedy(cands, seed, k, max_kind, max_main, max_fresh)
         if not ch or frozenset(ch) in seen:
             continue
         seen.add(frozenset(ch))
@@ -366,25 +400,29 @@ def build_set(sid, stype, title, badge, tab, ids, union, apart, people, portion=
 
 # 이번 주 = 일상. 궁중음식 계열이 섞이지 않게 난이도와 시간으로 좁힌다.
 weekday = [r for r in pool if meta[r].get("LEVEL_NM") == "초보환영" and minutes(meta[r]) <= 30]
-special = list(pool)
+# 집들이도 초보가 차린다. 엄두가 안 나는 것은 뺀다.
+special = [r for r in pool if not daunting(meta[r])]
 
 print("전체 %d개 · 이번 주 후보(초보환영·30분 이하) %d개" % (len(pool), len(weekday)))
 
 # 축마다 조합을 여러 개 뽑는다. 하나만 두면 다음 주에 열어도 같은 화면이라 다시 열 이유가 없다.
 # LIMIT: 뽑을 수 있는 전부(이번 주 22 · 집들이 39)를 다 넣으면 파일만 커진다. 12주치면 넉넉하다.
+# max_fresh — 이번 주는 끼니를 따로 먹으니 그때그때 만드는 게 정상이라 안 건다.
+# 집들이는 한 자리에 다 내야 해서 `그 자리에 해야 하는 것`이 셋 이상이면 손님이 기다린다.
 AXES = [
     dict(type="week", cands=weekday, k=5, max_kind=1, max_main=1, max_share=2, limit=12,
-         title="장 한 번으로 다섯 끼", tab="이번 주", people=2, portion=1.0,
+         max_fresh=99, title="장 한 번으로 다섯 끼", tab="이번 주", people=2, portion=1.0,
          badge="초보환영 · 30분 이하 · 재료 겹침이 가장 많은 조합"),
     dict(type="occasion", cands=special, k=8, max_kind=1, max_main=2, max_share=3, limit=12,
-         title="집들이 한 상 여덟 가지", tab="집들이", people=6, portion=0.6,
+         max_fresh=2, title="집들이 한 상 여덟 가지", tab="집들이", people=6, portion=0.6,
          badge="손님 상차림 · 미리 만들어 두는 것 위주"),
 ]
 
 random.seed(11)
 sets = []
 for ax in AXES:
-    vs = variants(ax["cands"], ax["k"], ax["max_kind"], ax["max_main"], ax["max_share"], ax["limit"])
+    vs = variants(ax["cands"], ax["k"], ax["max_kind"], ax["max_main"], ax["max_share"],
+                  ax["limit"], ax["max_fresh"])
     # 무작위 평균은 축마다 하나면 된다. 조합이 달라도 후보 풀과 요리 수가 같다.
     rs = [random.sample(ax["cands"], ax["k"]) for _ in range(500)]
     ravg = round(sum(len(set().union(*[set(pool[i]) for i in x])) for x in rs) / len(rs), 1)
