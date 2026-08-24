@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>보글 · BOGL°</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2b2926">
@@ -151,7 +152,8 @@
   .rc{display:flex;align-items:flex-start;gap:11px;padding:12px 4px;border-bottom:1px solid var(--l-line)}
   .rc .no{width:20px;font-size:11px;font-weight:900;color:var(--l-tx3);padding-top:2px}
   .rc .nm{font-size:14.5px;font-weight:700}
-  .rc .mt{font-size:10.5px;color:var(--l-tx3);margin-top:3px;line-height:1.5}
+  .rc .mt{font-size:10.5px;color:var(--l-tx3);margin-top:3px;line-height:1.5;word-break:break-word}
+  .rc .mt .cr{text-decoration:underline;text-underline-offset:2px}
   /* 조리법은 펼침으로 둔다. 여덟 가지를 한꺼번에 펼치면 48문단이 쏟아진다.
      <details>는 브라우저가 이미 하는 일이라 상태를 따로 들고 있을 필요가 없다. */
   .dt summary{list-style:none;cursor:pointer}
@@ -391,20 +393,26 @@ $('cats').onclick  = e => { const r = e.target.closest('.row'); if(!r) return;
 /** 요리별 조리법과 출처. 레시피가 다른 곳에서 오면 여기서 각각 드러난다.
  *  조리법이 없는 요리는 펼침 없이 줄만 남는다 — 없는 걸 있는 척하지 않는다. */
 const ARROW = '<svg class="ar" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>';
-const dishSheet = () => openSheet(
+function dishSheet(){
+  openSheet(
   `<h3>요리 ${set().dishes.length}가지</h3>
    <p class="sub">눌러서 만드는 법을 봅니다. 출처는 레시피마다 답니다 — 다른 곳 레시피를 더해도 이 목록에 그대로 드러나요.</p>` +
   set().dishes.map((d, i) => {
+    // 사진은 대부분 CC BY / CC BY-SA라 표기가 의무다. 쓰는 자리에 바로 붙인다.
+    const pc = (D.photos || {})[d.name];
     const head = `<div class="no">${i+1}</div>
       <div><div class="nm">${esc(d.name)}</div>
         <div class="mt">${esc(d.kind)} · ${esc(d.time)} · ${esc(d.level)} · ${esc(d.servings)}인분 기준<br>
-        출처 ${esc(d.source)}</div></div>`;
+        레시피 ${esc(d.source)}${pc ? `<br>사진 <a class="cr" href="${esc(pc.u)}" target="_blank" rel="noopener">${esc(pc.t)}</a> · ${esc(pc.l)} · 위키미디어 공용` : ''}</div></div>`;
     const st = (D.recipes || {})[d.name];
     if(!st) return `<div class="rc">${head}</div>`;
     return `<details class="dt"><summary class="rc">${head}${ARROW}</summary>
       <ol class="steps">${st.map(s =>
         `<li>${esc(s.d)}${s.t ? `<span class="tip">${esc(s.t)}</span>` : ''}</li>`).join('')}</ol></details>`;
   }).join(''));
+  // 출처 링크가 summary 안에 있어 그냥 두면 누를 때 펼침까지 같이 토글된다.
+  box.querySelectorAll('.cr').forEach(a => a.onclick = e => e.stopPropagation());
+}
 $('dishes').onclick = dishSheet;
 $('dishmore').onclick = dishSheet;
 

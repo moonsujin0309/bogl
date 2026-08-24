@@ -465,7 +465,21 @@ for s in sets:
     for d in s["dishes"]:
         d.pop("rid", None)
 
-out = {"generated": "2026-08-24", "recipes": recipes,
+# 요리 사진 출처. 39장 중 37장이 CC BY / CC BY-SA라 표기가 의무다.
+# 크레딧 파일은 _design/에 있어 저장소에 안 올라가므로, 여기서 data.json에 실어 앱이 직접 밝히게 한다.
+CRED = os.path.join(HERE, "_design", "dish_credits.json")
+photo_credit = {}
+if os.path.exists(CRED):
+    cr = json.load(open(CRED, encoding="utf-8"))
+    if isinstance(cr, list):
+        cr = {c["dish"]: c for c in cr}
+    for n in used:
+        c = cr.get(n)
+        if c:
+            photo_credit[n] = {"t": c["title"].replace("File:", ""), "l": c["license"], "u": c["page"]}
+    print("사진 출처 %d개" % len(photo_credit))
+
+out = {"generated": "2026-08-25", "recipes": recipes, "photos": photo_credit,
        "source": {"name": "농림수산식품교육문화정보원", "portal": "농림축산식품 공공데이터 포털",
                   "note": "레시피 기본정보 · 레시피 재료정보"},
        "stats": {"recipes": len(base), "korean": sum(1 for r in base if r.get("NATION_NM") == "한식"),

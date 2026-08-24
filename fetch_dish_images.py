@@ -3,30 +3,105 @@
 #
 # 결과: _design/dish_<요리이름>.jpg  +  _dish_sheet.png (눈으로 확인용)
 # 검색이 엉뚱한 걸 물어오는 일이 잦으니 반드시 대조표를 보고 판단할 것.
-import io, json, os, re, time, urllib.parse, urllib.request
+#
+# 한글 이름으로 검색하면 42개 중 8개만 잡히고 그중 하나는 엉뚱한 사진이었다(2026-08-24 실측).
+# 그래서 요리마다 로마자 검색어와 "제목에 반드시 있어야 할 낱말"을 손으로 준다.
+# 농정원 API에는 이미지가 없다 — Grid 229 이후는 전부 "해당하는 서비스를 찾을 수 없습니다".
+#
+# 실행: python fetch_dish_images.py          (이미 있는 파일은 건너뛴다)
+#      python fetch_dish_images.py --all    (전부 다시 받는다)
+import io, json, os, sys, time, urllib.parse, urllib.request
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "_design")
 UA = {"User-Agent": "BoglMockup/0.1 (https://github.com/moonsujin0309/bogl; moonopmd@gmail.com) Python-urllib"}
-PAUSE = 2.0
+PAUSE = 3.5
 API = "https://commons.wikimedia.org/w/api.php"
-SIZE = 220
+# 앱에서 원은 46px로 그려진다. 3배 화면을 쳐도 138px면 충분하다.
+# 220으로 두면 35장이 index.html을 753KB까지 밀어올린다 — 눈에 보이지도 않는 화소값이다.
+SIZE = 150
+QUALITY = 78
+REDO = "--all" in sys.argv
 
 # (요리이름, [검색어들], [제목에 반드시 들어가야 할 낱말])
+# must는 좁게 준다. 넓게 주면 "Banchans.jpg" 같은 모둠 사진이 호박무침 자리에 들어온다.
 JOBS = [
-    ("양파전",        ["Yangpa-jeon", "Onion pancake Korean", "Buchimgae"],        ["jeon", "pancake", "buchim"]),
-    ("북어국",        ["Bugeo-guk", "Bugeotguk", "Dried pollock soup"],            ["bugeo", "pollock", "guk"]),
-    ("두부두루치기",   ["Dubu-duruchigi", "Duruchigi", "Tofu stir fry Korean"],     ["duruchigi", "dubu", "tofu"]),
-    ("된장찌개",       ["Doenjang-jjigae"],                                        ["doenjang"]),
-    ("된장채소수제비",  ["Sujebi", "Sujaebi"],                                      ["sujebi", "sujaebi"]),
-    ("동태찌개",       ["Dongtae-jjigae", "Saengtae-jjigae", "Pollock stew"],       ["dongtae", "saengtae", "jjigae"]),
-    ("갈치조림",       ["Galchi-jorim", "Braised cutlassfish"],                     ["galchi", "cutlass"]),
-    ("돼지갈비찜",     ["Dwaeji-galbi-jjim", "Galbi-jjim"],                         ["galbi"]),
-    ("나박김치",       ["Nabak-kimchi", "Mul-kimchi"],                              ["nabak", "kimchi"]),
-    ("계란말이주먹밥",  ["Gyeran-mari", "Jumeok-bap", "Korean rice ball"],           ["gyeran", "jumeok", "rice ball"]),
+    ("양파전",            ["Yangpa-jeon", "Onion pancake Korean", "Buchimgae"],   ["jeon", "pancake", "buchim"]),
+    ("북어국",            ["Bugeo-guk", "Bugeotguk", "Dried pollock soup"],       ["bugeo", "pollock", "guk"]),
+    ("두부두루치기",       ["Dubu-duruchigi", "Duruchigi", "Tofu stir fry Korean"], ["duruchigi", "dubu", "tofu"]),
+    ("된장찌개",           ["Doenjang-jjigae"],                                   ["doenjang"]),
+    ("된장채소수제비",      ["Sujebi", "Sujaebi"],                                 ["sujebi", "sujaebi"]),
+    ("동태찌개",           ["Dongtae-jjigae", "Saengtae-jjigae", "Pollock stew"],  ["dongtae", "saengtae", "jjigae"]),
+    ("갈치조림",           ["Galchi-jorim", "Braised cutlassfish"],                ["galchi", "cutlass"]),
+    ("돼지갈비찜",         ["Dwaeji-galbi-jjim", "Galbi-jjim"],                    ["galbi"]),
+    ("나박김치",           ["Nabak-kimchi", "Mul-kimchi"],                         ["nabak", "kimchi"]),
+    ("계란말이주먹밥",      ["Gyeran-mari", "Jumeok-bap", "Korean rice ball"],      ["gyeran", "jumeok", "rice ball"]),
+
+    # ── 아래는 2026-08-24에 더한 것 ──────────────────────────────
+    ("가지쇠고기볶음",      ["Gaji-bokkeum", "Gaji namul"],                        ["gaji"]),
+    ("고등어양념구이",      ["Godeungeo-gui", "Grilled mackerel Korean"],           ["godeungeo", "mackerel"]),
+    ("김치두부쌈",         ["Dubu-kimchi", "Tofu kimchi"],                         ["dubu-kimchi", "dubukimchi"]),
+    ("김치볶음밥",         ["Kimchi-bokkeum-bap", "Kimchi fried rice"],            ["bokkeum-bap", "fried rice"]),
+    ("김치수제비",         ["Kimchi-sujebi"],                                      ["sujebi"]),
+    ("깻잎말이김치",       ["Kkaennip-kimchi", "Perilla leaf kimchi"],             ["kkaennip", "perilla"]),
+    ("닭가슴살해파리샐러드", ["Haepari-naengchae", "Jellyfish salad Korean"],        ["haepari", "jellyfish"]),
+    ("닭꼬치구이",         ["Dak-kkochi", "Dakkochi", "Korean chicken skewer"],    ["kkochi", "skewer"]),
+    ("두부알찜",           ["Dubu-jjim", "Gyeran-jjim"],                          ["dubu-jjim", "jjim"]),
+    ("맑은대구탕",         ["Daegu-tang", "Daegutang", "Codfish soup Korean"],     ["daegu-tang", "daegutang"]),
+    ("매운가지볶음",       ["Gaji-bokkeum"],                                       ["gaji"]),
+    ("부추잡채",          ["Buchu-japchae"],                                       ["buchu"]),
+    ("사골우거지탕",       ["Ugeoji-guk", "Ugeojitang", "Ugeoji"],                 ["ugeoji"]),
+    ("쇠고기완자찜",       ["Wanja-jeon", "Gogi-wanja", "Wanja"],                  ["wanja"]),
+    ("순대볶음",          ["Sundae-bokkeum"],                                      ["sundae"]),
+    ("양송이버섯죽",       ["Beoseot-juk", "Yangsongi"],                           ["beoseot", "yangsongi"]),
+    ("열무김치냉면",       ["Yeolmu-naengmyeon", "Naengmyeon"],                    ["naengmyeon"]),
+    ("잔치국수",          ["Janchi-guksu"],                                        ["janchi"]),
+    ("제육겨자쌈",         ["Jeyuk-bokkeum", "Jeyuk"],                             ["jeyuk"]),
+    ("조기찜",            ["Jogi-jjim", "Jogijjim"],                              ["jogi"]),
+    ("청국장찌개",         ["Cheonggukjang-jjigae", "Cheonggukjang"],              ["cheonggukjang"]),
+    ("콩나물국밥",         ["Kongnamul-gukbap"],                                    ["kongnamul"]),
+    ("콩나물잡채",         ["Japchae"],                                            ["japchae"]),
+    ("호박양파국",         ["Aehobak-guk", "Hobak-guk"],                           ["hobak"]),
+    ("호박무침",          ["Hobak-namul", "Aehobak-bokkeum", "Aehobak-namul"],     ["hobak"]),
+    ("콩나물무밥",         ["Kongnamul-bap", "Kongnamulbap"],                      ["kongnamul-bap", "kongnamulbap"]),
+    ("오징어찌개",         ["Ojingeo-jjigae", "Ojingeo-guk"],                      ["ojingeo"]),
+    ("오징어볶음과소면",    ["Ojingeo-bokkeum"],                                    ["ojingeo-bokkeum"]),
+    ("모듬전",            ["Modeum-jeon", "Jeon Korean platter"],                 ["modeum"]),
+    ("생태국",            ["Saengtae-guk", "Saengtaeguk"],                        ["saengtae"]),
+    ("알탕",              ["Altang", "Al-tang"],                                  ["altang", "al-tang"]),
+    ("버섯두부찌개",       ["Beoseot-jjigae", "Dubu-jjigae"],                      ["beoseot-jjigae", "dubu-jjigae"]),
+    ("명란젓찌개",         ["Myeongnan-jjigae"],                                    ["myeongnan-jjigae"]),
+    ("찬밥지짐이",         ["Bap-jeon", "Bapjeon"],                                ["bap-jeon", "bapjeon"]),
 ]
-BAD = ["map", "diagram", "logo", "chart", "portrait", "performing", "signboard", "restaurant exterior"]
+
+# 검색이 물어온 사진이 다른 요리라 뺐다 (2026-08-24 대조표 육안 확인).
+# 다시 넣지 마라 — 같은 검색어면 같은 사진이 또 온다. 남의 요리 사진을 붙이느니 그릇 글리프가 낫다.
+REJECTED = {
+    "김치적":        "Seop sanjeok(섭산적) — 고기 산적이다. 김치전으로도 못 대신한다(적은 꼬치)",
+    "두부채소냉채":   "Miyeok-naengchae — 미역냉채라 두부가 없다",
+    "호박무침":      "Hobak-goji — 말린 호박고지라 무침이 아니다. BAD에 goji를 넣고 다시 찾는다",
+    "콩나물무밥":    "Jeonju-bibim-bap — 전주비빔밥 상차림이다. must를 kongnamul-bap으로 좁혀 다시 찾는다",
+    "오징어볶음과소면": "Ojingeo-chae-bokkeum — 마른 오징어채라 생물 볶음과 다르다. BAD에 chae-bokkeum",
+    "골뱅이볶음":    "Golbaengi-muchim — 차가운 무침이라 볶음과 다르다. 공용에 볶음 사진이 없다",
+    "해물밥전":      "Haemul-pajeon밖에 없다 — 파전은 밥전이 아니다",
+    "채소국수":      "이름이 일반적이다. Bibim-guksu는 다른 요리다",
+    "별미밥":        "이름이 일반적이라 검색어를 만들 수 없다",
+}
+
+# 같은 요리라 사진을 나눠 쓴다. build.py의 same_dish()가 이미 한 요리로 보는 것들이다.
+# 없는 사진을 만들어 붙이는 게 아니라, 있는 사진을 정직하게 돌려 쓰는 것이다.
+SAME = {
+    "갈치무조림": "갈치조림",
+    "버섯청국장찌개": "청국장찌개",
+}
+
+# 이름이 너무 일반적이거나(별미밥·채소국수) 그 요리의 사진이 공용에 없어서 비워 둔다.
+# 앱에서는 그릇 글리프로 남는다 — 다른 요리 사진을 갖다 붙이는 것보다 낫다.
+BAD = ["map", "diagram", "logo", "chart", "portrait", "performing", "signboard",
+       "restaurant exterior", "banchan", "menu", "poster",
+       "goji",           # 호박고지 — 말린 재료지 요리가 아니다
+       "chae-bokkeum"]   # 오징어채볶음 — 마른 채라 생물 볶음과 다르다
 
 
 def search(term, limit=8):
@@ -73,8 +148,32 @@ def square(img, n):
     return img.crop(((W - n) // 2, (H - n) // 2, (W - n) // 2 + n, (H - n) // 2 + n))
 
 
-credits, cells = [], []
+# SIZE를 줄이면 이미 받아둔 사진도 같이 줄인다. 안 그러면 파일과 설정이 어긋난 채로 남는다.
+# 다시 받지 않으므로 검색 결과가 달라질 걱정이 없다.
+shrunk = 0
+for f in sorted(os.listdir(OUT)):
+    if not (f.startswith("dish_") and f.endswith(".jpg")):
+        continue
+    p = os.path.join(OUT, f)
+    im = Image.open(p)
+    if im.width > SIZE:
+        square(im.convert("RGB"), SIZE).save(p, "JPEG", quality=QUALITY, optimize=True)
+        shrunk += 1
+if shrunk:
+    print("이미 있던 사진 %d장을 %dpx로 줄였다\n" % (shrunk, SIZE))
+
+CREDITS = os.path.join(OUT, "dish_credits.json")
+credits = {}
+if os.path.exists(CREDITS):
+    old = json.load(open(CREDITS, encoding="utf-8"))
+    credits = {c["dish"]: c for c in old} if isinstance(old, list) else old
+
+fail = []
 for name, terms, must in JOBS:
+    path = os.path.join(OUT, "dish_%s.jpg" % name)
+    if os.path.exists(path) and not REDO:
+        print("%-16s 있음, 건너뜀" % name)
+        continue
     done = False
     for term in terms:
         if done:
@@ -88,25 +187,43 @@ for name, terms, must in JOBS:
             except Exception as e:
                 print("  skip", c["title"][:40], type(e).__name__)
                 continue
-            path = os.path.join(OUT, "dish_%s.jpg" % name)
-            square(img, SIZE).save(path, "JPEG", quality=80, optimize=True)
-            print("%-14s %5.1f KB  %s  [%s]" % (name, os.path.getsize(path) / 1024,
+            square(img, SIZE).save(path, "JPEG", quality=QUALITY, optimize=True)
+            print("%-16s %5.1f KB  %s  [%s]" % (name, os.path.getsize(path) / 1024,
                                                 c["title"][5:45], c["license"]))
-            credits.append({"dish": name, "title": c["title"], "license": c["license"], "page": c["page"]})
-            cells.append((name, Image.open(path)))
+            credits[name] = {"dish": name, "title": c["title"],
+                             "license": c["license"], "page": c["page"]}
             done = True
             break
     if not done:
-        print("FAIL %-14s (아이콘으로 남는다)" % name)
+        fail.append(name)
+        print("FAIL %-16s (그릇 글리프로 남는다)" % name)
 
+# 같은 요리끼리 사진을 나눠 쓴다. 출처도 함께 물려준다.
+for name, src in SAME.items():
+    sp = os.path.join(OUT, "dish_%s.jpg" % src)
+    if os.path.exists(sp):
+        open(os.path.join(OUT, "dish_%s.jpg" % name), "wb").write(open(sp, "rb").read())
+        if src in credits:
+            credits[name] = dict(credits[src], dish=name, same_as=src)
+        print("%-16s ← %s 사진 재사용" % (name, src))
+
+# 대조표. 검색이 엉뚱한 걸 물어오므로 이걸 눈으로 보고 판단해야 한다.
+cells = []
+for name, _, _ in JOBS:
+    p = os.path.join(OUT, "dish_%s.jpg" % name)
+    if os.path.exists(p):
+        cells.append((name, Image.open(p)))
 if cells:
-    cols = 5
+    cols = 7
     rows = (len(cells) + cols - 1) // cols
     sheet = Image.new("RGB", (cols * 152 + 8, rows * 152 + 8), (24, 24, 24))
     for i, (nm, im) in enumerate(cells):
         sheet.paste(im.resize((144, 144)), (8 + (i % cols) * 152, 8 + (i // cols) * 152))
     sheet.save(os.path.join(HERE, "_dish_sheet.png"))
+    print("\n대조표 %d장 → _dish_sheet.png  (왼→오, 위→아래 순서는 아래 목록과 같다)" % len(cells))
+    for i in range(0, len(cells), cols):
+        print("  " + " · ".join(nm for nm, _ in cells[i:i + cols]))
 
-json.dump(credits, open(os.path.join(OUT, "dish_credits.json"), "w", encoding="utf-8"),
-          ensure_ascii=False, indent=1)
-print("\n대조표: _dish_sheet.png · 출처: _design/dish_credits.json")
+json.dump(credits, open(CREDITS, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+print("\n못 찾음 %d개: %s" % (len(fail), " · ".join(fail) or "없음"))
+print("출처: _design/dish_credits.json")

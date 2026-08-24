@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-24",
+ "generated": "2026-08-25",
  "recipes": {
   "양파전": [
    {
@@ -958,6 +958,203 @@
     "d": "대구의 시원한 맛이 어느정도 우러나오면 두부, 마늘, 홍고추, 청고추, 팽이버섯, 미나리 등을 넣어 마무리 한다."
    }
   ]
+ },
+ "photos": {
+  "양파전": {
+   "t": "Spring Onion Pancake - SOJU 2024-06-02.jpg",
+   "l": "CC0",
+   "u": "https://commons.wikimedia.org/wiki/File:Spring_Onion_Pancake_-_SOJU_2024-06-02.jpg"
+  },
+  "북어국": {
+   "t": "Bugeo-guk 2.jpg",
+   "l": "CC BY-SA 2.0 kr",
+   "u": "https://commons.wikimedia.org/wiki/File:Bugeo-guk_2.jpg"
+  },
+  "두부두루치기": {
+   "t": "Gimchi-duruchigi-ssam.jpg",
+   "l": "CC BY-SA 4.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Gimchi-duruchigi-ssam.jpg"
+  },
+  "된장찌개": {
+   "t": "Doenjang-jjigae 2.jpg",
+   "l": "CC BY 4.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Doenjang-jjigae_2.jpg"
+  },
+  "된장채소수제비": {
+   "t": "Korean.cuisine-Sujebi-01.jpg",
+   "l": "CC BY 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Korean.cuisine-Sujebi-01.jpg"
+  },
+  "호박무침": {
+   "t": "Saeu-aehobak-bokkeum.jpg",
+   "l": "CC BY 4.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Saeu-aehobak-bokkeum.jpg"
+  },
+  "가지쇠고기볶음": {
+   "t": "Gaji-bokkeum.jpg",
+   "l": "CC BY 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Gaji-bokkeum.jpg"
+  },
+  "청국장찌개": {
+   "t": "Cheonggukjang-jjigae.jpg",
+   "l": "CC BY 4.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Cheonggukjang-jjigae.jpg"
+  },
+  "콩나물무밥": {
+   "t": "Kongnamulbap.jpg",
+   "l": "CC BY 2.5",
+   "u": "https://commons.wikimedia.org/wiki/File:Kongnamulbap.jpg"
+  },
+  "부추잡채": {
+   "t": "Buchu-japchae.jpg",
+   "l": "CC BY 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Buchu-japchae.jpg"
+  },
+  "조기찜": {
+   "t": "Korean cuisine-Jogijjim-01.jpg",
+   "l": "CC BY-SA 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Korean_cuisine-Jogijjim-01.jpg"
+  },
+  "매운가지볶음": {
+   "t": "Gaji-bokkeum.jpg",
+   "l": "CC BY 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Gaji-bokkeum.jpg"
+  },
+  "김치볶음밥": {
+   "t": "Kimchi-bokkeum-bap (Kimchi fried rice) - Kogi 2023-09-11.jpg",
+   "l": "CC0",
+   "u": "https://commons.wikimedia.org/wiki/File:Kimchi-bokkeum-bap_(Kimchi_fried_rice)_-_Kogi_2023-09-11.jpg"
+  },
+  "오징어볶음과소면": {
+   "t": "Ojingeo-bokkeum 3.jpg",
+   "l": "CC BY-SA 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Ojingeo-bokkeum_3.jpg"
+  },
+  "버섯청국장찌개": {
+   "t": "Cheonggukjang-jjigae.jpg",
+   "l": "CC BY 4.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Cheonggukjang-jjigae.jpg"
+  },
+  "양송이버섯죽": {
+   "t": "Beoseot-deulkkae-juk.jpg",
+   "l": "CC BY 4.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Beoseot-deulkkae-juk.jpg"
+  },
+  "고등어양념구이": {
+   "t": "Korean cuisine-Godeungeo gui-01.jpg",
+   "l": "CC BY-SA 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Korean_cuisine-Godeungeo_gui-01.jpg"
+  },
+  "닭가슴살해파리샐러드": {
+   "t": "Haepari-naengchae 3.jpg",
+   "l": "CC BY 2.0 kr",
+   "u": "https://commons.wikimedia.org/wiki/File:Haepari-naengchae_3.jpg"
+  },
+  "잔치국수": {
+   "t": "Janchi-guksu.jpg",
+   "l": "CC BY 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Janchi-guksu.jpg"
+  },
+  "순대볶음": {
+   "t": "Sundae-bokkeum 1.jpg",
+   "l": "CC BY 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Sundae-bokkeum_1.jpg"
+  },
+  "콩나물국밥": {
+   "t": "Kongnamul gukbap 20230408 003.jpg",
+   "l": "CC BY-SA 4.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Kongnamul_gukbap_20230408_003.jpg"
+  },
+  "갈치무조림": {
+   "t": "Galchi-jorim.jpg",
+   "l": "CC BY 4.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Galchi-jorim.jpg"
+  },
+  "나박김치": {
+   "t": "Korean cuisine-Nabak kimchi-01.jpg",
+   "l": "CC BY-SA 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Korean_cuisine-Nabak_kimchi-01.jpg"
+  },
+  "사골우거지탕": {
+   "t": "Sagol-ugeoji-guk.jpg",
+   "l": "CC BY 4.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Sagol-ugeoji-guk.jpg"
+  },
+  "돼지갈비찜": {
+   "t": "Dwaeji-galbi-jjim.jpg",
+   "l": "CC BY 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Dwaeji-galbi-jjim.jpg"
+  },
+  "콩나물잡채": {
+   "t": "Homemade Japchae, Dhaka 03.jpg",
+   "l": "CC BY-SA 3.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Homemade_Japchae,_Dhaka_03.jpg"
+  },
+  "계란말이주먹밥": {
+   "t": "Gyeran-mari.jpg",
+   "l": "CC BY 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Gyeran-mari.jpg"
+  },
+  "김치두부쌈": {
+   "t": "Dubu-kimchi 2.jpg",
+   "l": "CC BY 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Dubu-kimchi_2.jpg"
+  },
+  "제육겨자쌈": {
+   "t": "Jeyuk-bokkeum 1.jpg",
+   "l": "CC BY-SA 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Jeyuk-bokkeum_1.jpg"
+  },
+  "갈치조림": {
+   "t": "Galchi-jorim.jpg",
+   "l": "CC BY 4.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Galchi-jorim.jpg"
+  },
+  "동태찌개": {
+   "t": "Dongtae-jjigae 3.jpg",
+   "l": "CC BY 4.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Dongtae-jjigae_3.jpg"
+  },
+  "김치수제비": {
+   "t": "Sujebi and kimchi.jpg",
+   "l": "CC BY-SA 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Sujebi_and_kimchi.jpg"
+  },
+  "깻잎말이김치": {
+   "t": "Kkaennip-kimchi and kkaennip-jangajji.jpg",
+   "l": "CC BY 2.0 kr",
+   "u": "https://commons.wikimedia.org/wiki/File:Kkaennip-kimchi_and_kkaennip-jangajji.jpg"
+  },
+  "오징어찌개": {
+   "t": "Ojingeo-guk-bap.jpg",
+   "l": "CC BY 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Ojingeo-guk-bap.jpg"
+  },
+  "쇠고기완자찜": {
+   "t": "Gogi-wanja-jorim.jpg",
+   "l": "CC BY-SA 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Gogi-wanja-jorim.jpg"
+  },
+  "열무김치냉면": {
+   "t": "Naengmyeon in Busan.jpg",
+   "l": "CC BY-SA 4.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Naengmyeon_in_Busan.jpg"
+  },
+  "두부알찜": {
+   "t": "Korean.food-Dubujjim-02.jpg",
+   "l": "CC BY-SA 2.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Korean.food-Dubujjim-02.jpg"
+  },
+  "닭꼬치구이": {
+   "t": "Dak-kkochi 1.jpg",
+   "l": "CC BY 4.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Dak-kkochi_1.jpg"
+  },
+  "맑은대구탕": {
+   "t": "Daegu-tang 2.jpg",
+   "l": "CC BY-SA 4.0",
+   "u": "https://commons.wikimedia.org/wiki/File:Daegu-tang_2.jpg"
+  }
  },
  "source": {
   "name": "농림수산식품교육문화정보원",
