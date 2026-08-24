@@ -17,6 +17,7 @@ KEY = _k if re.fullmatch(r"[A-Za-z0-9]+", _k) else "sample"
 EP = "http://211.237.50.150:7080/openapi/%s/json/%s/%d/%d"
 GRID_BASE = "Grid_20150827000000000226_1"
 GRID_IRDNT = "Grid_20150827000000000227_1"
+GRID_COOK = "Grid_20150827000000000228_1"
 
 
 def fetch_all(grid, page=1000):
@@ -33,14 +34,25 @@ def fetch_all(grid, page=1000):
         start += page
 
 
-if "--fresh" in sys.argv or not os.path.exists(CACHE):
+def need_key():
     if KEY == "sample":
         raise SystemExit("인증키가 없습니다. 환경변수 DATA_GO_KR_KEY를 설정하세요 (sample 키는 5건까지만 옵니다).")
+
+
+if "--fresh" in sys.argv or not os.path.exists(CACHE):
+    need_key()
     print("내려받는 중…")
-    json.dump({"base": fetch_all(GRID_BASE), "irdnt": fetch_all(GRID_IRDNT)},
+    json.dump({"base": fetch_all(GRID_BASE), "irdnt": fetch_all(GRID_IRDNT),
+               "cook": fetch_all(GRID_COOK)},
               open(CACHE, "w", encoding="utf-8"), ensure_ascii=False)
 raw = json.load(open(CACHE, encoding="utf-8"))
-base, irdnt = raw["base"], raw["irdnt"]
+# 조리과정은 나중에 붙었다. 옛 캐시에는 없으니 그것만 받아 채운다 — 앞의 둘을 다시 받을 이유가 없다.
+if "cook" not in raw:
+    need_key()
+    print("조리과정만 내려받는 중…")
+    raw["cook"] = fetch_all(GRID_COOK)
+    json.dump(raw, open(CACHE, "w", encoding="utf-8"), ensure_ascii=False)
+base, irdnt, cook = raw["base"], raw["irdnt"], raw["cook"]
 
 # ─────────────────────────────────────────────────────────────── 재료명 정규화
 PANTRY = {"물", "식용유", "소금", "설탕", "간장", "참기름", "들기름", "밀가루", "후추", "후춧가루",
@@ -251,6 +263,14 @@ for rid, items in ing.items():
     if len(buy) >= 5:
         pool[rid] = buy
 
+# 조리과정. 번호 순으로 세운다. STEP_TIP은 비어 있는 경우가 대부분이라 있을 때만 붙인다.
+steps = defaultdict(list)
+for r in sorted(cook, key=lambda r: (int(r["RECIPE_ID"]), int(r["COOKING_NO"]))):
+    dc = (r.get("COOKING_DC") or "").strip()
+    if dc:
+        tip = (r.get("STEP_TIP") or "").strip()
+        steps[int(r["RECIPE_ID"])].append({"d": dc, "t": tip} if tip else {"d": dc})
+
 kind = {r: (meta[r].get("TY_NM") or "기타") for r in pool}
 main = {r: (meta[r].get("IRDNT_CODE") or "기타") for r in pool}
 freq = Counter()
@@ -388,7 +408,7 @@ def build_set(sid, stype, title, badge, tab, ids, union, apart, people, portion=
         "tabLabel": tab, "people": people, "portion": portion,
         "apart": apart, "buyCount": len(union),
         "qtyCoverage": round(parsed_ok / len(union) * 100),
-        "dishes": [{"name": meta[i]["RECIPE_NM_KO"], "kind": kind[i], "main": main[i],
+        "dishes": [{"name": meta[i]["RECIPE_NM_KO"], "rid": i, "kind": kind[i], "main": main[i],
                     "time": meta[i].get("COOKING_TIME"), "level": meta[i].get("LEVEL_NM"),
                     "servings": servings(meta[i]),
                     # 레시피마다 출처가 다를 수 있다. 다른 곳 레시피를 더하면 여기만 바꾸면 된다.
@@ -432,7 +452,20 @@ for ax in AXES:
         s["vi"], s["vn"], s["randomAvg"] = i, len(vs), ravg
         sets.append(s)
 
-out = {"generated": "2026-08-24",
+# 조리법은 실제로 쓰인 요리 것만 싣는다. 187개를 다 넣을 이유가 없다.
+# 세트마다 넣으면 같은 요리가 여러 조합에 나와 그대로 중복되므로 요리명으로 한 번만 둔다.
+used = {}
+for s in sets:
+    for d in s["dishes"]:
+        used.setdefault(d["name"], d["rid"])
+recipes = {n: steps[rid] for n, rid in used.items() if steps.get(rid)}
+missing = [n for n in used if not steps.get(used[n])]
+print("\n조리법 %d/%d 요리" % (len(recipes), len(used)) + ("  ※ 없음: " + " · ".join(missing) if missing else ""))
+for s in sets:
+    for d in s["dishes"]:
+        d.pop("rid", None)
+
+out = {"generated": "2026-08-24", "recipes": recipes,
        "source": {"name": "농림수산식품교육문화정보원", "portal": "농림축산식품 공공데이터 포털",
                   "note": "레시피 기본정보 · 레시피 재료정보"},
        "stats": {"recipes": len(base), "korean": sum(1 for r in base if r.get("NATION_NM") == "한식"),

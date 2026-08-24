@@ -152,6 +152,21 @@
   .rc .no{width:20px;font-size:11px;font-weight:900;color:var(--l-tx3);padding-top:2px}
   .rc .nm{font-size:14.5px;font-weight:700}
   .rc .mt{font-size:10.5px;color:var(--l-tx3);margin-top:3px;line-height:1.5}
+  /* 조리법은 펼침으로 둔다. 여덟 가지를 한꺼번에 펼치면 48문단이 쏟아진다.
+     <details>는 브라우저가 이미 하는 일이라 상태를 따로 들고 있을 필요가 없다. */
+  .dt summary{list-style:none;cursor:pointer}
+  .dt summary::-webkit-details-marker{display:none}
+  .dt summary .ar{margin-left:auto;color:var(--l-tx3);flex-shrink:0;transition:transform .18s;padding-top:2px}
+  .dt[open] summary .ar{transform:rotate(90deg)}
+  .dt[open] summary{border-bottom-color:transparent}
+  .steps{margin:0;padding:2px 4px 16px 35px;border-bottom:1px solid var(--l-line);
+         font-size:13px;line-height:1.65;color:var(--l-tx2)}
+  .steps li{margin-bottom:9px;padding-left:3px}
+  .steps li::marker{font-weight:900;font-size:11px;color:var(--l-tx3)}
+  .steps .tip{display:block;margin-top:5px;padding:8px 11px;border-radius:9px;background:var(--l-thumb);
+              font-size:11.5px;line-height:1.6;color:var(--l-tx3)}
+  @media (prefers-reduced-motion:reduce){.dt summary .ar{transition:none}}
+
   /* 조합 고르기. 지금 보고 있는 것만 밝기를 뒤집는다 — 위계는 색이 아니라 반전으로. */
   button.rc{width:100%;text-align:left;min-height:44px}
   button.rc.now{background:var(--ink);border-radius:12px;padding:12px 12px;border-bottom-color:transparent}
@@ -373,14 +388,23 @@ $('back').onclick  = () => { show('pick'); scrollTo(0, 0); };
 $('cats').onclick  = e => { const r = e.target.closest('.row'); if(!r) return;
   const n = r.dataset.n; done[n] = !done[n]; r.classList.toggle('done', done[n]); };
 
-/** 요리별 조리법과 출처. 레시피가 다른 곳에서 오면 여기서 각각 드러난다. */
+/** 요리별 조리법과 출처. 레시피가 다른 곳에서 오면 여기서 각각 드러난다.
+ *  조리법이 없는 요리는 펼침 없이 줄만 남는다 — 없는 걸 있는 척하지 않는다. */
+const ARROW = '<svg class="ar" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>';
 const dishSheet = () => openSheet(
   `<h3>요리 ${set().dishes.length}가지</h3>
-   <p class="sub">출처는 레시피마다 답니다. 다른 곳 레시피를 더해도 이 목록에 그대로 드러나요.</p>` +
-  set().dishes.map((d, i) => `<div class="rc"><div class="no">${i+1}</div>
-     <div><div class="nm">${esc(d.name)}</div>
-       <div class="mt">${esc(d.kind)} · ${esc(d.time)} · ${esc(d.level)} · ${esc(d.servings)}인분 기준<br>
-       출처 ${esc(d.source)}</div></div></div>`).join(''));
+   <p class="sub">눌러서 만드는 법을 봅니다. 출처는 레시피마다 답니다 — 다른 곳 레시피를 더해도 이 목록에 그대로 드러나요.</p>` +
+  set().dishes.map((d, i) => {
+    const head = `<div class="no">${i+1}</div>
+      <div><div class="nm">${esc(d.name)}</div>
+        <div class="mt">${esc(d.kind)} · ${esc(d.time)} · ${esc(d.level)} · ${esc(d.servings)}인분 기준<br>
+        출처 ${esc(d.source)}</div></div>`;
+    const st = (D.recipes || {})[d.name];
+    if(!st) return `<div class="rc">${head}</div>`;
+    return `<details class="dt"><summary class="rc">${head}${ARROW}</summary>
+      <ol class="steps">${st.map(s =>
+        `<li>${esc(s.d)}${s.t ? `<span class="tip">${esc(s.t)}</span>` : ''}</li>`).join('')}</ol></details>`;
+  }).join(''));
 $('dishes').onclick = dishSheet;
 $('dishmore').onclick = dishSheet;
 
