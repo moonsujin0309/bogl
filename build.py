@@ -514,7 +514,10 @@ for n, rid in sorted(used.items()):
                     "rank": HERO_RANK.get(kind[rid], 13),
                     # 레시피 페이지의 재료 칸. 조합 계산에 쓰는 pool과 달리 양념·상비품까지
                     # 전부 넣는다 — 장볼 것이 아니라 만들 때 필요한 것 전부를 보여주는 자리다.
-                    "ing": [{"n": nm2, "q": q, "t": ty or "재료"}
+                    # v·u가 있으면 앱에서 인분을 바꿀 때 다시 계산한다.
+                    # `적당량`·`약간`처럼 못 읽는 것은 v가 없고 원문 그대로 나간다.
+                    "ing": [dict({"n": nm2, "q": q, "t": ty or "재료"},
+                                 **(lambda p: {"v": round(p[0], 3), "u": p[1]} if p else {})(parse_qty(q)))
                             for nm2, (ty, q) in ing[rid].items()]})
 buckets = [b for b, _ in BUCKETS if any(c["bucket"] == b for c in catalog)]
 if any(c["bucket"] == "그 밖에" for c in catalog):

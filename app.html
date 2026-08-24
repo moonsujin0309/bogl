@@ -149,30 +149,51 @@
   .rback{position:absolute;top:calc(12px + var(--sa-t));left:16px;width:40px;height:40px;border-radius:20px;
          background:oklch(.2 .01 60/.46);color:var(--cream);
          display:flex;align-items:center;justify-content:center;backdrop-filter:blur(7px)}
-  .rbody{padding:20px 26px calc(30px + var(--sa-b))}
+  .rhead{padding:20px 26px 14px}
   .rtitle{margin:0;font-size:22px;font-weight:900;letter-spacing:-.045em;line-height:1.25}
   .rtags{display:flex;gap:5px;flex-wrap:wrap;margin-top:11px}
   .rtags i{font-style:normal;font-size:11px;font-weight:700;color:var(--l-tx2);background:var(--l-card);
            border:1px solid var(--l-line);padding:5px 9px;border-radius:7px}
-  .rsec{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:26px 0 11px}
-  .rsec h3{margin:0;font-size:15px;font-weight:900;letter-spacing:-.04em}
-  .rsec span{font-size:11px;color:var(--l-tx3);white-space:nowrap}
+  /* 재료는 만드는 도중에도 언제든 돌아볼 수 있어야 한다. 그래서 화면에 붙여 둔다. */
+  .rseg{position:sticky;top:0;z-index:3;display:flex;gap:6px;padding:9px 26px 10px;
+        background:var(--l-bg);border-bottom:1px solid var(--l-line)}
+  .rseg button{flex:1;height:42px;border-radius:12px;background:var(--l-card);
+               border:1px solid var(--l-line);font-size:13px;font-weight:800;color:var(--l-tx2);
+               display:flex;align-items:center;justify-content:center}
+  .rseg button.on{background:var(--ink);border-color:var(--ink);color:var(--cream);font-weight:900}
+  .rpane{padding:16px 26px calc(30px + var(--sa-b))}
+  /* 인분 조절. 레시피 기준 인분에서 늘리고 줄이면 분량이 따라 바뀐다. */
+  .serv{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+  .serv .sl{font-size:10px;letter-spacing:.15em;color:var(--l-tx3)}
+  .servc{display:flex;align-items:center;gap:9px;height:40px;padding:0 6px 0 14px;border-radius:12px;
+         background:var(--l-card);border:1px solid var(--l-line);font-size:13.5px;font-weight:800}
+  .servb{width:30px;height:30px;border-radius:9px;background:var(--l-thumb);color:var(--ink);
+         display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
   .ing{background:var(--l-card);border-radius:16px;padding:4px 16px}
   .igr{font-size:10px;letter-spacing:.14em;color:var(--l-tx3);padding:13px 0 1px}
   .ir{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:9px 0;
       border-bottom:1px solid var(--l-line);font-size:13.5px}
   .ing .ir:last-child{border-bottom:0}
-  .ir b{font-weight:500;color:var(--l-tx3);font-size:12.5px;white-space:nowrap}
-  /* 단계는 글이 주인공이고 사진은 곁이다. 사진이 커지면 몇 번째인지가 안 보인다. */
-  .stp{display:flex;gap:12px;padding:15px 0;border-bottom:1px solid var(--l-line)}
-  .stp:last-child{border-bottom:0}
-  .sn{width:22px;height:22px;border-radius:11px;background:var(--ink);color:var(--cream);flex:0 0 auto;
-      font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:2px}
-  .sx{flex:1;min-width:0;font-size:13.5px;line-height:1.65;color:var(--l-tx2)}
-  .sp{width:84px;height:84px;border-radius:12px;overflow:hidden;flex:0 0 auto;background:var(--l-thumb)}
-  .sp img{display:block;width:100%;height:100%;object-fit:cover}
-  .stip{display:block;margin-top:8px;padding:9px 12px;border-radius:9px;background:var(--l-thumb);
-        font-size:11.5px;line-height:1.6;color:var(--l-tx3)}
+  .ir b{font-weight:700;color:var(--l-tx2);font-size:12.5px;white-space:nowrap}
+  .ir b.raw{font-weight:500;color:var(--l-tx3)}
+  /* 만드는 법은 한 번에 한 단계만. 스무 문단을 한꺼번에 두면 어디까지 했는지 놓친다. */
+  .scard{background:var(--l-card);border-radius:18px;overflow:hidden}
+  .scard .si{aspect-ratio:4/3;background:var(--l-thumb)}
+  .scard .si img{display:block;width:100%;height:100%;object-fit:cover}
+  .scard .sb{padding:17px 20px 20px}
+  .scard .snum{font-size:10.5px;font-weight:900;letter-spacing:.14em;color:var(--l-tx3)}
+  .scard .stx{margin-top:8px;font-size:15px;line-height:1.7;color:var(--ink)}
+  .stip{display:block;margin-top:12px;padding:11px 13px;border-radius:10px;background:var(--l-thumb);
+        font-size:12px;line-height:1.65;color:var(--l-tx3)}
+  .dots{display:flex;gap:5px;justify-content:center;padding:14px 0 2px}
+  .dots i{width:6px;height:6px;border-radius:3px;background:var(--l-line);transition:width .18s}
+  .dots i.on{background:var(--ink);width:17px}
+  .snav{display:flex;gap:9px;margin-top:12px}
+  .snav button{flex:1;height:52px;border-radius:14px;font-size:14px;font-weight:900;
+               display:flex;align-items:center;justify-content:center;gap:7px}
+  .snav .prev{background:var(--l-card);border:1px solid var(--l-line);color:var(--l-tx2)}
+  .snav .next{background:var(--ink);color:var(--cream)}
+  .snav button[disabled]{opacity:.34}
   .rsrc{margin-top:26px;padding-top:15px;border-top:1px solid var(--l-line);
         font-size:10.5px;line-height:1.75;color:var(--l-tx3)}
   .rsrc a{text-decoration:underline;text-underline-offset:2px}
@@ -329,7 +350,14 @@
         <svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>
       </button>
     </div>
-    <div class="rbody" id="rbody"></div>
+    <div class="rhead">
+      <h1 class="rtitle" id="rtitle"></h1>
+      <div class="rtags" id="rtags"></div>
+    </div>
+    <div class="rseg" id="rseg">
+      <button data-t="ing">재료</button><button data-t="step">만드는 법</button>
+    </div>
+    <div class="rpane" id="rpane"></div>
   </section>
 </div>
 
@@ -450,45 +478,95 @@ $('explore').onclick = e => { const b = e.target.closest('.ec'); if(!b) return;
   ci = +b.dataset.i; renderBrowse(); scrollTo(0, 0); };
 $('grid').onclick  = e => { const c = e.target.closest('.card'); if(!c) return; openRecipe(c.dataset.n); };
 
-/** 요리 하나의 레시피 — 모달이 아니라 페이지다.
- *  큰 사진 → 제목·태그 → 재료(주재료/부재료/양념) → 만드는 법(번호·글·사진) → 출처.
- *  단계 사진은 아직 없어서 그 요리 사진을 임시로 돌려 쓴다(⚠ 아래 주석). */
-function openRecipe(name){
-  const c = (D.catalog || []).find(x => x.name === name) || {};
-  const st = (D.recipes || {})[name] || [];
-  const pc = (D.photos || {})[name];
-  $('rimg').src = dishPic(name);
-  $('rimg').alt = name;
-
-  const groups = [];
-  (c.ing || []).forEach(i => {
-    let g = groups.find(x => x.t === i.t);
-    if(!g) groups.push(g = { t: i.t, items: [] });
-    g.items.push(i);
-  });
-
-  $('rbody').innerHTML =
-    `<h1 class="rtitle">${esc(name)}</h1>
-     <div class="rtags"><i>${esc(c.kind)}</i><i>${esc(c.time)}</i><i>${esc(c.level)}</i><i>${esc(c.servings)}인분 기준</i></div>` +
-    (groups.length ? `
-      <div class="rsec"><h3>재료</h3><span>${esc(c.servings)}인분 기준 · ${(c.ing || []).length}가지</span></div>
-      <div class="ing">${groups.map(g => `<div class="igr">${esc(g.t)}</div>` +
-        g.items.map(i => `<div class="ir"><span>${esc(i.n)}</span><b>${esc(i.q || '조금')}</b></div>`).join('')).join('')}</div>` : '') +
-    (st.length ? `
-      <div class="rsec"><h3>만드는 법</h3><span>${st.length}단계</span></div>
-      <div>${st.map((s, i) => `
-        <div class="stp">
-          <span class="sn">${i + 1}</span>
-          <span class="sx">${esc(s.d)}${s.t ? `<span class="stip">${esc(s.t)}</span>` : ''}</span>
-          <span class="sp"><img src="${dishPic(name)}" alt=""></span>
-        </div>`).join('')}</div>`
-      : `<div class="rsec"><h3>만드는 법</h3></div><p style="font-size:13px;color:var(--l-tx3)">아직 없어요.</p>`) +
-    `<div class="rsrc">레시피 · ${esc(c.source)}` +
-      (pc ? `<br>사진 · <a href="${esc(pc.u)}" target="_blank" rel="noopener">${esc(pc.t)}</a> · ${esc(pc.l)} · 위키미디어 공용`
-          : `<br>사진 · 이 요리의 사진이 아직 없어 임시로 다른 사진을 걸어 두었어요`) +
-    `</div>`;
-  show('recipe'); scrollTo(0, 0);
+/** 레시피 분량. 장보기와 달리 올림하지 않는다 — 사러 갈 양이 아니라 넣을 양이다.
+ *  0.5 단위로 떨어뜨린다. `2.3개`보다 `2.5개`가 부엌에서 쓸 수 있는 숫자다. */
+const half = v => { const r = Math.round(v * 2) / 2; return r % 1 ? r.toFixed(1) : String(r); };
+function fmtR(v, u){
+  if(v == null || !u) return null;
+  if(u === 'ml') return v >= 200 ? half(v / 200) + '컵' : half(v / 15) + '큰술';
+  if(u === 'g')  return v >= 1000 ? half(v / 1000) + 'kg' : Math.max(1, Math.round(v)) + 'g';
+  return half(v) + u;
 }
+
+/** 요리 하나의 레시피 — 모달이 아니라 페이지다.
+ *  재료와 만드는 법을 탭으로 갈라 두는 이유: 만드는 도중에 재료를 다시 봐야 한다.
+ *  탭 줄은 화면에 붙어 있어 몇 단계째든 한 번에 돌아간다. */
+let rName = null, rServ = 2, rTab = 'ing', stepI = 0;
+
+function openRecipe(name){
+  rName = name; rTab = 'ing'; stepI = 0;
+  const c = (D.catalog || []).find(x => x.name === name) || {};
+  rServ = c.servings || 2;
+  $('rimg').src = dishPic(name); $('rimg').alt = name;
+  $('rtitle').textContent = name;
+  $('rtags').innerHTML = [c.kind, c.time, c.level].filter(Boolean)
+    .map(t => `<i>${esc(t)}</i>`).join('');
+  renderRecipe(); show('recipe'); scrollTo(0, 0);
+}
+
+function srcBlock(c, pc){
+  return `<div class="rsrc">레시피 · ${esc(c.source || '')}` +
+    (pc ? `<br>사진 · <a href="${esc(pc.u)}" target="_blank" rel="noopener">${esc(pc.t)}</a> · ${esc(pc.l)} · 위키미디어 공용`
+        : `<br>사진 · 이 요리의 사진이 아직 없어 임시로 다른 사진을 걸어 두었어요`) + `</div>`;
+}
+
+function renderRecipe(){
+  const c = (D.catalog || []).find(x => x.name === rName) || {};
+  const st = (D.recipes || {})[rName] || [];
+  const pc = (D.photos || {})[rName];
+  const base = c.servings || 2;
+  [...$('rseg').children].forEach(b => b.classList.toggle('on', b.dataset.t === rTab));
+
+  if(rTab === 'ing'){
+    const groups = [];
+    (c.ing || []).forEach(i => {
+      let g = groups.find(x => x.t === i.t);
+      if(!g) groups.push(g = { t: i.t, items: [] });
+      g.items.push(i);
+    });
+    $('rpane').innerHTML =
+      `<div class="serv">
+         <span class="sl">인분</span>
+         <div class="servc"><span id="servn">${rServ}인분</span>
+           <button class="servb" id="servm" aria-label="한 인분 줄이기">−</button>
+           <button class="servb" id="servp" aria-label="한 인분 늘리기">+</button></div>
+       </div>
+       <div class="ing">${groups.map(g => `<div class="igr">${esc(g.t)}</div>` + g.items.map(i => {
+          const scaled = fmtR(i.v == null ? null : i.v / base * rServ, i.u);
+          return `<div class="ir"><span>${esc(i.n)}</span>` +
+                 `<b class="${scaled ? '' : 'raw'}">${esc(scaled || i.q || '조금')}</b></div>`;
+        }).join('')).join('')}</div>` +
+      (base !== rServ ? `<p style="margin:10px 2px 0;font-size:10.5px;color:var(--l-tx3)">레시피 기준 ${base}인분에서 ${rServ}인분으로 늘려 계산했어요. <b style="font-weight:700">적당량</b>처럼 양이 안 적힌 것은 그대로예요.</p>` : '') +
+      srcBlock(c, pc);
+    $('servm').onclick = () => { rServ = Math.max(1, rServ - 1); renderRecipe(); };
+    $('servp').onclick = () => { rServ = Math.min(12, rServ + 1); renderRecipe(); };
+    return;
+  }
+
+  if(!st.length){
+    $('rpane').innerHTML = `<p style="font-size:13px;color:var(--l-tx3)">아직 만드는 법이 없어요.</p>` + srcBlock(c, pc);
+    return;
+  }
+  const s = st[stepI];
+  $('rpane').innerHTML =
+    `<div class="scard">
+       <div class="si"><img src="${dishPic(rName)}" alt=""></div>
+       <div class="sb">
+         <div class="snum">${stepI + 1} / ${st.length}</div>
+         <div class="stx">${esc(s.d)}${s.t ? `<span class="stip">${esc(s.t)}</span>` : ''}</div>
+       </div>
+     </div>
+     <div class="dots">${st.map((_, i) => `<i class="${i === stepI ? 'on' : ''}"></i>`).join('')}</div>
+     <div class="snav">
+       <button class="prev" id="sprev"${stepI ? '' : ' disabled'}>이전</button>
+       <button class="next" id="snext"${stepI < st.length - 1 ? '' : ' disabled'}>${stepI < st.length - 1 ? '다음' : '끝'}</button>
+     </div>` + srcBlock(c, pc);
+  $('sprev').onclick = () => { if(stepI > 0){ stepI--; renderRecipe(); scrollTo(0, 0); } };
+  $('snext').onclick = () => { if(stepI < st.length - 1){ stepI++; renderRecipe(); scrollTo(0, 0); } };
+}
+
+$('rseg').onclick = e => { const b = e.target.closest('button'); if(!b) return;
+  rTab = b.dataset.t; renderRecipe(); scrollTo(0, 0); };
 $('rback').onclick = () => { show('pick'); scrollTo(0, 0); };
 
 function renderList(){
