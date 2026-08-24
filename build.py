@@ -511,7 +511,11 @@ for n, rid in sorted(used.items()):
     catalog.append({"name": n, "kind": kind[rid], "bucket": bucket_of(kind[rid]),
                     "time": m.get("COOKING_TIME"), "min": minutes(m), "level": m.get("LEVEL_NM"),
                     "servings": servings(m), "source": "농림수산식품교육문화정보원",
-                    "rank": HERO_RANK.get(kind[rid], 13)})
+                    "rank": HERO_RANK.get(kind[rid], 13),
+                    # 레시피 페이지의 재료 칸. 조합 계산에 쓰는 pool과 달리 양념·상비품까지
+                    # 전부 넣는다 — 장볼 것이 아니라 만들 때 필요한 것 전부를 보여주는 자리다.
+                    "ing": [{"n": nm2, "q": q, "t": ty or "재료"}
+                            for nm2, (ty, q) in ing[rid].items()]})
 buckets = [b for b, _ in BUCKETS if any(c["bucket"] == b for c in catalog)]
 if any(c["bucket"] == "그 밖에" for c in catalog):
     buckets.append("그 밖에")

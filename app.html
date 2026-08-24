@@ -140,6 +140,43 @@
              padding:4px 8px;border-radius:6px;white-space:nowrap}
   .empty{padding:40px 26px;text-align:center;font-size:13px;color:var(--d-tx3)}
 
+  /* ── 레시피 (라이트) ──────────────────────────
+     읽고 따라 만드는 화면이라 밝다. 고르기·훑기는 어둡고, 하는 것은 밝다.
+     모달로 두면 스크롤이 갇히고 길이가 안 나온다. 레시피는 페이지가 맞다. */
+  #recipe{background:var(--l-bg);color:var(--ink)}
+  .rhero{position:relative;flex:0 0 auto;aspect-ratio:16/10;background:var(--l-thumb);overflow:hidden}
+  .rhero img{display:block;width:100%;height:100%;object-fit:cover}
+  .rback{position:absolute;top:calc(12px + var(--sa-t));left:16px;width:40px;height:40px;border-radius:20px;
+         background:oklch(.2 .01 60/.46);color:var(--cream);
+         display:flex;align-items:center;justify-content:center;backdrop-filter:blur(7px)}
+  .rbody{padding:20px 26px calc(30px + var(--sa-b))}
+  .rtitle{margin:0;font-size:22px;font-weight:900;letter-spacing:-.045em;line-height:1.25}
+  .rtags{display:flex;gap:5px;flex-wrap:wrap;margin-top:11px}
+  .rtags i{font-style:normal;font-size:11px;font-weight:700;color:var(--l-tx2);background:var(--l-card);
+           border:1px solid var(--l-line);padding:5px 9px;border-radius:7px}
+  .rsec{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:26px 0 11px}
+  .rsec h3{margin:0;font-size:15px;font-weight:900;letter-spacing:-.04em}
+  .rsec span{font-size:11px;color:var(--l-tx3);white-space:nowrap}
+  .ing{background:var(--l-card);border-radius:16px;padding:4px 16px}
+  .igr{font-size:10px;letter-spacing:.14em;color:var(--l-tx3);padding:13px 0 1px}
+  .ir{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:9px 0;
+      border-bottom:1px solid var(--l-line);font-size:13.5px}
+  .ing .ir:last-child{border-bottom:0}
+  .ir b{font-weight:500;color:var(--l-tx3);font-size:12.5px;white-space:nowrap}
+  /* 단계는 글이 주인공이고 사진은 곁이다. 사진이 커지면 몇 번째인지가 안 보인다. */
+  .stp{display:flex;gap:12px;padding:15px 0;border-bottom:1px solid var(--l-line)}
+  .stp:last-child{border-bottom:0}
+  .sn{width:22px;height:22px;border-radius:11px;background:var(--ink);color:var(--cream);flex:0 0 auto;
+      font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .sx{flex:1;min-width:0;font-size:13.5px;line-height:1.65;color:var(--l-tx2)}
+  .sp{width:84px;height:84px;border-radius:12px;overflow:hidden;flex:0 0 auto;background:var(--l-thumb)}
+  .sp img{display:block;width:100%;height:100%;object-fit:cover}
+  .stip{display:block;margin-top:8px;padding:9px 12px;border-radius:9px;background:var(--l-thumb);
+        font-size:11.5px;line-height:1.6;color:var(--l-tx3)}
+  .rsrc{margin-top:26px;padding-top:15px;border-top:1px solid var(--l-line);
+        font-size:10.5px;line-height:1.75;color:var(--l-tx3)}
+  .rsrc a{text-decoration:underline;text-underline-offset:2px}
+
   /* ── 장보기 목록 (라이트) ───────────────────── */
   #list{background:var(--l-bg);color:var(--ink)}
   .lhead{display:flex;align-items:center;gap:4px;padding:calc(14px + var(--sa-t)) 26px 10px}
@@ -202,22 +239,7 @@
   .rc .nm{font-size:14.5px;font-weight:700}
   .rc .mt{font-size:10.5px;color:var(--l-tx3);margin-top:3px;line-height:1.5;word-break:break-word}
   .rc .mt .cr{text-decoration:underline;text-underline-offset:2px}
-  /* 조리법은 펼침으로 둔다. 여덟 가지를 한꺼번에 펼치면 48문단이 쏟아진다.
-     <details>는 브라우저가 이미 하는 일이라 상태를 따로 들고 있을 필요가 없다. */
-  .dt summary{list-style:none;cursor:pointer}
-  .dt summary::-webkit-details-marker{display:none}
-  .dt summary .ar{margin-left:auto;color:var(--l-tx3);flex-shrink:0;transition:transform .18s;padding-top:2px}
-  .dt[open] summary .ar{transform:rotate(90deg)}
-  .dt[open] summary{border-bottom-color:transparent}
-  .steps{margin:0;padding:2px 4px 16px 35px;border-bottom:1px solid var(--l-line);
-         font-size:13px;line-height:1.65;color:var(--l-tx2)}
-  /* 요리 하나만 볼 때는 펼침 안에 들어있지 않으니 들여쓰기도 밑줄도 필요 없다. */
-  .steps.solo{padding:2px 4px 4px 22px;border-bottom:0}
-  .steps li{margin-bottom:9px;padding-left:3px}
-  .steps li::marker{font-weight:900;font-size:11px;color:var(--l-tx3)}
-  .steps .tip{display:block;margin-top:5px;padding:8px 11px;border-radius:9px;background:var(--l-thumb);
-              font-size:11.5px;line-height:1.6;color:var(--l-tx3)}
-  @media (prefers-reduced-motion:reduce){.dt summary .ar{transition:none}}
+  .rc .ar{margin-left:auto;color:var(--l-tx3);flex-shrink:0;padding-top:2px}
 
   /* 조합 고르기. 지금 보고 있는 것만 밝기를 뒤집는다 — 위계는 색이 아니라 반전으로. */
   button.rc{width:100%;text-align:left;min-height:44px}
@@ -298,6 +320,16 @@
         쿠팡에서 찾기
       </button>
     </div>
+  </section>
+
+  <section id="recipe" class="view">
+    <div class="rhero">
+      <img id="rimg" alt="">
+      <button class="rback" id="rback" aria-label="뒤로">
+        <svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>
+      </button>
+    </div>
+    <div class="rbody" id="rbody"></div>
   </section>
 </div>
 
@@ -416,21 +448,48 @@ function renderBrowse(){
 }
 $('explore').onclick = e => { const b = e.target.closest('.ec'); if(!b) return;
   ci = +b.dataset.i; renderBrowse(); scrollTo(0, 0); };
-$('grid').onclick  = e => { const c = e.target.closest('.card'); if(!c) return; recipeSheet(c.dataset.n); };
+$('grid').onclick  = e => { const c = e.target.closest('.card'); if(!c) return; openRecipe(c.dataset.n); };
 
-/** 요리 하나의 레시피. `모든 요리`에서 카드를 누르면 열린다. */
-function recipeSheet(name){
+/** 요리 하나의 레시피 — 모달이 아니라 페이지다.
+ *  큰 사진 → 제목·태그 → 재료(주재료/부재료/양념) → 만드는 법(번호·글·사진) → 출처.
+ *  단계 사진은 아직 없어서 그 요리 사진을 임시로 돌려 쓴다(⚠ 아래 주석). */
+function openRecipe(name){
   const c = (D.catalog || []).find(x => x.name === name) || {};
-  const st = (D.recipes || {})[name];
+  const st = (D.recipes || {})[name] || [];
   const pc = (D.photos || {})[name];
-  openSheet(
-    `<h3>${esc(name)}</h3>
-     <p class="sub">${esc(c.kind)} · ${esc(c.time)} · ${esc(c.level)} · ${esc(c.servings)}인분 기준<br>
-      레시피 ${esc(c.source)}${pc ? `<br>사진 <a class="cr" href="${esc(pc.u)}" target="_blank" rel="noopener">${esc(pc.t)}</a> · ${esc(pc.l)} · 위키미디어 공용` : ''}</p>` +
-    (st ? `<ol class="steps solo">${st.map(s =>
-            `<li>${esc(s.d)}${s.t ? `<span class="tip">${esc(s.t)}</span>` : ''}</li>`).join('')}</ol>`
-        : `<p class="sub">이 요리는 아직 만드는 법이 없어요.</p>`));
+  $('rimg').src = dishPic(name);
+  $('rimg').alt = name;
+
+  const groups = [];
+  (c.ing || []).forEach(i => {
+    let g = groups.find(x => x.t === i.t);
+    if(!g) groups.push(g = { t: i.t, items: [] });
+    g.items.push(i);
+  });
+
+  $('rbody').innerHTML =
+    `<h1 class="rtitle">${esc(name)}</h1>
+     <div class="rtags"><i>${esc(c.kind)}</i><i>${esc(c.time)}</i><i>${esc(c.level)}</i><i>${esc(c.servings)}인분 기준</i></div>` +
+    (groups.length ? `
+      <div class="rsec"><h3>재료</h3><span>${esc(c.servings)}인분 기준 · ${(c.ing || []).length}가지</span></div>
+      <div class="ing">${groups.map(g => `<div class="igr">${esc(g.t)}</div>` +
+        g.items.map(i => `<div class="ir"><span>${esc(i.n)}</span><b>${esc(i.q || '조금')}</b></div>`).join('')).join('')}</div>` : '') +
+    (st.length ? `
+      <div class="rsec"><h3>만드는 법</h3><span>${st.length}단계</span></div>
+      <div>${st.map((s, i) => `
+        <div class="stp">
+          <span class="sn">${i + 1}</span>
+          <span class="sx">${esc(s.d)}${s.t ? `<span class="stip">${esc(s.t)}</span>` : ''}</span>
+          <span class="sp"><img src="${dishPic(name)}" alt=""></span>
+        </div>`).join('')}</div>`
+      : `<div class="rsec"><h3>만드는 법</h3></div><p style="font-size:13px;color:var(--l-tx3)">아직 없어요.</p>`) +
+    `<div class="rsrc">레시피 · ${esc(c.source)}` +
+      (pc ? `<br>사진 · <a href="${esc(pc.u)}" target="_blank" rel="noopener">${esc(pc.t)}</a> · ${esc(pc.l)} · 위키미디어 공용`
+          : `<br>사진 · 이 요리의 사진이 아직 없어 임시로 다른 사진을 걸어 두었어요`) +
+    `</div>`;
+  show('recipe'); scrollTo(0, 0);
 }
+$('rback').onclick = () => { show('pick'); scrollTo(0, 0); };
 
 function renderList(){
   const s = set();
@@ -458,7 +517,7 @@ function renderList(){
  *  스크롤 바운스에서 반대 색이 비친다. */
 function show(id){
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === id));
-  const light = id === 'list';
+  const light = id !== 'pick';   // 고르기·훑기만 어둡다. 장보기도 레시피도 하는 화면이라 밝다.
   document.body.classList.toggle('light', light);
   const m = document.querySelector('meta[name=theme-color]');
   if(m) m.setAttribute('content', light ? '#f5f4f1' : '#2b2926');
@@ -507,28 +566,23 @@ $('back').onclick  = () => { show('pick'); scrollTo(0, 0); };
 $('cats').onclick  = e => { const r = e.target.closest('.row'); if(!r) return;
   const n = r.dataset.n; done[n] = !done[n]; r.classList.toggle('done', done[n]); };
 
-/** 요리별 조리법과 출처. 레시피가 다른 곳에서 오면 여기서 각각 드러난다.
- *  조리법이 없는 요리는 펼침 없이 줄만 남는다 — 없는 걸 있는 척하지 않는다. */
+/** 조합에 든 요리 목록. 누르면 그 요리의 레시피 페이지로 간다.
+ *  전에는 여기서 펼침으로 조리법을 보여줬는데, 레시피를 읽는 길이 둘이면 헷갈린다.
+ *  읽는 자리는 레시피 페이지 하나로 모은다. */
 const ARROW = '<svg class="ar" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>';
 function dishSheet(){
   openSheet(
   `<h3>요리 ${set().dishes.length}가지</h3>
    <p class="sub">눌러서 만드는 법을 봅니다. 출처는 레시피마다 답니다 — 다른 곳 레시피를 더해도 이 목록에 그대로 드러나요.</p>` +
-  set().dishes.map((d, i) => {
-    // 사진은 대부분 CC BY / CC BY-SA라 표기가 의무다. 쓰는 자리에 바로 붙인다.
-    const pc = (D.photos || {})[d.name];
-    const head = `<div class="no">${i+1}</div>
+  set().dishes.map((d, i) => `
+    <button class="rc" data-n="${esc(d.name)}">
+      <div class="no">${i+1}</div>
       <div><div class="nm">${esc(d.name)}</div>
         <div class="mt">${esc(d.kind)} · ${esc(d.time)} · ${esc(d.level)} · ${esc(d.servings)}인분 기준<br>
-        레시피 ${esc(d.source)}${pc ? `<br>사진 <a class="cr" href="${esc(pc.u)}" target="_blank" rel="noopener">${esc(pc.t)}</a> · ${esc(pc.l)} · 위키미디어 공용` : ''}</div></div>`;
-    const st = (D.recipes || {})[d.name];
-    if(!st) return `<div class="rc">${head}</div>`;
-    return `<details class="dt"><summary class="rc">${head}${ARROW}</summary>
-      <ol class="steps">${st.map(s =>
-        `<li>${esc(s.d)}${s.t ? `<span class="tip">${esc(s.t)}</span>` : ''}</li>`).join('')}</ol></details>`;
-  }).join(''));
-  // 출처 링크가 summary 안에 있어 그냥 두면 누를 때 펼침까지 같이 토글된다.
-  box.querySelectorAll('.cr').forEach(a => a.onclick = e => e.stopPropagation());
+        레시피 ${esc(d.source)}</div></div>${ARROW}
+    </button>`).join(''));
+  box.querySelectorAll('.rc').forEach(b => b.onclick = () => {
+    sheet.classList.remove('on'); openRecipe(b.dataset.n); });
 }
 $('dishes').onclick = dishSheet;
 $('dishmore').onclick = dishSheet;
