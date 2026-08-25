@@ -200,7 +200,7 @@
   .stip{display:block;margin-top:12px;padding:11px 13px;border-radius:10px;background:var(--l-thumb);
         font-size:12px;line-height:1.65;color:var(--l-tx3)}
   /* 글이 길든 짧든 넘김 버튼은 늘 같은 자리에 있어야 한다. 흐름에 두면 카드 높이를 따라 오르내린다. */
-  .sfoot{margin-top:auto;position:sticky;bottom:0;padding:10px 0 calc(10px + var(--sa-b));
+  .sfoot{position:sticky;bottom:0;padding:10px 0 calc(10px + var(--sa-b));
          background:linear-gradient(to top,var(--l-bg) 74%,transparent)}
   .dots{display:flex;gap:5px;justify-content:center;padding:0 0 10px}
   .dots i{width:6px;height:6px;border-radius:3px;background:var(--l-line);transition:width .18s}
@@ -602,6 +602,7 @@ function renderRecipe(){
          <div class="stx">${esc(s.d)}${s.t ? `<span class="stip">${esc(s.t)}</span>` : ''}</div>
        </div>
      </div>
+     <div class="grow"></div>
      ${srcBlock(c, pc)}
      <div class="sfoot">
        <div class="dots">${st.map((_, i) => `<i class="${i === stepI ? 'on' : ''}"></i>`).join('')}</div>
