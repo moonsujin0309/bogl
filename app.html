@@ -146,18 +146,21 @@
      읽고 따라 만드는 화면이라 밝다. 고르기·훑기는 어둡고, 하는 것은 밝다.
      모달로 두면 스크롤이 갇히고 길이가 안 나온다. 레시피는 페이지가 맞다. */
   #recipe{background:var(--l-bg);color:var(--ink)}
-  .rhero{position:relative;flex:0 0 auto;aspect-ratio:16/10;background:var(--l-thumb);overflow:hidden}
-  .rhero img{display:block;width:100%;height:100%;object-fit:cover}
-  .rback,.rmark{position:absolute;top:calc(12px + var(--sa-t));width:40px;height:40px;border-radius:20px;
-         background:oklch(.2 .01 60/.46);color:var(--cream);
-         display:flex;align-items:center;justify-content:center;backdrop-filter:blur(7px)}
-  .rback{left:16px}
+  /* 요리를 이미 고르고 들어온 화면이다. 맨 위에 큰 사진을 다시 거는 건 자리 낭비라
+     이름 옆 작은 썸네일로 줄였다(2026-08-25 사용자 교정). */
+  .rtop{display:flex;align-items:center;justify-content:space-between;
+        padding:calc(8px + var(--sa-t)) 16px 0}
+  .rback,.rmark{width:44px;height:44px;border-radius:22px;color:var(--l-tx2);
+         display:flex;align-items:center;justify-content:center}
   /* 저장은 색이 아니라 반전으로 알린다 — 이 앱에 유채색은 사진뿐이다. */
-  .rmark{right:16px}
-  .rmark.on{background:var(--cream);color:var(--ink)}
-  .rhead{padding:20px 26px 14px}
-  .rtitle{margin:0;font-size:22px;font-weight:900;letter-spacing:-.045em;line-height:1.25}
-  .rtags{display:flex;gap:5px;flex-wrap:wrap;margin-top:11px}
+  .rmark.on{background:var(--ink);color:var(--cream)}
+  .rhead{display:flex;align-items:center;gap:14px;padding:4px 26px 14px}
+  .rth{width:62px;height:62px;border-radius:16px;overflow:hidden;background:var(--l-thumb);flex:0 0 auto}
+  .rth img{display:block;width:100%;height:100%;object-fit:cover}
+  .rht{min-width:0}
+  .rtitle{margin:0;font-size:19px;font-weight:900;letter-spacing:-.045em;line-height:1.25;
+          overflow-wrap:anywhere}
+  .rtags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
   .rtags i{font-style:normal;font-size:11px;font-weight:700;color:var(--l-tx2);background:var(--l-card);
            border:1px solid var(--l-line);padding:5px 9px;border-radius:7px}
   /* 재료는 만드는 도중에도 언제든 돌아볼 수 있어야 한다. 그래서 화면에 붙여 둔다. */
@@ -167,7 +170,12 @@
                border:1px solid var(--l-line);font-size:13px;font-weight:800;color:var(--l-tx2);
                display:flex;align-items:center;justify-content:center}
   .rseg button.on{background:var(--ink);border-color:var(--ink);color:var(--cream);font-weight:900}
-  .rpane{padding:16px 26px calc(30px + var(--sa-b))}
+  /* 내용이 화면보다 짧으면 sticky는 붙을 데가 없어 흐름 자리에 그대로 앉는다.
+     남는 높이를 pane이 먹고 .sfoot을 margin-top:auto로 밀어야 길든 짧든 같은 자리다. */
+  .rpane{flex:1;display:flex;flex-direction:column;padding:16px 26px calc(30px + var(--sa-b))}
+  /* 만드는 법에서는 아래 여백을 .sfoot이 들고 있다. pane에도 두면 짧은 단계와 긴 단계의
+     버튼 위치가 그 여백만큼(25px) 어긋난다. */
+  .rpane.stepping{padding-bottom:0}
   /* 인분 조절. 레시피 기준 인분에서 늘리고 줄이면 분량이 따라 바뀐다. */
   .serv{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
   .serv .sl{font-size:10px;letter-spacing:.15em;color:var(--l-tx3)}
@@ -192,7 +200,7 @@
   .stip{display:block;margin-top:12px;padding:11px 13px;border-radius:10px;background:var(--l-thumb);
         font-size:12px;line-height:1.65;color:var(--l-tx3)}
   /* 글이 길든 짧든 넘김 버튼은 늘 같은 자리에 있어야 한다. 흐름에 두면 카드 높이를 따라 오르내린다. */
-  .sfoot{position:sticky;bottom:0;padding:10px 0 calc(10px + var(--sa-b));
+  .sfoot{margin-top:auto;position:sticky;bottom:0;padding:10px 0 calc(10px + var(--sa-b));
          background:linear-gradient(to top,var(--l-bg) 74%,transparent)}
   .dots{display:flex;gap:5px;justify-content:center;padding:0 0 10px}
   .dots i{width:6px;height:6px;border-radius:3px;background:var(--l-line);transition:width .18s}
@@ -353,18 +361,20 @@
   </section>
 
   <section id="recipe" class="view">
-    <div class="rhero">
-      <img id="rimg" alt="">
+    <div class="rtop">
       <button class="rback" id="rback" aria-label="뒤로">
         <svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>
       </button>
       <button class="rmark" id="rmark" aria-label="저장">
-        <svg id="rmarki" width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 2.4h8v11.2L8 10.6l-4 3z"/></svg>
+        <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 2.4h8v11.2L8 10.6l-4 3z"/></svg>
       </button>
     </div>
     <div class="rhead">
-      <h1 class="rtitle" id="rtitle"></h1>
-      <div class="rtags" id="rtags"></div>
+      <span class="rth"><img id="rimg" alt=""></span>
+      <div class="rht">
+        <h1 class="rtitle" id="rtitle"></h1>
+        <div class="rtags" id="rtags"></div>
+      </div>
     </div>
     <div class="rseg" id="rseg">
       <button data-t="ing">재료</button><button data-t="step">만드는 법</button>
@@ -551,6 +561,7 @@ function renderRecipe(){
   const pc = (D.photos || {})[rName];
   const base = c.servings || 2;
   [...$('rseg').children].forEach(b => b.classList.toggle('on', b.dataset.t === rTab));
+  $('rpane').classList.toggle('stepping', rTab === 'step');
 
   if(rTab === 'ing'){
     const groups = [];
