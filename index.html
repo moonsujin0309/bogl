@@ -130,7 +130,9 @@
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 11px;
         padding:0 26px calc(28px + var(--sa-b))}
   .card{display:flex;flex-direction:column;gap:9px}
-  .card .th{aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--d-card)}
+  .card .th{position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--d-card)}
+  .card .mk2{position:absolute;top:8px;right:8px;width:25px;height:25px;border-radius:13px;
+             background:var(--cream);color:var(--ink);display:flex;align-items:center;justify-content:center}
   .card .th img{display:block;width:100%;height:100%;object-fit:cover}
   .card .cn{font-size:14px;font-weight:700;letter-spacing:-.035em;line-height:1.35;color:var(--cream);
             overflow-wrap:anywhere;overflow:hidden;
@@ -146,9 +148,13 @@
   #recipe{background:var(--l-bg);color:var(--ink)}
   .rhero{position:relative;flex:0 0 auto;aspect-ratio:16/10;background:var(--l-thumb);overflow:hidden}
   .rhero img{display:block;width:100%;height:100%;object-fit:cover}
-  .rback{position:absolute;top:calc(12px + var(--sa-t));left:16px;width:40px;height:40px;border-radius:20px;
+  .rback,.rmark{position:absolute;top:calc(12px + var(--sa-t));width:40px;height:40px;border-radius:20px;
          background:oklch(.2 .01 60/.46);color:var(--cream);
          display:flex;align-items:center;justify-content:center;backdrop-filter:blur(7px)}
+  .rback{left:16px}
+  /* 저장은 색이 아니라 반전으로 알린다 — 이 앱에 유채색은 사진뿐이다. */
+  .rmark{right:16px}
+  .rmark.on{background:var(--cream);color:var(--ink)}
   .rhead{padding:20px 26px 14px}
   .rtitle{margin:0;font-size:22px;font-weight:900;letter-spacing:-.045em;line-height:1.25}
   .rtags{display:flex;gap:5px;flex-wrap:wrap;margin-top:11px}
@@ -185,10 +191,13 @@
   .scard .stx{margin-top:8px;font-size:15px;line-height:1.7;color:var(--ink)}
   .stip{display:block;margin-top:12px;padding:11px 13px;border-radius:10px;background:var(--l-thumb);
         font-size:12px;line-height:1.65;color:var(--l-tx3)}
-  .dots{display:flex;gap:5px;justify-content:center;padding:14px 0 2px}
+  /* 글이 길든 짧든 넘김 버튼은 늘 같은 자리에 있어야 한다. 흐름에 두면 카드 높이를 따라 오르내린다. */
+  .sfoot{position:sticky;bottom:0;padding:10px 0 calc(10px + var(--sa-b));
+         background:linear-gradient(to top,var(--l-bg) 74%,transparent)}
+  .dots{display:flex;gap:5px;justify-content:center;padding:0 0 10px}
   .dots i{width:6px;height:6px;border-radius:3px;background:var(--l-line);transition:width .18s}
   .dots i.on{background:var(--ink);width:17px}
-  .snav{display:flex;gap:9px;margin-top:12px}
+  .snav{display:flex;gap:9px}
   .snav button{flex:1;height:52px;border-radius:14px;font-size:14px;font-weight:900;
                display:flex;align-items:center;justify-content:center;gap:7px}
   .snav .prev{background:var(--l-card);border:1px solid var(--l-line);color:var(--l-tx2)}
@@ -349,6 +358,9 @@
       <button class="rback" id="rback" aria-label="뒤로">
         <svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>
       </button>
+      <button class="rmark" id="rmark" aria-label="저장">
+        <svg id="rmarki" width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 2.4h8v11.2L8 10.6l-4 3z"/></svg>
+      </button>
     </div>
     <div class="rhead">
       <h1 class="rtitle" id="rtitle"></h1>
@@ -368,7 +380,14 @@
 const D = JSON.parse(document.getElementById('bogl-data').textContent);
 let si = 0, people = D.sets[0].people, done = {};
 // `모든 요리` 탭 상태. 조합 축과 달리 세트가 아니라 요리 낱낱을 훑는다.
-let browsing = false, ci = 0;
+let browsing = false, catKey = '전체';
+/** 저장한 요리. 서버가 없으니 이 기기에만 남는다 — 폰을 바꾸면 사라진다.
+ *  시크릿 모드에서는 localStorage가 예외를 던지므로 감싼다. */
+const MARKS = 'bogl.marks';
+let marks = new Set();
+try { marks = new Set(JSON.parse(localStorage.getItem(MARKS) || '[]')); } catch(e){}
+const saveMarks = () => { try { localStorage.setItem(MARKS, JSON.stringify([...marks])); } catch(e){} };
+const MARKI = '<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.4h8v11.2L8 10.6l-4 3z"/></svg>';
 const $ = id => document.getElementById(id);
 const set = () => D.sets[si];
 
@@ -454,14 +473,22 @@ function renderPick(){
 /** 모든 요리 — 조합과 상관없이 요리 낱낱을 훑고 눌러서 레시피를 본다.
  *  탐색 카드는 분류만이 아니라 난이도·시간도 섞는다. 고르는 이유가 그것뿐이 아니다. */
 const catMatch = (c, cat) =>
-  cat.f === 'all' || (cat.f === 'bucket' && c.bucket === cat.v)
+  cat.f === 'all' || (cat.f === 'mark' && marks.has(c.name))
+  || (cat.f === 'bucket' && c.bucket === cat.v)
   || (cat.f === 'level' && c.level === cat.v) || (cat.f === 'maxmin' && c.min <= cat.v);
 
+/** 저장한 것이 있을 때만 맨 앞에 세운다. 빈 칸을 눌러 아무것도 없는 화면을 보여줄 이유가 없다. */
+const catList = () => (marks.size
+  ? [{ label: '저장한 요리', f: 'mark', n: marks.size, pic: [...marks][0] }] : [])
+  .concat(D.cats || []);
+
 function renderBrowse(){
-  const cats = D.cats || [], cur = cats[ci] || { f: 'all', label: '모든 요리' };
+  const cats = catList();
+  const cur = cats.find(c => c.label === catKey) || cats[0];   // 고르던 묶음이 사라졌으면 맨 앞으로
+  catKey = cur.label;
   const items = (D.catalog || []).filter(c => catMatch(c, cur));
-  $('explore').innerHTML = cats.map((c, i) => `
-    <button class="ec${i === ci ? ' on' : ''}" data-i="${i}">
+  $('explore').innerHTML = cats.map(c => `
+    <button class="ec${c.label === catKey ? ' on' : ''}" data-b="${esc(c.label)}">
       <span class="el">${esc(c.label)}</span>
       <span class="ep">${c.pic && PHOTO[c.pic] ? `<img src="${PHOTO[c.pic]}" alt="">` : ''}</span>
     </button>`).join('');
@@ -469,13 +496,13 @@ function renderBrowse(){
   $('gcount').textContent = `${items.length}가지 · 눌러서 만드는 법 보기`;
   $('grid').innerHTML = items.length ? items.map(c => `
     <button class="card" data-n="${esc(c.name)}">
-      <span class="th"><img src="${dishPic(c.name)}" alt=""></span>
+      <span class="th"><img src="${dishPic(c.name)}" alt="">${marks.has(c.name) ? `<i class="mk2">${MARKI}</i>` : ''}</span>
       <span class="cn">${esc(c.name)}</span>
       <span class="tags"><i class="tg2">${esc(c.time)}</i><i class="tg2">${esc(c.level)}</i></span>
     </button>`).join('') : `<div class="empty" style="grid-column:span 2">여기엔 아직 요리가 없어요</div>`;
 }
 $('explore').onclick = e => { const b = e.target.closest('.ec'); if(!b) return;
-  ci = +b.dataset.i; renderBrowse(); scrollTo(0, 0); };
+  catKey = b.dataset.b; renderBrowse(); scrollTo(0, 0); };
 $('grid').onclick  = e => { const c = e.target.closest('.card'); if(!c) return; openRecipe(c.dataset.n); };
 
 /** 레시피 분량. 장보기와 달리 올림하지 않는다 — 사러 갈 양이 아니라 넣을 양이다.
@@ -501,8 +528,16 @@ function openRecipe(name){
   $('rtitle').textContent = name;
   $('rtags').innerHTML = [c.kind, c.time, c.level].filter(Boolean)
     .map(t => `<i>${esc(t)}</i>`).join('');
+  paintMark();
   renderRecipe(); show('recipe'); scrollTo(0, 0);
 }
+
+const paintMark = () => $('rmark').classList.toggle('on', marks.has(rName));
+$('rmark').onclick = () => {
+  if(marks.has(rName)) marks.delete(rName); else marks.add(rName);
+  saveMarks(); paintMark();
+  toast(marks.has(rName) ? '저장했어요' : '저장을 지웠어요');
+};
 
 function srcBlock(c, pc){
   return `<div class="rsrc">레시피 · ${esc(c.source || '')}` +
@@ -556,18 +591,22 @@ function renderRecipe(){
          <div class="stx">${esc(s.d)}${s.t ? `<span class="stip">${esc(s.t)}</span>` : ''}</div>
        </div>
      </div>
-     <div class="dots">${st.map((_, i) => `<i class="${i === stepI ? 'on' : ''}"></i>`).join('')}</div>
-     <div class="snav">
-       <button class="prev" id="sprev"${stepI ? '' : ' disabled'}>이전</button>
-       <button class="next" id="snext"${stepI < st.length - 1 ? '' : ' disabled'}>${stepI < st.length - 1 ? '다음' : '끝'}</button>
-     </div>` + srcBlock(c, pc);
+     ${srcBlock(c, pc)}
+     <div class="sfoot">
+       <div class="dots">${st.map((_, i) => `<i class="${i === stepI ? 'on' : ''}"></i>`).join('')}</div>
+       <div class="snav">
+         <button class="prev" id="sprev"${stepI ? '' : ' disabled'}>이전</button>
+         <button class="next" id="snext"${stepI < st.length - 1 ? '' : ' disabled'}>${stepI < st.length - 1 ? '다음' : '끝'}</button>
+       </div>
+     </div>`;
   $('sprev').onclick = () => { if(stepI > 0){ stepI--; renderRecipe(); scrollTo(0, 0); } };
   $('snext').onclick = () => { if(stepI < st.length - 1){ stepI++; renderRecipe(); scrollTo(0, 0); } };
 }
 
 $('rseg').onclick = e => { const b = e.target.closest('button'); if(!b) return;
   rTab = b.dataset.t; renderRecipe(); scrollTo(0, 0); };
-$('rback').onclick = () => { show('pick'); scrollTo(0, 0); };
+// 레시피에서 저장을 껐다 켰다 하고 나오면 목록이 달라져 있다. 다시 그리지 않으면 옛 화면이 남는다.
+$('rback').onclick = () => { show('pick'); renderPick(); scrollTo(0, 0); };
 
 function renderList(){
   const s = set();
