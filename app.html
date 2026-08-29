@@ -126,6 +126,12 @@
   .ec .ep img{display:block;width:100%;height:100%;object-fit:cover}
   .ec.on{background:var(--cream)}
   .ec.on .el{color:var(--ink)}
+  /* 정렬. 칩보다 한 단 낮은 글줄로 둔다 — 분류를 고르는 탐색 카드와 위계가 겹치면 안 된다. */
+  .sortrow{display:flex;gap:14px;padding:0 26px 12px;overflow-x:auto;scrollbar-width:none}
+  .sortrow::-webkit-scrollbar{display:none}
+  .sortrow button{flex:0 0 auto;font-size:11.5px;font-weight:700;color:var(--d-tx3);
+                  padding:5px 0;white-space:nowrap;border-bottom:1.5px solid transparent}
+  .sortrow button.on{color:var(--cream);border-bottom-color:var(--cream)}
   /* 사진이 주인공이다. 제목은 사진 아래 굵게 두 줄, 곁들이는 값은 태그로. */
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 11px;
         padding:0 26px calc(28px + var(--sa-b))}
@@ -363,6 +369,7 @@
       <div class="sec"><h2>탐색하기</h2></div>
       <div class="explore" id="explore"></div>
       <div class="sec"><h2 id="gtitle"></h2><span class="side" id="gcount"></span></div>
+      <div class="sortrow" id="sortrow"></div>
       <div class="grid" id="grid"></div>
     </div>
     <div class="grow"></div>
@@ -436,7 +443,14 @@
 const D = JSON.parse(document.getElementById('bogl-data').textContent);
 let si = 0, people = D.sets[0].people, done = {};
 // `모든 요리` 탭 상태. 조합 축과 달리 세트가 아니라 요리 낱낱을 훑는다.
-let browsing = false, catKey = '전체';
+let browsing = false, catKey = '전체', sortKey = '가나다';
+/** 정렬. 재료·단계·시간은 `적을수록 쉬운 것`이라 전부 오름차순이다. */
+const SORTS = {
+  '가나다':      c => c.name,
+  '재료 적은 순': c => [(c.ing || []).length, c.name],
+  '단계 적은 순': c => [((D.recipes || {})[c.name] || []).length || 99, c.name],
+  '시간 짧은 순': c => [c.min || 999, c.name],
+};
 /** 저장한 요리. 서버가 없으니 이 기기에만 남는다 — 폰을 바꾸면 사라진다.
  *  시크릿 모드에서는 localStorage가 예외를 던지므로 감싼다. */
 const MARKS = 'bogl.marks';
@@ -475,6 +489,11 @@ const HERO = '__HERO__';
  *  `PHOTO[n] || ''`로 되돌리고 없는 자리는 다시 그릇 글리프로 둔다. */
 const dishPic = n => PHOTO[n] || HERO;
 const dishFace = n => `<span class="cir ph"><img src="${dishPic(n)}" alt=""></span>`;
+// `4가지`보다 `네 가지`가 읽힌다. 열 이상은 숫자로 둔다.
+const KO = ['', '한', '두', '세', '네', '다섯', '여섯', '일곱', '여덟', '아홉'];
+/** 받침이 있으면 `과`, 없으면 `와`. `조기찜와`처럼 나가면 한국어가 아니다. */
+const gwa = w => { const c = (w || '').charCodeAt((w || '').length - 1) - 0xAC00;
+  return (c >= 0 && c <= 11171 && c % 28 !== 0) ? '과' : '와'; };
 const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 // 파이썬 build.py의 fmt()와 같은 규칙. 장볼 양이라 모자라지 않게 올림한다.
@@ -550,6 +569,12 @@ function renderBrowse(){
     </button>`).join('');
   $('gtitle').textContent = cur.f === 'all' ? '모든 요리' : cur.label;
   $('gcount').textContent = `${items.length}가지 · 눌러서 만드는 법 보기`;
+  $('sortrow').innerHTML = Object.keys(SORTS).map(k =>
+    `<button class="${k === sortKey ? 'on' : ''}" data-s="${esc(k)}">${esc(k)}</button>`).join('');
+  const skey = SORTS[sortKey] || SORTS['가나다'];
+  items.sort((a, b) => { const x = skey(a), y = skey(b);
+    return Array.isArray(x) ? (x[0] - y[0]) || String(x[1]).localeCompare(y[1], 'ko')
+                            : String(x).localeCompare(String(y), 'ko'); });
   $('grid').innerHTML = items.length ? items.map(c => `
     <button class="card" data-n="${esc(c.name)}">
       <span class="th"><img src="${dishPic(c.name)}" alt="">${marks.has(c.name) ? `<i class="mk2">${MARKI}</i>` : ''}</span>
@@ -559,6 +584,8 @@ function renderBrowse(){
 }
 $('explore').onclick = e => { const b = e.target.closest('.ec'); if(!b) return;
   catKey = b.dataset.b; renderBrowse(); scrollTo(0, 0); };
+$('sortrow').onclick = e => { const b = e.target.closest('button'); if(!b) return;
+  sortKey = b.dataset.s; renderBrowse(); };
 $('grid').onclick  = e => { const c = e.target.closest('.card'); if(!c) return; openRecipe(c.dataset.n); };
 
 /** 레시피 분량. 장보기와 달리 올림하지 않는다 — 사러 갈 양이 아니라 넣을 양이다.
@@ -847,8 +874,8 @@ $('again').onclick = () => {
     ix.map(i => { const s = D.sets[i]; return `
       <button class="rc${i===si?' now':''}" data-i="${i}">
         <div class="no">${s.vi}</div>
-        <div><div class="nm">살 것 ${s.buyCount}가지</div>
-          <div class="mt">${s.dishes.map(d => esc(d.name)).join(' · ')}</div></div>
+        <div><div class="nm">${esc(s.hero)}${gwa(s.hero)} ${KO[s.dishes.length-1] || (s.dishes.length-1)} 가지</div>
+          <div class="mt">살 것 ${s.buyCount}가지<br>${s.dishes.map(d => esc(d.name)).join(' · ')}</div></div>
       </button>`; }).join(''));
   box.querySelectorAll('.rc').forEach(b => b.onclick = () => pickCombo(+b.dataset.i));
   const now = box.querySelector('.rc.now');

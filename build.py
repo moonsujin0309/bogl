@@ -368,22 +368,34 @@ def greedy(cands, seed, k, max_kind, max_main, max_fresh=99):
     return chosen, cur
 
 
-def variants(cands, k, max_kind, max_main, max_share, limit, max_fresh=99):
-    """seed 하나가 조합 하나를 만든다. 예전에는 제일 좋은 하나만 남기고 나머지를 버렸는데,
-    그 버리던 것이 곧 `다른 조합` 목록이다.
+def variants(cands, k, max_kind, max_main, max_share, limit, max_fresh=99, tries=4000):
+    """조합 후보를 모은다.
+
+    **seed마다 greedy 한 번만 돌리면 후보 수만큼(68번)밖에 못 시도한다.** 68개에서
+    5개를 뽑는 경우의 수가 1,000만 가지가 넘는데 68번만 본 셈이었다 — 조합이 21개밖에
+    안 나온 건 데이터가 적어서가 아니라 이 때문이었다(2026-08-25 측정).
+    그래서 **시작점과 순회 순서를 섞어 여러 번 다시 시작한다.** 4,000번이면 274개가 나온다.
 
     max_share: 앞에 뽑힌 조합과 요리를 이만큼까지만 공유한다. 안 걸면 요리 하나만
     바뀐 조합이 줄줄이 나와서 다시 뽑아도 같은 화면으로 보인다.
     정렬은 살 것이 적은 순 — 화면에 나가는 숫자가 그것이라 사용자 기준과 같아야 한다."""
+    rnd = random.Random(20260825)          # 빌드마다 같은 결과가 나와야 한다
     ordered = sorted(cands, key=lambda r: -sum(freq[n] for n in pool[r]) / len(pool[r]))
     seen, found = set(), []
-    for seed in ordered:
-        ch, u = greedy(cands, seed, k, max_kind, max_main, max_fresh)
+
+    def add(order, seed):
+        ch, u = greedy(order, seed, k, max_kind, max_main, max_fresh)
         if not ch or frozenset(ch) in seen:
-            continue
+            return
         seen.add(frozenset(ch))
-        apart = sum(len(pool[i]) for i in ch)
-        found.append((len(u), -apart, ch, u))
+        found.append((len(u), -sum(len(pool[i]) for i in ch), ch, u))
+
+    for seed in ordered:                   # 겹침이 큰 요리부터 한 번씩
+        add(cands, seed)
+    for _ in range(tries):                 # 그다음 무작위로 다시 시작
+        order = list(cands)
+        rnd.shuffle(order)
+        add(order, rnd.choice(cands))
     found.sort(key=lambda x: (x[0], x[1]))
 
     kept = []
@@ -459,12 +471,15 @@ print("전체 %d개 · 이번 주 후보(초보환영·30분 이하) %d개" % (l
 # max_fresh — 이번 주는 끼니를 따로 먹으니 그때그때 만드는 게 정상이라 안 건다.
 # 집들이는 한 자리에 다 내야 해서 `그 자리에 해야 하는 것`이 셋 이상이면 손님이 기다린다.
 AXES = [
-    dict(type="week", cands=weekday, k=5, max_kind=1, max_main=1, max_share=2, limit=12,
+    dict(type="week", cands=weekday, k=5, max_kind=1, max_main=1, max_share=2, limit=24,
          max_fresh=99, title="장 한 번으로 다섯 끼", tab="이번 주", people=2, portion=1.0,
          badge="초보환영 · 30분 이하 · 재료 겹침이 가장 많은 조합"),
-    dict(type="occasion", cands=special, k=8, max_kind=1, max_main=2, max_share=3, limit=12,
-         max_fresh=2, title="집들이 한 상 여덟 가지", tab="집들이", people=6, portion=0.6,
-         badge="손님 상차림 · 미리 만들어 두는 것 위주"),
+    # 손님 상차림 여덟 가지는 초보에게 무리고, 공공데이터로는 근사한 상이 안 나온다
+    # (농정원은 전통 한식, 식약처는 저염 건강식). 눈높이를 낮춰 지금 데이터로 되는 자리에 둔다.
+    # 진짜 집들이는 퓨전·요즘 감성 레시피 출처가 생기면 그때 되살린다 (2026-08-25 사용자 판단).
+    dict(type="occasion", cands=special, k=6, max_kind=1, max_main=2, max_share=2, limit=24,
+         max_fresh=2, title="조금 특별한 저녁 여섯 가지", tab="특별한 날", people=4, portion=0.7,
+         badge="주말에 한 번 · 미리 만들어 두는 것 위주"),
 ]
 
 random.seed(11)
