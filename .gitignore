@@ -10,7 +10,9 @@ _design/
 
 # API 원본 캐시 (수 MB). 지우면 build.py가 다시 받는다
 _probe_cache.json
+_mfds_cache.json
 
 # 확인용 대조표 (스크래치)
 _dish_sheet.png
 _contact_sheet.png
+_neis_cache.json

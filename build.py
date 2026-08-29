@@ -590,26 +590,40 @@ for s in sets:
 print("\n→ %s" % OUT)
 
 # ──────────────────────────── app.html 템플릿에 데이터·이미지를 박아 index.html을 만든다.
-# 아티팩트로도 그대로 열리도록 외부 파일을 참조하지 않고 전부 인라인한다.
+# 이미지는 파일로 내보내고 index.html은 주소만 갖는다 (2026-08-25 전환).
+# 전에는 전부 base64로 인라인했는데, 요리 사진에 단계 사진까지 넣으면 4MB를 넘어
+# 단일 파일로는 감당이 안 된다. `아티팩트로 그대로 열린다`는 편의는 여기서 포기했다.
+# 파일 이름은 d001처럼 번호로 준다 — 한글 파일명은 URL 인코딩이 얽힌다.
+IMGDIR = os.path.join(HERE, "img")
+os.makedirs(IMGDIR, exist_ok=True)
+for f in os.listdir(IMGDIR):          # 지난 빌드의 잔재를 남기지 않는다
+    os.remove(os.path.join(IMGDIR, f))
+
+
+def put(src, rel):
+    open(os.path.join(IMGDIR, rel), "wb").write(open(src, "rb").read())
+    return "img/" + rel
+
+
 TPL = os.path.join(HERE, "app.html")
 if os.path.exists(TPL):
-    import base64
     html = open(TPL, encoding="utf-8").read()
     html = html.replace("__DATA__", json.dumps(out, ensure_ascii=False, separators=(",", ":")))
+
     hero = os.path.join(HERE, "_design", "hero.jpg")
-    if os.path.exists(hero):
-        html = html.replace("__HERO__", "data:image/jpeg;base64," +
-                            base64.b64encode(open(hero, "rb").read()).decode())
-    # 요리 사진. 없는 요리는 앱에서 그릇 글리프로 남는다.
-    photos = {}
-    for st in out["sets"]:
-        for d in st["dishes"]:
-            f = os.path.join(HERE, "_design", "dish_%s.jpg" % d["name"])
-            if d["name"] not in photos and os.path.exists(f):
-                photos[d["name"]] = "data:image/jpeg;base64," + \
-                    base64.b64encode(open(f, "rb").read()).decode()
+    html = html.replace("__HERO__", put(hero, "hero.jpg") if os.path.exists(hero) else "")
+
+    # 카탈로그에 있는 요리 전부. 사진이 없는 요리는 앱에서 임시 사진으로 채운다.
+    photos, n = {}, 0
+    for name in sorted(used):
+        src = os.path.join(HERE, "_design", "dish_%s.jpg" % name)
+        if os.path.exists(src):
+            n += 1
+            photos[name] = put(src, "d%03d.jpg" % n)
     html = html.replace("__DISHIMG__", json.dumps(photos, ensure_ascii=False, separators=(",", ":")))
-    print("   요리 사진 %d장 인라인" % len(photos))
+
     idx = os.path.join(HERE, "index.html")
     open(idx, "w", encoding="utf-8").write(html)
+    tot = sum(os.path.getsize(os.path.join(IMGDIR, f)) for f in os.listdir(IMGDIR))
+    print("   요리 사진 %d장 → img/ (%.0f KB)" % (len(photos), tot / 1024))
     print("→ %s  (%.0f KB)" % (idx, os.path.getsize(idx) / 1024))
