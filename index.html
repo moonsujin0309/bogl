@@ -722,7 +722,7 @@ if(typeof module !== 'undefined') module.exports = { CATS, CAT_ORDER, category, 
 <script>
 const D = JSON.parse(document.getElementById('bogl-data').textContent);
 // 유튜브 키. 환경변수 YOUTUBE_KEY에서 빌드 때 들어온다. 없으면 링크 + 직접 입력만 된다.
-const YTKEY = '';
+const YTKEY = 'AIzaSyB3pY9ePp26N_qXFkZtcWbUOjOzXrMaCR8';
 const CAT = new Map(D.catalog.map(c => [c.name, c]));
 const $ = id => document.getElementById(id);
 const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
