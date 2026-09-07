@@ -16,3 +16,6 @@ _mfds_cache.json
 _dish_sheet.png
 _contact_sheet.png
 _neis_cache.json
+
+# 로컬 미리보기 설정
+.claude/

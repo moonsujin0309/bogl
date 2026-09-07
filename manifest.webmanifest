@@ -1,0 +1,3 @@
+{ "name": "보글", "short_name": "BOGL°", "start_url": "./", "display": "standalone",
+  "background_color": "#2b2926", "theme_color": "#2b2926",
+  "share_target": { "action": "./", "method": "GET", "params": { "url": "url", "text": "text", "title": "title" } } }
