@@ -14,10 +14,25 @@ const dish = (name, kind, ...ns) => ({ name, kind, servings: 2, ing: ing(...ns) 
 }
 // 전날 밑작업
 {
-  const r = P.plan([dish('조림', '조림', '무', '대파'), dish('국', '국', '대파')], 1);
+  const r = P.plan([dish('조림', '조림', '무', '가지'), dish('국', '국', '가지')], 1);
   assert.strictEqual(r.prep.length, 1);
   assert.strictEqual(r.prep[0].day, 0);
-  assert.ok(r.prep[0].text.startsWith('대파는 전날'), r.prep[0].text);
+  assert.ok(r.prep[0].text.startsWith('가지는 전날'), r.prep[0].text);
+}
+// 잔재료(대파·마늘)만 겹치면 밑작업이 비고, 가지가 겹치면 남는다
+{
+  assert.strictEqual(P.plan([dish('a', '볶음', '대파', '마늘', 'x'), dish('b', '국', '대파', '다진마늘', 'y')], 2).prep.length, 0);
+  assert.strictEqual(P.plan([dish('조림', '조림', '대파'), dish('국', '국', '대파')], 1).prep.length, 0);
+  // 잔재료는 밑작업에서만 빠진다. 배치 점수에는 남아 대파를 같이 쓰는 둘이 이웃한 날에 온다.
+  {
+    const r = P.plan([dish('a', '볶음', '대파', 'p'), dish('b', '찜', 'q'), dish('c', '조림', 'r'), dish('d', '구이', '대파', 's')], 4);
+    const day = n => r.days.findIndex(d => d.dishes.some(x => x.name === n));
+    assert.strictEqual(Math.abs(day('a') - day('d')), 1, JSON.stringify(r.days.map(d => d.dishes.map(x => x.name))));
+    assert.strictEqual(r.prep.length, 0);
+  }
+  const r = P.plan([dish('a', '볶음', '가지', '대파'), dish('b', '국', '가지', '마늘')], 2);
+  assert.strictEqual(r.prep.length, 1);
+  assert.ok(/^가지 손질할 때/.test(r.prep[0].text), r.prep[0].text);
 }
 // 국 2 + 볶음 2 + 구이 1, 5일 → 국이 이웃하지 않는다
 {
@@ -51,11 +66,11 @@ const dish = (name, kind, ...ns) => ({ name, kind, servings: 2, ing: ing(...ns) 
 }
 // 겹치는 재료는 이웃한 날 + 밑작업 한 줄
 {
-  const r = P.plan([dish('a', '볶음', '대파', 'x'), dish('b', '국', 'y'), dish('c', '찜', 'z'), dish('d', '볶음', '대파', 'w')], 4);
+  const r = P.plan([dish('a', '볶음', '가지', 'x'), dish('b', '국', 'y'), dish('c', '찜', 'z'), dish('d', '볶음', '가지', 'w')], 4);
   const da = r.days.find(d => d.dishes.some(x => x.name === 'a')).i, dd = r.days.find(d => d.dishes.some(x => x.name === 'd')).i;
   assert.strictEqual(Math.abs(da - dd), 1);
   assert.strictEqual(r.prep.length, 1);
-  assert.ok(/대파 손질할 때 내일 [ad] 것도 같이/.test(r.prep[0].text), r.prep[0].text);
+  assert.ok(/가지 손질할 때 내일 [ad] 것도 같이/.test(r.prep[0].text), r.prep[0].text);
 }
 // 8개 이상 — 표본 탐색이 끝나고 결정적이다
 {

@@ -122,6 +122,9 @@ const ROLE = { '부침': 'fresh', '구이': 'fresh', '밥': 'fresh', '만두/면
 const role = d => ROLE[d.kind] || '';
 const buyOf = d => (d.ing || []).filter(i => i.b).map(i => i.n);
 const shared = (a, b) => { const s = new Set(buyOf(b)); return buyOf(a).filter(n => s.has(n)); };
+// 잔재료는 밑작업으로 알릴 값어치가 없다. 대파·마늘까지 적으면 진짜 손질거리(가지·무)가 묻힌다. 배치 점수에는 그대로 쓴다.
+const MINOR = ['고추', '붉은고추', '청고추', '대파', '쪽파', '마늘', '다진마늘', '다진파', '생강', '양파', '소금', '후추'];
+const major = ns => ns.filter(n => !MINOR.some(k => n.includes(k)));
 // 받침이 있으면 `은`, 없으면 `는`
 const neun = w => { const c = w.charCodeAt(w.length - 1) - 0xAC00; return (c >= 0 && c <= 11171 && c % 28 !== 0) ? '은' : '는'; };
 
@@ -183,7 +186,7 @@ function plan(dishes, days){
     for(const d of dishes) slots[role(d) === 'ahead' ? 0 : role(d) === 'fresh' ? 2 : 1].dishes.push(d);
     const prep = [];
     for(const a of slots[0].dishes) for(const o of slots[1].dishes.concat(slots[2].dishes)){
-      const sh = shared(a, o);
+      const sh = major(shared(a, o));
       if(sh.length) prep.push({ day: 0, text: `${sh.join('·')}${neun(sh[sh.length - 1])} 전날 손질해 두면 당일 ${o.name}에 그대로 써요` });
     }
     return { mode: 'day', slots, prep };
@@ -197,7 +200,7 @@ function plan(dishes, days){
   const prep = [];
   for(let i = 0; i + 1 < best.length; i++){
     const ings = new Set(), names = new Set();
-    for(const a of best[i]) for(const b of best[i + 1]){ const sh = shared(a, b); if(sh.length){ sh.forEach(n => ings.add(n)); names.add(b.name); } }
+    for(const a of best[i]) for(const b of best[i + 1]){ const sh = major(shared(a, b)); if(sh.length){ sh.forEach(n => ings.add(n)); names.add(b.name); } }
     if(ings.size) prep.push({ day: i + 1, text: `${[...ings].join('·')} 손질할 때 내일 ${[...names].join('·')} 것도 같이` });
   }
   return { mode: 'days', days: best.map((ds, i) => ({ i: i + 1, dishes: ds, trip: trips.includes(i + 1) })), trips, prep, score: bestScore };

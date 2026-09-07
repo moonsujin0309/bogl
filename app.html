@@ -35,31 +35,26 @@
   button{font:inherit;border:0;background:none;padding:0;cursor:pointer;color:inherit;text-align:left}
   button[disabled]{opacity:.4;cursor:default}
   .grow{flex:1}
+  .noscroll{overflow-x:auto;scrollbar-width:none}
+  .noscroll::-webkit-scrollbar{display:none}
 
   /* ── 공통 (다크) ─────────────────────────────── */
-  #home,#folder,#browse{background:var(--d-bg);color:var(--cream)}
+  #home,#plan{background:var(--d-bg);color:var(--cream)}
   .top{display:flex;align-items:center;gap:10px;padding:calc(14px + var(--sa-t)) 26px 6px}
-  /* 폴더·모든 요리 머리줄. 뒤로 · 제목 · 오른쪽 글자 버튼. 제목은 줄바꿈 없이 글자만 줄인다. */
+  /* 계획 머리줄. 뒤로 · 제목 · 오른쪽 버튼. 제목은 줄바꿈 없이 글자만 줄인다. */
   .fhead{display:flex;align-items:center;gap:2px;padding:calc(8px + var(--sa-t)) 16px 6px}
   .fhead .ttl{flex:1;min-width:0;height:44px;display:flex;align-items:center;padding:0 6px;
               font-size:clamp(18px,5.5vw,22px);font-weight:900;letter-spacing:-.045em;
               white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ib{width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;color:var(--d-tx2);flex-shrink:0}
-  .txt{height:44px;padding:0 10px;font-size:12.5px;font-weight:700;color:var(--d-tx2);display:flex;align-items:center;flex-shrink:0;white-space:nowrap}
-  .hint{margin:0;padding:26px;font-size:13px;line-height:1.6;color:var(--d-tx3);text-align:center}
-  .dishrow{display:flex;justify-content:space-between;padding:6px 22px 4px;gap:2px;width:100%}
-  .dish{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0}
-  .cir{width:54px;height:54px;border-radius:27px;background:var(--d-card);
-       display:flex;align-items:center;justify-content:center;color:var(--d-tx3);flex-shrink:0}
-  .cir.ph{overflow:hidden}
-  .cir.ph img{display:block;width:100%;height:100%;object-fit:cover}
-  /* 한 줄로 두면 `두부두루치기`·`된장채소수제비`가 잘린다. 이름이 안 읽히면 메뉴가 아니다.
-     한국어 긴 낱말은 keep-all로 안 쪼개지므로 anywhere로 풀고 두 줄까지 준다. */
-  .dish span:last-child{font-size:10.5px;color:var(--d-tx2);text-align:center;line-height:1.25;
-             overflow-wrap:anywhere;width:100%;overflow:hidden;
-             display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-  .rule{height:1px;background:var(--d-line);margin:0 26px}
-  .ppl{display:flex;align-items:center;gap:9px;padding:10px 26px 8px;flex-wrap:wrap}
+  .cir{width:54px;height:54px;border-radius:27px;background:var(--d-card2);
+       display:flex;align-items:center;justify-content:center;color:var(--d-tx3);flex-shrink:0;overflow:hidden}
+  .cir img{display:block;width:100%;height:100%;object-fit:cover}
+  /* 겹친 썸네일 — 바탕색 테두리로 서로 떨어져 보인다 */
+  .fp{display:flex;padding-left:8px;flex-shrink:0}
+  .fp .cir{width:30px;height:30px;border-radius:15px;margin-left:-8px;border:2px solid var(--d-card);
+           font-size:11px;font-weight:900;color:var(--d-tx2)}
+  .fp .cir svg{width:14px;height:14px}
   .lbl{font-size:10px;letter-spacing:.16em;color:var(--d-tx3);white-space:nowrap}
   .chip{display:flex;align-items:center;gap:8px;height:36px;padding:0 5px 0 12px;border-radius:11px;
         background:var(--d-card2);font-size:12.5px;font-weight:700}
@@ -71,84 +66,106 @@
   /* 하단 버튼은 화면에 붙여 둔다. 목록이 길어져도 밀려나지 않게. */
   .footD{position:sticky;bottom:0;padding:12px 26px calc(16px + var(--sa-b));
          background:linear-gradient(to top,var(--d-bg) 68%,transparent)}
-  .footRow{display:flex;gap:9px}
   .cta{display:flex;align-items:center;justify-content:center;gap:9px;flex:1;min-width:0;
        width:100%;height:56px;border-radius:15px;
        background:var(--cream);color:var(--ink);font-size:16px;font-weight:900;letter-spacing:-.02em}
-  /* 보조 버튼. 1순위(크림 CTA)는 화면당 하나라 여기는 카드색으로 가라앉힌다. */
-  .alt{display:flex;align-items:center;justify-content:center;gap:7px;height:56px;padding:0 15px;
-       border-radius:15px;background:var(--d-card);color:var(--d-tx2);
-       font-size:13px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
+  .emp{padding:34px 26px 20px;text-align:center;font-size:13px;color:var(--d-tx3)}
+  .emp p{margin:0 0 4px}
+  .emp button{display:inline-flex;align-items:center;height:44px;padding:0 14px;color:var(--cream);font-size:13px;font-weight:800}
 
-  /* ── 홈 · 폴더 카드 ────────────────────────────── */
-  .fc{display:flex;align-items:center;gap:14px;width:calc(100% - 52px);margin:0 26px 10px;
-      padding:16px 18px;border-radius:18px;background:var(--d-card);color:var(--cream)}
-  .fc .ft{min-width:0;flex:1}
-  .fc .fn{display:block;font-size:17px;font-weight:900;letter-spacing:-.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fc .fm{display:block;font-size:11.5px;color:var(--d-tx3);margin-top:4px}
-  .fc .fp{display:flex;flex-shrink:0;padding-left:8px}
-  .fc .fp .cir{width:34px;height:34px;border-radius:17px;margin-left:-8px;border:2px solid var(--d-card);
-               background:var(--d-card2);font-size:11px;font-weight:900;color:var(--d-tx2)}
-  .fc .fp .cir svg{width:16px;height:16px}
+  /* ── 홈 · 내 계획 ───────────────────────────────
+     현재 계획(담기 대상)만 크림. 누르면 그 계획으로 간다. */
+  .sec{padding:12px 26px 8px;font-size:12.5px;font-weight:800;letter-spacing:-.02em;color:var(--d-tx2)}
+  .prow{display:flex;gap:8px;padding:0 26px 4px}
+  .pc{flex:0 0 auto;width:158px;padding:13px 14px 12px;border-radius:16px;background:var(--d-card);color:var(--cream);
+      display:flex;flex-direction:column;justify-content:space-between;gap:12px;min-height:96px}
+  .pc.on{box-shadow:inset 0 0 0 1.5px var(--cream)}   /* 1순위 크림은 아래 바 하나. 현재 계획은 테두리로만 */
+  .pc .fn{display:block;font-size:15px;font-weight:900;letter-spacing:-.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pc .fm{display:block;font-size:11px;color:var(--d-tx3);margin-top:2px}
+  .pc.new{border:1.5px dashed var(--d-line);background:none;align-items:center;justify-content:center;
+          color:var(--d-tx2);font-size:13px;font-weight:800;width:110px}
+  .ytbtn{display:flex;align-items:center;gap:11px;width:calc(100% - 52px);margin:8px 26px 2px;height:52px;padding:0 15px;
+         border-radius:14px;background:var(--d-card);color:var(--d-tx2);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden}
+  .ytbtn .pl{width:26px;height:26px;border-radius:13px;background:var(--cream);color:var(--ink);
+             display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .ytbtn span:last-child{overflow:hidden;text-overflow:ellipsis}
 
-  /* ── 폴더 · 배치 카드 ──────────────────────────── */
-  .plan{padding:6px 26px 4px;display:flex;flex-direction:column;gap:8px}
-  .day{border-radius:16px;background:var(--d-card);padding:13px 16px}
-  .day .dh{display:flex;align-items:center;gap:8px;font-size:10.5px;letter-spacing:.14em;color:var(--d-tx3)}
-  .day .dh .tp{margin-left:auto;display:flex;align-items:center;gap:5px;letter-spacing:0;font-weight:900;
-               color:var(--ink);background:var(--cream);padding:4px 8px;border-radius:7px}
-  .day .dn{margin-top:6px;font-size:14.5px;font-weight:700;letter-spacing:-.03em;line-height:1.45;color:var(--cream)}
-  .day .dn.none{color:var(--d-tx3);font-weight:500}
-  .day .dp{margin-top:7px;font-size:11.5px;line-height:1.55;color:var(--d-tx2)}
-
-  /* ── 모든 요리 (다크) ─────────────────────────
-     레시피 앱 문법 그대로 2열 썸네일 그리드 + 탐색 카드. */
-  .sec{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:16px 26px 11px}
-  .sec h2{margin:0;font-size:17px;font-weight:900;letter-spacing:-.045em;color:var(--cream)}
-  .sec .side{font-size:11.5px;color:var(--d-tx3);white-space:nowrap}
-  /* 탐색 카드 — 글자 왼쪽, 사진 오른쪽. 세 줄로 쌓고 가로로 흐른다. */
-  .explore{display:grid;grid-auto-flow:column;grid-template-rows:repeat(3,auto);gap:8px;
-           padding:0 26px 4px;overflow-x:auto;scrollbar-width:none}
-  .explore::-webkit-scrollbar{display:none}
-  .ec{display:flex;align-items:center;justify-content:space-between;gap:6px;width:152px;height:54px;
-      padding-left:14px;border-radius:13px;background:var(--d-card);overflow:hidden}
-  .ec .el{font-size:12.5px;font-weight:800;letter-spacing:-.03em;color:var(--cream);
-          white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .ec .ep{width:58px;height:54px;flex:0 0 auto;background:var(--d-card2)}
+  /* ── 홈 · 탐색 칩 + 그리드 ────────────────────── */
+  .explore{display:flex;gap:2px;padding:10px 20px 0}
+  .ec{flex:0 0 auto;width:64px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0 4px}
+  .ec .ep{width:40px;height:40px;border-radius:20px;background:var(--d-card2);overflow:hidden;border:2px solid transparent;
+          display:flex;align-items:center;justify-content:center;color:var(--d-tx3)}
   .ec .ep img{display:block;width:100%;height:100%;object-fit:cover}
-  .ec.on{background:var(--cream)}
-  .ec.on .el{color:var(--ink)}
-  /* 정렬. 칩보다 한 단 낮은 글줄로 둔다 — 분류를 고르는 탐색 카드와 위계가 겹치면 안 된다. */
-  .sortrow{display:flex;gap:14px;padding:0 26px 12px;overflow-x:auto;scrollbar-width:none}
-  .sortrow::-webkit-scrollbar{display:none}
+  .ec .ep svg{width:16px;height:16px}
+  .ec .el{font-size:10.5px;font-weight:700;color:var(--d-tx3);white-space:nowrap}
+  .ec.on .ep{border-color:var(--cream)}
+  .ec.on .el{color:var(--cream)}
+  /* 정렬. 칩보다 한 단 낮은 글줄로 둔다. */
+  .sortrow{display:flex;gap:14px;padding:4px 26px 12px}
   .sortrow button{flex:0 0 auto;font-size:11.5px;font-weight:700;color:var(--d-tx3);
                   padding:5px 0;white-space:nowrap;border-bottom:1.5px solid transparent}
   .sortrow button.on{color:var(--cream);border-bottom-color:var(--cream)}
-  /* 사진이 주인공이다. 제목은 사진 아래 굵게 두 줄, 곁들이는 값은 태그로. */
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 11px;
+  /* 사진이 주인공이다. 담기(+)와 레시피(사진·이름)는 모양이 다른 두 자리에 있다. */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 11px;
         padding:0 26px calc(28px + var(--sa-b))}
-  .card{display:flex;flex-direction:column;gap:9px}
-  .card .th{position:relative;display:block;width:100%;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--d-card);
-            color:var(--d-tx3)}
+  #home.hasbar .grid{padding-bottom:calc(96px + var(--sa-b))}
+  .card{display:flex;flex-direction:column;gap:8px}
+  .card .thw{position:relative}
+  .card .th{display:block;width:100%;aspect-ratio:1;border-radius:16px;overflow:hidden;background:var(--d-card2);
+            color:var(--d-tx3);position:relative}
   .card .th .bowl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-  .card .th .bowl svg{width:34px;height:34px}
+  .card .th .bowl svg{width:28px;height:28px}
+  .card .th img{display:block;width:100%;height:100%;object-fit:cover}
   .card .mk2{position:absolute;top:8px;right:8px;width:25px;height:25px;border-radius:13px;
              background:var(--cream);color:var(--ink);display:flex;align-items:center;justify-content:center}
-  .card .th img{display:block;width:100%;height:100%;object-fit:cover}
-  /* 담기 모드 — 체크는 색이 아니라 반전으로. */
-  .card .ck2{position:absolute;top:8px;left:8px;width:25px;height:25px;border-radius:13px;border:1.5px solid var(--cream);
-             color:transparent;display:flex;align-items:center;justify-content:center;background:oklch(.2 .01 60/.35)}
-  .card.on .ck2{background:var(--cream);color:var(--ink)}
-  .card .in{position:absolute;bottom:8px;left:8px;font-size:10px;font-weight:900;padding:3px 7px;border-radius:6px;
-            background:var(--cream);color:var(--ink)}
-  .card .cn{font-size:14px;font-weight:700;letter-spacing:-.035em;line-height:1.35;color:var(--cream);
-            overflow-wrap:anywhere;overflow:hidden;
-            display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-  .card .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:-2px}
-  .card .tg2{font-size:10.5px;font-weight:600;color:var(--d-tx2);background:var(--d-card2);
-             padding:4px 8px;border-radius:6px;white-space:nowrap}
-  .card button.tg2{color:var(--cream);font-weight:800;min-height:24px}
+  .card .add{position:absolute;right:8px;bottom:8px;width:32px;height:32px;border-radius:16px;
+             background:var(--cream);color:var(--ink);display:flex;align-items:center;justify-content:center}
+  .card .add::after{content:'';position:absolute;inset:-6px}
+  .card.on .add{background:var(--ink);color:var(--cream)}
+  .card .cb{display:block;width:100%}
+  .card .cn{display:block;font-size:14px;font-weight:700;letter-spacing:-.035em;line-height:1.35;color:var(--cream);
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .cm{display:block;font-size:11px;color:var(--d-tx3);margin-top:2px}
   .empty{padding:40px 26px;text-align:center;font-size:13px;color:var(--d-tx3)}
+  /* 아래 바 — 현재 계획에 요리가 하나라도 있으면 올라온다. 통째로 버튼이다. */
+  .cartbar{position:fixed;left:50%;bottom:0;width:100%;max-width:480px;z-index:5;
+           transform:translate(-50%,110%);transition:transform .22s;
+           display:flex;align-items:center;gap:12px;height:calc(64px + var(--sa-b));padding:0 14px var(--sa-b) 26px;
+           background:var(--cream);color:var(--ink);border-radius:18px 18px 0 0}
+  .cartbar.on{transform:translate(-50%,0)}
+  .cartbar .fp .cir{border-color:var(--cream);background:var(--l-thumb);color:var(--l-tx3)}
+  .cartbar .ct{flex:1;min-width:0;font-size:14px;font-weight:900;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cartbar .cgo{display:flex;align-items:center;gap:6px;height:42px;padding:0 15px;border-radius:13px;
+                background:var(--ink);color:var(--cream);font-size:13.5px;font-weight:900;white-space:nowrap;flex-shrink:0}
+
+  /* ── 계획 ──────────────────────────────────────── */
+  .drow{display:flex;gap:12px;padding:6px 26px 4px}
+  .drow button{flex:0 0 auto;width:60px;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .drow .cir{width:56px;height:56px;border-radius:28px}
+  .drow .more .cir{border:1.5px dashed var(--d-line);background:none;color:var(--d-tx2)}
+  /* `두부두루치기`가 잘리면 메뉴가 아니다. keep-all로 안 쪼개지므로 anywhere로 풀고 두 줄까지. */
+  .drow span:last-child{font-size:10.5px;color:var(--d-tx2);text-align:center;line-height:1.25;width:100%;
+             overflow-wrap:anywhere;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .set{display:flex;align-items:center;gap:9px;padding:10px 26px 0;flex-wrap:wrap}
+  .set .lbl{min-width:60px}
+  .dchips{display:flex;align-items:center;gap:3px}
+  .dchips button{position:relative;width:32px;height:34px;border-radius:10px;background:var(--d-card2);color:var(--d-tx2);
+                 font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .dchips button::after{content:'';position:absolute;inset:-6px}
+  .dchips button.on{background:var(--cream);color:var(--ink)}
+  .dchips .u{font-size:12px;color:var(--d-tx3);margin-left:4px}
+  .plan{padding:12px 26px 4px;display:flex;flex-direction:column;gap:8px}
+  .day{border-radius:16px;background:var(--d-card);padding:12px 14px}
+  .day .dh{display:flex;align-items:center;font-size:10.5px;letter-spacing:.14em;color:var(--d-tx3);min-height:22px}
+  .day .dh .tp{margin-left:auto;letter-spacing:0;font-weight:900;font-size:11px;
+               color:var(--ink);background:var(--cream);padding:4px 8px;border-radius:7px}
+  .day .dr{display:flex;align-items:center;gap:10px;width:100%;margin-top:8px;min-height:36px}
+  .day .dr .cir{width:36px;height:36px;border-radius:18px}
+  .day .dr .cir svg{width:16px;height:16px}
+  .day .dr span:last-child{font-size:15px;font-weight:700;letter-spacing:-.03em;color:var(--cream);
+                           min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dp{padding:0 14px;font-size:12px;line-height:1.5;color:var(--d-tx2);margin-top:-2px}
+  .rest{padding:2px 14px;font-size:12px;color:var(--d-tx3)}
 
   /* ── 레시피 (다크) ────────────────────────────
      모달로 두면 스크롤이 갇히고 길이가 안 나온다. 레시피는 페이지가 맞다.
@@ -183,9 +200,10 @@
                background:var(--l-thumb);color:var(--l-tx2);font-size:12.5px;font-weight:800;
                display:flex;align-items:center;justify-content:center;white-space:nowrap}
   .tpre button.on{background:var(--ink);color:var(--cream)}
-  .tgo{display:flex;align-items:center;justify-content:center;width:100%;height:54px;border-radius:15px;
+  .tgo{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:54px;border-radius:15px;
        background:var(--ink);color:var(--cream);font-size:15px;font-weight:900}
   .tgo.stop{background:var(--l-thumb);color:var(--l-tx2)}
+  .tgo.in{background:var(--l-card);color:var(--l-tx2)}
   .ring{display:flex;flex-direction:column;align-items:center;gap:16px;padding:14px 0 22px;text-align:center}
   .ring .rc2{width:84px;height:84px;border-radius:42px;background:var(--ink);color:var(--cream);
              display:flex;align-items:center;justify-content:center}
@@ -209,8 +227,12 @@
                border:1px solid var(--l-line);font-size:13px;font-weight:800;color:var(--l-tx2);
                display:flex;align-items:center;justify-content:center}
   .rseg button.on{background:var(--ink);border-color:var(--ink);color:var(--cream);font-weight:900}
-  .rpane{flex:1;display:flex;flex-direction:column;padding:16px 26px calc(30px + var(--sa-b))}
+  .rpane{flex:1;display:flex;flex-direction:column;padding:16px 26px 14px}
   .rpane.stepping{padding-bottom:0}
+  /* 담기 버튼은 화면 아래 고정. 단계 화면의 이전·다음은 그 위에 얹힌다. */
+  .rfoot{position:sticky;bottom:0;z-index:2;padding:8px 26px calc(14px + var(--sa-b));
+         background:linear-gradient(to top,var(--l-bg) 74%,transparent)}
+  .rpane.stepping .sfoot{bottom:calc(76px + var(--sa-b));padding-bottom:4px}
   .serv{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
   .serv .sl{font-size:10px;letter-spacing:.15em;color:var(--l-tx3)}
   .servc{display:flex;align-items:center;gap:9px;height:40px;padding:0 6px 0 14px;border-radius:12px;
@@ -255,15 +277,14 @@
   .rw{display:flex;gap:8px;margin-top:12px}
   .rw button{flex:1;height:46px;border-radius:13px;background:var(--l-card);border:1px solid var(--l-line);
              color:var(--l-tx2);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px}
-  .radd{margin-top:16px}
 
   /* ── 장보기 목록 (라이트) ───────────────────── */
   #list{background:var(--l-bg);color:var(--ink)}
   .lhead{display:flex;align-items:center;gap:4px;padding:calc(14px + var(--sa-t)) 26px 10px}
   .back{width:44px;height:44px;margin-left:-13px;display:flex;align-items:center;justify-content:center;color:var(--l-tx2);flex-shrink:0}
-  .lhead h1{margin:0;font-size:20px;font-weight:900;letter-spacing:-.04em}
+  .lhead h1{margin:0;font-size:22px;font-weight:900;letter-spacing:-.045em}
   .lhead p{margin:3px 0 0;font-size:11.5px;color:var(--l-tx3);line-height:1.5}
-  .lsec{display:flex;align-items:baseline;gap:8px;padding:12px 26px 8px;font-size:13px;font-weight:900;letter-spacing:-.03em}
+  .lsec{display:flex;align-items:baseline;gap:6px;padding:12px 26px 8px;font-size:13px;font-weight:900;letter-spacing:-.03em}
   .lsec span{font-size:11px;font-weight:700;color:var(--l-tx3)}
 
   .ovl{margin:0 26px 10px;padding:15px 17px 13px;border-radius:18px;background:var(--ink);color:var(--cream)}
@@ -316,22 +337,15 @@
                   font:inherit;font-size:16px;line-height:1.7;resize:none;background:var(--l-bg);color:var(--ink)}
   /* 입력 글자는 16px — 아이폰은 그보다 작으면 포커스할 때 화면을 확대한다 */
   .sheet input{width:100%;height:46px;border:1px solid var(--l-line);border-radius:12px;padding:0 13px;
-               font:inherit;font-size:16px;background:var(--l-bg);color:var(--ink);margin-bottom:10px}
+               font:inherit;font-size:16px;background:var(--l-bg);color:var(--ink);margin:10px 0}
   .sbtn{display:flex;align-items:center;justify-content:center;width:100%;height:52px;border-radius:14px;
         background:var(--ink);color:var(--cream);font-size:15px;font-weight:900;margin-top:6px}
   .sbtn.sub2{background:var(--l-thumb);color:var(--l-tx2)}
   .sbtn.warn{background:var(--l-thumb);color:var(--ink)}
-  .stp{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:13.5px;font-weight:700}
   .lk{display:flex;align-items:center;gap:10px;width:100%;min-height:50px;padding:13px 4px;border-bottom:1px solid var(--l-line);font-size:14px}
   .lk .q{margin-left:auto;font-size:11px;color:var(--l-tx3)}
-  .rc{display:flex;align-items:flex-start;gap:11px;padding:12px 4px;border-bottom:1px solid var(--l-line)}
-  .rc .rcm{display:flex;align-items:flex-start;gap:11px;flex:1;min-width:0;min-height:44px}
-  .rc .rx{flex-shrink:0;min-height:44px;padding:0 6px;font-size:11.5px;font-weight:700;color:var(--l-tx3)}
-  .rc .no{width:20px;font-size:11px;font-weight:900;color:var(--l-tx3);padding-top:2px;flex-shrink:0}
-  .rc .nm{font-size:14.5px;font-weight:700;overflow-wrap:anywhere}
-  .rc .mt{font-size:10.5px;color:var(--l-tx3);margin-top:3px;line-height:1.5;word-break:break-word}
-  .rc .ar{margin-left:auto;color:var(--l-tx3);flex-shrink:0;padding-top:2px}
-  button.rc{width:100%;text-align:left;min-height:44px}
+  .lk .ar{margin-left:auto;color:var(--l-tx3);flex-shrink:0}
+  .lk .q + .ar{margin-left:0}
   /* 닫기는 우측 상단 X. 시트가 길어져도 닿게 위에 붙여 둔다. */
   .sxbar{position:sticky;top:-20px;z-index:2;display:flex;justify-content:flex-end;
          background:var(--l-card);padding:0 0 4px;margin:-4px 0 0}
@@ -345,37 +359,38 @@
 </style>
 
 <div class="app">
-  <!-- ① 홈 — 폴더 목록 -->
+  <!-- ① 홈 — 요리 고르기. 첫 화면이 요리 사진 그리드다. -->
   <section id="home" class="view on">
     <div class="top">
       <div style="display:flex;align-items:flex-start;gap:.01em">
         <span class="mk" style="font-size:19px">BOGL</span><span class="deg" style="font-size:19px">°</span>
       </div>
-      <div class="grow"></div>
-      <button class="txt" id="allBtn" style="margin-right:-10px">모든 요리</button>
     </div>
-    <div id="fl" style="padding-top:10px"></div>
-    <div class="grow"></div>
-    <div class="footD"><button class="cta" id="newF">새 폴더</button></div>
+    <div id="mp">
+      <div class="sec">내 계획</div>
+      <div class="prow noscroll" id="mprow"></div>
+    </div>
+    <button class="ytbtn" id="ytbtn"></button>
+    <div class="explore noscroll" id="explore"></div>
+    <div class="sortrow noscroll" id="sortrow"></div>
+    <div class="grid" id="grid"></div>
+    <button class="cartbar" id="cartbar" aria-label="계획 보기"></button>
   </section>
 
-  <!-- ② 폴더 — 이 앱의 중심 -->
-  <section id="folder" class="view">
+  <!-- ② 계획 — 언제 먹을지. 코드·저장 이름은 folder 그대로다. -->
+  <section id="plan" class="view">
     <div class="fhead">
-      <button class="ib" id="fback" aria-label="뒤로">
+      <button class="ib" id="pback" aria-label="뒤로">
         <svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>
       </button>
-      <button class="ttl" id="fname" aria-label="폴더 이름 고치기"></button>
-      <button class="txt" id="fdel">삭제</button>
+      <button class="ttl" id="pname" aria-label="계획 이름 바꾸기"></button>
+      <button class="ib" id="pmenu" aria-label="더 보기">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><circle cx="3" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="13" cy="8" r="1.5"/></svg>
+      </button>
     </div>
-    <button class="dishrow" id="fdishes" aria-label="담은 요리 보기"></button>
-    <div class="ppl">
-      <span class="lbl">며칠에 걸쳐</span>
-      <div class="chip"><b id="fd"></b>일
-        <button class="step" id="fdm" aria-label="하루 줄이기">−</button>
-        <button class="step" id="fdp" aria-label="하루 늘리기">+</button>
-      </div>
-      <span class="lbl">먹을 사람</span>
+    <div class="drow noscroll" id="pdishes"></div>
+    <div class="set"><span class="lbl">며칠에 걸쳐</span><div class="dchips" id="pdays"></div></div>
+    <div class="set"><span class="lbl">먹을 사람</span>
       <div class="chip">성인<b id="fp"></b>
         <button class="step" id="fpm" aria-label="한 명 줄이기">−</button>
         <button class="step" id="fpp" aria-label="한 명 늘리기">+</button>
@@ -384,36 +399,13 @@
     <div id="planbox"></div>
     <div class="grow"></div>
     <div class="footD">
-      <div class="footRow">
-        <button class="alt" id="addD">
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
-          요리 담기
-        </button>
-        <button class="cta" id="goList">장볼 것 보기
-          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ③ 모든 요리 -->
-  <section id="browse" class="view">
-    <div class="fhead">
-      <button class="ib" id="bback" aria-label="뒤로">
-        <svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>
+      <button class="cta" id="goList">장볼 것 보기
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
       </button>
-      <span class="ttl" id="btitle">모든 요리</span>
     </div>
-    <div class="sec"><h2>탐색하기</h2></div>
-    <div class="explore" id="explore"></div>
-    <div class="sec"><h2 id="gtitle"></h2><span class="side" id="gcount"></span></div>
-    <div class="sortrow" id="sortrow"></div>
-    <div class="grid" id="grid"></div>
-    <div class="grow"></div>
-    <div class="footD" id="bfoot"><button class="cta" id="bpick"></button></div>
   </section>
 
-  <!-- ④ 레시피 -->
+  <!-- ③ 레시피 -->
   <section id="recipe" class="view">
     <div class="rtop">
       <button class="rback" id="rback" aria-label="뒤로">
@@ -438,15 +430,16 @@
     </div>
     <div class="rseg" id="rseg"></div>
     <div class="rpane" id="rpane"></div>
+    <div class="rfoot" id="rfoot"></div>
   </section>
 
-  <!-- ⑤ 장볼 것 (라이트) -->
+  <!-- ④ 장볼 것 (라이트) -->
   <section id="list" class="view">
     <div class="lhead">
       <button class="back" id="back" aria-label="뒤로">
         <svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>
       </button>
-      <div><h1>이것만 사면 돼요</h1><p id="lsub"></p></div>
+      <div><h1 id="ltitle"></h1><p id="lsub"></p></div>
     </div>
     <div class="ovl" id="ovl"></div>
     <div id="cats" style="flex:1"></div>
@@ -478,7 +471,8 @@ const CAT = new Map(D.catalog.map(c => [c.name, c]));
 const $ = id => document.getElementById(id);
 const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-/* 저장. 서버가 없으니 이 기기에만 남는다. 시크릿 모드에서는 localStorage가 예외를 던지므로 감싼다. */
+/* 저장. 서버가 없으니 이 기기에만 남는다. 시크릿 모드에서는 localStorage가 예외를 던지므로 감싼다.
+   스키마(bogl.folders)는 그대로다 — 화면에서 `계획`이라 부를 뿐 코드는 folder다. */
 const load = (k, d) => { try{ const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; }catch(e){ return d; } };
 const save = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
 let folders = load('bogl.folders', []);
@@ -487,13 +481,15 @@ const saveF = () => save('bogl.folders', folders);
 const saveMarks = () => save('bogl.marks', [...marks]);
 
 /* 상태 */
-let cur = 'home', fid = null, doneBy = {};           // done(장보기 체크)은 폴더별로 메모리에만
-let browseFid = null, picked = new Set();            // 담기 모드면 폴더 id
+let cur = 'home', fid = load('bogl.cur', null), doneBy = {};   // done(장보기 체크)은 계획별로 메모리에만
+if(!folders.some(f => f.id === fid)) fid = folders.length ? folders[0].id : null;
+const setCur = id => { fid = id; save('bogl.cur', id); };
 let catKey = '전체', sortKey = '가나다';
 const folder = () => folders.find(f => f.id === fid);
 const dishOf = e => typeof e === 'string' ? CAT.get(e) : e;      // 목록에서 빠진 이름이면 undefined → 건너뛴다
 const dishesOf = f => (f.dishes || []).map(dishOf).filter(Boolean);
-const keyOf = e => typeof e === 'string' ? e : 'yt:' + e.vid;
+// 저장 항목(이름 문자열 · 유튜브 객체)과 요리 객체 어느 쪽을 줘도 같은 키
+const keyOf = e => typeof e === 'string' ? e : e.vid ? 'yt:' + e.vid : e.name;
 const has = (f, key) => f.dishes.some(e => keyOf(e) === key);
 const DAY = 864e5;
 
@@ -508,14 +504,16 @@ const ICONS = {
   '우유 · 유제품':'<path d="M5.6 7.6h8.8v8.6a1.3 1.3 0 0 1-1.3 1.3H6.9a1.3 1.3 0 0 1-1.3-1.3z" fill="currentColor"/><path d="M5.6 7.6L10 3.2l4.4 4.4z" fill="currentColor" opacity=".55"/>'
 };
 const BOWL = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 11h18l-1.7 7.3a3 3 0 0 1-2.9 2.3H7.6a3 3 0 0 1-2.9-2.3z" fill="currentColor"/><ellipse cx="12" cy="11" rx="9" ry="2.3" fill="currentColor" opacity=".45"/></svg>';
-const CARTI = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h2l1.6 7.4h6.8L14 5.5H5"/><circle cx="6.5" cy="13" r="1"/><circle cx="11.5" cy="13" r="1"/></svg>';
 const MARKI = '<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.4h8v11.2L8 10.6l-4 3z"/></svg>';
 const CHECKI = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.5 3.5L13 5"/></svg>';
+const PLUSI = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>';
+const PLAYI = '<svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5v11l9-5.5z"/></svg>';
 const ARROW = '<svg class="ar" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>';
+const ARROWR = '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
 // 요리 사진. 없는 요리는 그릇 글리프로 남는다. 영상 요리는 유튜브 썸네일.
 const PHOTO = __DISHIMG__;
 const dishPic = d => d && d.vid ? `https://i.ytimg.com/vi/${d.vid}/mqdefault.jpg` : (PHOTO[(d && d.name) || d] || '');
-const face = d => { const p = dishPic(d); return p ? `<span class="cir ph"><img src="${p}" alt=""></span>` : `<span class="cir">${BOWL}</span>`; };
+const face = d => { const p = dishPic(d); return `<span class="cir">${p ? `<img src="${p}" alt="">` : BOWL}</span>`; };
 
 /* ── 화면 전환. 바탕색·상태바 색도 같이 바꾼다. 레시피에서는 화면이 안 꺼지게 잡는다. */
 let wl = null;
@@ -533,7 +531,7 @@ function show(id){
   if(id === 'recipe') lockOn(); else lockOff();
   scrollTo(0, 0);
 }
-const RENDER = { home: renderHome, folder: renderFolder, browse: renderBrowse, list: renderList };
+const RENDER = { home: renderHome, plan: renderPlan, list: renderList };
 function go(id){ if(RENDER[id]) RENDER[id](); show(id); }
 
 let tt;
@@ -549,121 +547,175 @@ function openSheet(html){
   sheet.classList.add('on'); box.scrollTop = 0;
 }
 
-/* ── ① 홈 ───────────────────────────────────────────────── */
-const spanOf = f => f.days === 1 ? '하루에' : f.days + '일에 걸쳐';
-function renderHome(){
-  $('fl').innerHTML = folders.length ? folders.map(f => { const ds = dishesOf(f); return `
-    <button class="fc" data-id="${f.id}">
-      <span class="ft"><span class="fn">${esc(f.name)}</span><span class="fm">요리 ${ds.length}가지 · ${spanOf(f)}</span></span>
-      <span class="fp">${ds.slice(0, 4).map(face).join('')}${ds.length > 4 ? `<span class="cir">+${ds.length - 4}</span>` : ''}</span>
-    </button>`; }).join('')
-    : `<p class="hint">먹고 싶은 요리를 담으면 언제 먹을지, 뭘 살지 짜드려요</p>`;
-}
-$('fl').onclick = e => { const b = e.target.closest('.fc'); if(b) openFolder(b.dataset.id); };
-$('allBtn').onclick = () => { browseFid = null; go('browse'); };
-$('newF').onclick = () => newFolderSheet(f => openFolder(f.id));
-
+/* ── 계획 만들기 · 담기 ───────────────────────────────────
+   담기 전에 묻지 않는다. 계획이 없으면 `이번 주`를 만들어 거기 담는다. */
 function createFolder(name, days, list){
   const f = { id: Date.now().toString(36), name, days, people: 2, at: Date.now(), list: list || null, dishes: [] };
-  folders.unshift(f); saveF(); return f;
+  folders.unshift(f); saveF(); setCur(f.id); return f;
 }
-/** 새 폴더. 이름은 기본값이 들어 있다 — 빈칸을 채우게 하지 않는다. */
-function newFolderSheet(then){
-  let days = 5;
-  openSheet(`<h3>새 폴더</h3><p class="sub">이름과 며칠에 걸쳐 먹을지만 정하면 돼요.</p>
-    <input id="nfn" value="이번 주" maxlength="24">
-    <div class="stp">며칠에 걸쳐<div class="servc"><span id="nfd">5일</span>
-      <button class="servb" id="nfm" aria-label="하루 줄이기">−</button><button class="servb" id="nfp" aria-label="하루 늘리기">+</button></div></div>
-    <button class="sbtn" id="nfgo">만들기</button>` +
-    (YTKEY ? `<p class="sub" style="margin:22px 0 8px">유튜브 재생목록으로 만들기 — 목록 이름이 폴더 이름이 돼요. 재생목록은 '미등록'이나 '공개'여야 읽힙니다.</p>
-      <input id="nfl" placeholder="재생목록 주소" inputmode="url"><button class="sbtn sub2" id="nflgo">불러오기</button>` : ''));
-  const paint = () => $('nfd').textContent = days + '일';
-  $('nfm').onclick = () => { days = Math.max(1, days - 1); paint(); };
-  $('nfp').onclick = () => { days = Math.min(7, days + 1); paint(); };
-  $('nfgo').onclick = () => { const name = $('nfn').value.trim() || '이번 주'; closeSheet(); then(createFolder(name, days)); };
-  if(YTKEY) $('nflgo').onclick = () => makeListFolder($('nfl').value.trim(), then);
+const ensureF = () => folder() || createFolder('이번 주', 5);
+/** entry: 요리 이름 문자열 또는 유튜브 항목 객체. 있으면 빼고 없으면 담는다. 담겼으면 true. */
+function toggleDish(entry){
+  const f = ensureF(), k = keyOf(entry), inF = has(f, k);
+  if(inF) f.dishes = f.dishes.filter(e => keyOf(e) !== k); else f.dishes.push(entry);
+  saveF(); toast(inF ? `${f.name}에서 뺐어요` : `${f.name}에 담았어요`);
+  return !inF;
 }
-/** 폴더 고르기 — 공유로 들어온 링크를 어디에 담을지. */
-function chooseFolderSheet(then){
-  openSheet(`<h3>어느 폴더에 담을까요</h3>` +
-    folders.map(f => `<button class="rc" data-id="${f.id}"><div><div class="nm">${esc(f.name)}</div>
-      <div class="mt">요리 ${dishesOf(f).length}가지 · ${spanOf(f)}</div></div>${ARROW}</button>`).join('') +
-    `<button class="sbtn sub2" id="cfnew" style="margin-top:14px">새 폴더</button>`);
-  box.querySelectorAll('.rc').forEach(b => b.onclick = () => { closeSheet(); then(folders.find(f => f.id === b.dataset.id)); });
-  $('cfnew').onclick = () => newFolderSheet(then);
+function newPlanSheet(){
+  openSheet(`<h3>새 계획</h3><input id="nfn" value="이번 주" maxlength="24"><button class="sbtn" id="nfgo">만들기</button>`);
+  $('nfn').select();
+  $('nfgo').onclick = () => { const f = createFolder($('nfn').value.trim() || '이번 주', 5); closeSheet(); renderHome(); toast(`${f.name} — 이제 요리를 담아 보세요`); };
 }
 
-/* ── ② 폴더 ─────────────────────────────────────────────── */
-async function openFolder(id){
-  fid = id; go('folder');
-  try{ if(await syncFolder(folder())){ renderFolder(); toast('유튜브에서 새로 읽었어요'); } }
+/* ── ① 홈 — 요리 고르기 ───────────────────────────────────
+   탐색 칩은 분류만이 아니라 난이도·시간도 섞는다. 고르는 이유가 그것뿐이 아니다. */
+const spanOf = f => f.days === 1 ? '하루' : f.days + '일';
+const BUCKETS = [['국 · 찌개', ['국', '찌개/전골/스튜', '탕']], ['밥 · 면', ['밥', '만두/면류', '도시락/간식']],
+                 ['볶음 · 조림', ['볶음', '조림']], ['찜 · 구이', ['찜', '구이']], ['전 · 반찬', ['부침', '나물/생채/샐러드', '밑반찬/김치']]];
+D.catalog.forEach(c => c.bucket = (BUCKETS.find(b => b[1].includes(c.kind)) || ['그 밖에'])[0]);
+const catMatch = (c, cat) =>
+  cat.f === 'all' || (cat.f === 'mark' && marks.has(c.name)) || (cat.f === 'bucket' && c.bucket === cat.v)
+  || (cat.f === 'level' && c.level === cat.v) || (cat.f === 'maxmin' && c.min <= cat.v);
+/** 저장한 것이 있을 때만 맨 끝에 붙는다. 대표 사진은 사진 있는 요리 중 첫 번째. */
+function catList(){
+  const cats = [{ label: '전체', f: 'all' }].concat(
+    BUCKETS.map(b => b[0]).concat('그 밖에').filter(b => D.catalog.some(c => c.bucket === b)).map(b => ({ label: b, f: 'bucket', v: b })),
+    [{ label: '초보환영', f: 'level', v: '초보환영' }, { label: '30분 안에', f: 'maxmin', v: 30 }],
+    marks.size ? [{ label: '저장한 요리', f: 'mark' }] : []);
+  cats.forEach(c => { const hit = D.catalog.filter(x => catMatch(x, c)); c.pic = (hit.find(x => PHOTO[x.name]) || {}).name; });
+  return cats;
+}
+/** 정렬. 재료·단계·시간은 `적을수록 쉬운 것`이라 전부 오름차순이다. */
+const SORTS = {
+  '가나다':      c => c.name,
+  '재료 적은 순': c => [(c.ing || []).length, c.name],
+  '단계 적은 순': c => [(c.steps || []).length || 99, c.name],
+  '시간 짧은 순': c => [c.min || 999, c.name],
+};
+function renderHome(){
+  paintPlans(); paintBar();
+  $('ytbtn').innerHTML = `<span class="pl">${PLAYI}</span><span>${YTKEY ? '영상이나 재생목록 링크 붙여넣기' : '영상 링크로 담기'}</span>`;
+  renderGrid();
+}
+function paintPlans(){
+  $('mp').style.display = folders.length ? '' : 'none';
+  $('mprow').innerHTML = folders.map(f => { const ds = dishesOf(f); return `
+    <button class="pc${f.id === fid ? ' on' : ''}" data-id="${f.id}">
+      <span><span class="fn">${esc(f.name)}</span><span class="fm">요리 ${ds.length}가지 · ${spanOf(f)}</span></span>
+      <span class="fp">${ds.slice(0, 3).map(face).join('')}${ds.length > 3 ? `<span class="cir">+${ds.length - 3}</span>` : ''}</span>
+    </button>`; }).join('') + `<button class="pc new" id="mpnew">+ 새 계획</button>`;
+}
+function paintBar(){
+  const f = folder(), ds = f ? dishesOf(f) : [];
+  $('home').classList.toggle('hasbar', ds.length > 0);
+  $('cartbar').classList.toggle('on', ds.length > 0);
+  if(ds.length) $('cartbar').innerHTML = `<span class="fp">${ds.slice(0, 3).map(face).join('')}</span>
+    <span class="ct">${esc(f.name)} · ${ds.length}가지</span><span class="cgo">계획 보기 ${ARROWR}</span>`;
+}
+function renderGrid(){
+  const f = folder(), cats = catList();
+  const cat = cats.find(c => c.label === catKey) || cats[0];   // 고르던 묶음이 사라졌으면 맨 앞으로
+  catKey = cat.label;
+  $('explore').innerHTML = cats.map(c => `
+    <button class="ec${c.label === catKey ? ' on' : ''}" data-b="${esc(c.label)}">
+      <span class="ep">${c.pic && PHOTO[c.pic] ? `<img src="${PHOTO[c.pic]}" alt="">` : BOWL}</span>
+      <span class="el">${esc(c.label)}</span>
+    </button>`).join('');
+  $('sortrow').innerHTML = Object.keys(SORTS).map(k => `<button class="${k === sortKey ? 'on' : ''}" data-s="${esc(k)}">${esc(k)}</button>`).join('');
+  const skey = SORTS[sortKey] || SORTS['가나다'];
+  const items = D.catalog.filter(c => catMatch(c, cat)).sort((a, b) => { const x = skey(a), y = skey(b);
+    return Array.isArray(x) ? (x[0] - y[0]) || String(x[1]).localeCompare(y[1], 'ko') : String(x).localeCompare(String(y), 'ko'); });
+  $('grid').innerHTML = items.length ? items.map(c => { const on = !!(f && has(f, c.name)); return `
+    <div class="card${on ? ' on' : ''}" data-n="${esc(c.name)}">
+      <div class="thw">
+        <button class="th" data-a="open" aria-label="${esc(c.name)} 레시피">${PHOTO[c.name] ? `<img src="${PHOTO[c.name]}" alt="">` : `<span class="bowl">${BOWL}</span>`}
+          ${marks.has(c.name) ? `<i class="mk2">${MARKI}</i>` : ''}</button>
+        <button class="add" data-a="add" aria-label="${on ? '빼기' : '담기'}">${on ? CHECKI : PLUSI}</button>
+      </div>
+      <button class="cb" data-a="open"><span class="cn">${esc(c.name)}</span><span class="cm">${esc(c.time)} · ${esc(c.level)}</span></button>
+    </div>`; }).join('') : `<div class="empty" style="grid-column:span 2">여기엔 아직 요리가 없어요</div>`;
+}
+$('mprow').onclick = e => {
+  if(e.target.closest('#mpnew')) return newPlanSheet();
+  const b = e.target.closest('.pc'); if(!b) return;
+  setCur(b.dataset.id); openPlan();
+};
+$('ytbtn').onclick = () => linkSheet('');
+$('cartbar').onclick = openPlan;
+$('explore').onclick = e => { const b = e.target.closest('.ec'); if(!b) return; catKey = b.dataset.b; renderGrid(); };
+$('sortrow').onclick = e => { const b = e.target.closest('button'); if(!b) return; sortKey = b.dataset.s; renderGrid(); };
+$('grid').onclick = e => {
+  const b = e.target.closest('button[data-a]'); if(!b) return;
+  const card = b.closest('.card'), n = card.dataset.n;
+  if(b.dataset.a === 'open') return openRecipe(CAT.get(n), 'home');
+  // 카드 하나만 바꾼다. 그리드를 다시 그리면 스크롤이 튄다.
+  const on = toggleDish(n);
+  card.classList.toggle('on', on); b.innerHTML = on ? CHECKI : PLUSI; b.setAttribute('aria-label', on ? '빼기' : '담기');
+  paintPlans(); paintBar();
+};
+
+/* ── ② 계획 ─────────────────────────────────────────────── */
+async function openPlan(){
+  go('plan');
+  try{ if(await syncFolder(folder())){ renderPlan(); toast('유튜브에서 새로 읽었어요'); } }
   catch(e){ toast(LIST_ERR); }
 }
-function renderFolder(){
+function renderPlan(){
   const f = folder(); if(!f) return go('home');
   const ds = dishesOf(f);
-  $('fname').textContent = f.name;
-  $('fdishes').style.display = ds.length ? '' : 'none';
-  $('fdishes').innerHTML = ds.slice(0, 5).map(d => `<span class="dish">${face(d)}<span>${esc(d.name)}</span></span>`).join('') +
-    (ds.length > 5 ? `<span class="dish"><span class="cir" style="background:var(--d-card2);font-size:13px;font-weight:900;color:var(--d-tx2)">+${ds.length - 5}</span><span>더 있어요</span></span>` : '');
-  $('fd').textContent = f.days; $('fp').textContent = f.people;
-  $('planbox').innerHTML = ds.length ? planHtml(plan(ds, f.days)) : `<p class="hint">요리를 담으면 언제 먹을지 짜드려요</p>`;
+  $('pname').textContent = f.name;
+  $('pdishes').innerHTML = ds.map(d => `<button data-k="${esc(keyOf(d))}">${face(d)}<span>${esc(d.name)}</span></button>`).join('') +
+    `<button class="more" id="pmore"><span class="cir">${PLUSI}</span><span>더 담기</span></button>`;
+  $('pdays').innerHTML = [1, 2, 3, 4, 5, 6, 7].map(n => `<button class="${n === f.days ? 'on' : ''}" data-d="${n}" aria-label="${n}일">${n}</button>`).join('') + `<span class="u">일</span>`;
+  $('fp').textContent = f.people;
+  $('planbox').innerHTML = ds.length ? planHtml(plan(ds, f.days))
+    : `<div class="emp"><p>아직 담긴 요리가 없어요</p><button id="gopick">요리 고르러 가기</button></div>`;
   $('goList').disabled = !ds.length;
 }
+/** 요리가 있는 날만 카드로. 밑작업은 카드 아래 한 줄. 빈 날은 마지막에 한 줄로만. */
 function planHtml(p){
-  const card = (label, ds, trip, preps) => `<div class="day">
-    <div class="dh"><span>${label}</span>${trip ? `<span class="tp">${CARTI}${trip}차 장보기</span>` : ''}</div>
-    <div class="dn${ds.length ? '' : ' none'}">${ds.length ? ds.map(d => esc(d.name)).join(' · ') : '쉬는 날'}</div>
-    ${preps.map(x => `<div class="dp">${esc(x.text)}</div>`).join('')}</div>`;
+  const row = d => `<button class="dr" data-k="${esc(keyOf(d))}">${face(d)}<span>${esc(d.name)}</span></button>`;
+  const card = (label, ds, tag, preps) => `<div class="day"><div class="dh"><span>${label}</span>${tag ? `<span class="tp">${tag}</span>` : ''}</div>${ds.map(row).join('')}</div>` +
+    preps.map(x => `<div class="dp">${esc(x.text)}</div>`).join('');
   if(p.mode === 'day')
-    return `<div class="plan">${p.slots.map((s, i) => s.dishes.length ? card(s.label, s.dishes, 0, i === 0 ? p.prep : []) : '').join('')}</div>`;
-  return `<div class="plan">${p.days.map(d => card(d.i + '일', d.dishes, d.trip ? p.trips.indexOf(d.i) + 1 : 0, p.prep.filter(x => x.day === d.i))).join('')}</div>`;
+    return `<div class="plan">${p.slots.filter(s => s.dishes.length).map(s => card(s.label, s.dishes, '', s === p.slots[0] ? p.prep : [])).join('')}</div>`;
+  const used = p.days.filter(d => d.dishes.length);
+  const tag = d => !d.trip ? '' : p.trips.length > 1 ? `${p.trips.indexOf(d.i) + 1}차 장보기` : '장보기';
+  return `<div class="plan">${used.map(d => card(d.i + '일', d.dishes, tag(d), p.prep.filter(x => x.day === d.i))).join('')}
+    ${used.length < p.days.length ? `<div class="rest">나머지 ${p.days.length - used.length}일은 비어 있어요</div>` : ''}</div>`;
 }
-const bump = (key, lo, hi, d) => () => { const f = folder(); f[key] = Math.min(hi, Math.max(lo, f[key] + d)); saveF(); renderFolder(); };
-$('fdm').onclick = bump('days', 1, 7, -1);  $('fdp').onclick = bump('days', 1, 7, 1);
+/** 담긴 요리 하나 — 레시피 보기 / 빼기 */
+function dishSheet(k){
+  const f = folder(), e = f.dishes.find(x => keyOf(x) === k), d = e && dishOf(e); if(!d) return;
+  openSheet(`<h3>${esc(d.name)}</h3><button class="sbtn" id="dsr" style="margin-top:14px">레시피 보기</button><button class="sbtn sub2" id="dsx">빼기</button>`);
+  $('dsr').onclick = () => { closeSheet(); openRecipe(d, 'plan'); };
+  $('dsx').onclick = () => { closeSheet(); toggleDish(e); renderPlan(); };
+}
+const onDish = e => { if(e.target.closest('#pmore') || e.target.closest('#gopick')) return go('home');
+  const b = e.target.closest('button[data-k]'); if(b) dishSheet(b.dataset.k); };
+$('pdishes').onclick = onDish;
+$('planbox').onclick = onDish;
+$('pdays').onclick = e => { const b = e.target.closest('button[data-d]'); if(!b) return; const f = folder(); f.days = +b.dataset.d; saveF(); renderPlan(); };
+const bump = (key, lo, hi, d) => () => { const f = folder(); f[key] = Math.min(hi, Math.max(lo, f[key] + d)); saveF(); renderPlan(); };
 $('fpm').onclick = bump('people', 1, 12, -1); $('fpp').onclick = bump('people', 1, 12, 1);
-$('fback').onclick = () => go('home');
+$('pback').onclick = () => go('home');
 $('goList').onclick = () => go('list');
-$('fname').onclick = () => {
+function renameSheet(){
   const f = folder();
-  openSheet(`<h3>폴더 이름</h3><input id="rnn" value="${esc(f.name)}" maxlength="24"><button class="sbtn" id="rngo">저장</button>`);
-  $('rngo').onclick = () => { f.name = $('rnn').value.trim() || f.name; saveF(); closeSheet(); renderFolder(); };
-};
-$('fdel').onclick = () => {
-  const f = folder();
-  openSheet(`<h3>${esc(f.name)} 폴더를 지울까요</h3><p class="sub">담은 요리 ${dishesOf(f).length}가지가 같이 지워져요. 되돌릴 수 없어요.</p>
-    <button class="sbtn warn" id="delgo">지우기</button>`);
-  $('delgo').onclick = () => { folders = folders.filter(x => x.id !== f.id); saveF(); closeSheet(); go('home'); toast('지웠어요'); };
-};
-
-const metaOf = d => d.vid
-  ? `유튜브 · ${d.ing.length ? '재료 ' + d.ing.length + '가지' : '재료 없음 — 레시피에서 적어 주세요'}${d.chapters && d.chapters.length ? ' · 챕터 ' + d.chapters.length + '개' : ''}`
-  : `${esc(d.kind)} · ${esc(d.time)} · ${esc(d.level)} · ${d.servings}인분 기준<br>레시피 ${esc(d.source)}`;
-/** 담은 요리 목록. 누르면 레시피, 빼기는 바로. */
-function fDishSheet(){
-  const f = folder();
-  openSheet(`<h3>요리 ${f.dishes.length}가지</h3><p class="sub">눌러서 레시피를 봅니다. 출처는 레시피마다 답니다.</p>` +
-    f.dishes.map((e, i) => { const d = dishOf(e), k = keyOf(e); return `<div class="rc">
-      <button class="rcm" data-k="${esc(k)}"><div class="no">${i + 1}</div>
-        <div><div class="nm">${esc(d ? d.name : e)}</div><div class="mt">${d ? metaOf(d) : '목록에서 빠진 요리예요'}</div></div></button>
-      <button class="rx" data-k="${esc(k)}">빼기</button></div>`; }).join(''));
-  box.querySelectorAll('.rcm').forEach(b => b.onclick = () => { const d = dishOf(f.dishes.find(e => keyOf(e) === b.dataset.k));
-    if(!d) return; closeSheet(); openRecipe(d, 'folder'); });
-  box.querySelectorAll('.rx').forEach(b => b.onclick = () => {
-    f.dishes = f.dishes.filter(e => keyOf(e) !== b.dataset.k); saveF(); renderFolder();
-    f.dishes.length ? fDishSheet() : closeSheet(); toast('뺐어요'); });
+  openSheet(`<h3>계획 이름</h3><input id="rnn" value="${esc(f.name)}" maxlength="24"><button class="sbtn" id="rngo">저장</button>`);
+  $('rngo').onclick = () => { f.name = $('rnn').value.trim() || f.name; saveF(); closeSheet(); renderPlan(); };
 }
-$('fdishes').onclick = fDishSheet;
-$('addD').onclick = () => {
+$('pname').onclick = renameSheet;
+$('pmenu').onclick = () => {
   const f = folder();
-  openSheet(`<h3>요리 담기</h3>
-    <button class="lk" id="ad1">모든 요리에서 고르기<span class="q">${D.catalog.length}가지</span></button>
-    <button class="lk" id="ad2">영상 링크로<span class="q">유튜브</span></button>` +
-    (YTKEY && f.list ? `<button class="lk" id="ad3">재생목록 다시 불러오기</button>` : ''));
-  $('ad1').onclick = () => { closeSheet(); browseFid = f.id; picked = new Set(); go('browse'); };
-  $('ad2').onclick = () => linkSheet('');
-  if($('ad3')) $('ad3').onclick = async () => { closeSheet();
-    try{ await pullList(f); renderFolder(); toast('재생목록을 새로 읽었어요'); }catch(e){ toast(LIST_ERR); } };
+  openSheet(`<button class="lk" id="mrn">이름 바꾸기${ARROW}</button><button class="lk" id="mdel">계획 지우기${ARROW}</button>`);
+  $('mrn').onclick = renameSheet;
+  $('mdel').onclick = () => {
+    openSheet(`<h3>${esc(f.name)} 계획을 지울까요</h3><p class="sub">담은 요리 ${dishesOf(f).length}가지가 같이 지워져요. 되돌릴 수 없어요.</p>
+      <button class="sbtn warn" id="delgo">지우기</button>`);
+    $('delgo').onclick = () => { folders = folders.filter(x => x.id !== f.id); saveF(); setCur(folders.length ? folders[0].id : null);
+      closeSheet(); go('home'); toast('지웠어요'); };
+  };
 };
 
 /* ── 유튜브 ──────────────────────────────────────────────
@@ -677,7 +729,7 @@ async function ytApi(path, params){
   if(!r.ok) throw new Error('yt ' + r.status);
   return r.json();
 }
-/** 재생목록 → 폴더 요리. 이미 재료를 고친 항목은 덮어쓰지 않고, 링크로 따로 담은 것은 남긴다. */
+/** 재생목록 → 계획의 요리. 이미 재료를 고친 항목은 덮어쓰지 않고, 링크로 따로 담은 것은 남긴다. */
 async function pullList(f){
   // ponytail: 첫 50개만. 재생목록이 더 길면 pageToken을 돌려야 한다
   const r = await ytApi('playlistItems', { part: 'snippet', maxResults: 50, playlistId: f.list });
@@ -694,9 +746,9 @@ async function pullList(f){
   f.dishes = f.dishes.filter(e => typeof e === 'string' || (e.link && !got.has(e.vid))).concat(fresh);
   f.at = Date.now(); saveF();
 }
-/** 유튜브 데이터는 30일 넘게 못 갖는다. 25일 지난 것은 폴더를 열 때 다시 받는다. */
+/** 유튜브 데이터는 30일 넘게 못 갖는다. 25일 지난 것은 계획을 열 때 다시 받는다. */
 async function syncFolder(f){
-  if(!YTKEY) return false;
+  if(!YTKEY || !f) return false;
   const old = Date.now() - 25 * DAY;
   let changed = false;
   if(f.list && f.at < old){ await pullList(f); changed = true; }
@@ -710,25 +762,27 @@ async function syncFolder(f){
   }
   return changed;
 }
-async function makeListFolder(url, then){
-  const list = ytList(url); if(!list) return toast('재생목록 주소가 아니에요');
-  $('nflgo').disabled = true;
+/** 재생목록 하나 = 계획 하나. 목록 이름이 계획 이름이 된다. */
+async function makeListFolder(list){
+  $('lkgo').disabled = true;
   let name = '재생목록';
   try{ const r = await ytApi('playlists', { part: 'snippet', id: list }); if(r.items[0]) name = r.items[0].snippet.title; }catch(e){}
   const f = createFolder(name, 5, list);
   try{ await pullList(f); }catch(e){ toast(LIST_ERR); }
-  closeSheet(); then(f);
+  closeSheet(); openPlan();
 }
-/** 영상 링크 — 설명란에 재료가 있으면 읽어서 채우고, 없으면 직접 적는다. */
+/** 링크 하나로 다 받는다 — 재생목록이면 새 계획, 영상이면 현재 계획에 한 요리. */
 function linkSheet(url){
-  openSheet(`<h3>영상 링크로 담기</h3><p class="sub">설명란에 재료가 있으면 자동으로 읽어요. 없으면 직접 적으면 됩니다.</p>
-    <input id="lku" value="${esc(url)}" placeholder="https://youtu.be/…" inputmode="url">
+  openSheet(`<h3>유튜브에서 담기</h3>
+    <input id="lku" value="${esc(url)}" placeholder="유튜브 링크" inputmode="url">
     <button class="sbtn" id="lkgo">불러오기</button>`);
   $('lkgo').onclick = () => loadLink($('lku').value.trim());
   if(url) loadLink(url);
 }
 async function loadLink(url){
-  const vid = ytId(url); if(!vid) return toast('유튜브 영상 주소가 아니에요');
+  const list = ytList(url), vid = ytId(url);
+  if(list) return YTKEY ? makeListFolder(list) : toast('재생목록은 유튜브 키가 있어야 읽어요');
+  if(!vid) return toast('유튜브 링크가 아니에요');
   let title = '', desc = '';
   if(YTKEY){ $('lkgo').disabled = true;
     try{ const v = (await ytApi('videos', { part: 'snippet', id: vid })).items[0]; if(v){ title = v.snippet.title; desc = v.snippet.description; } }
@@ -748,87 +802,16 @@ function ytForm(d, isEdit){
     const name = $('yfn').value.trim(); if(!name) return toast('요리 이름을 적어 주세요');
     const ing = $('yfi').value.split('\n').map(s => s.trim()).filter(Boolean).map(splitLine).filter(i => i.n);
     if(!ing.length) return toast('재료를 한 줄은 적어야 장볼 것을 만들 수 있어요');
-    const f = folder(), i = f.dishes.findIndex(e => keyOf(e) === 'yt:' + d.vid);
+    const f = ensureF(), i = f.dishes.findIndex(e => keyOf(e) === 'yt:' + d.vid);
     const entry = Object.assign({ src: 'yt', vid: d.vid, url: 'https://youtu.be/' + d.vid, servings: 2, chapters: d.chapters, at: Date.now(), link: 1 },
                                 i >= 0 ? f.dishes[i] : {}, { name, ing, edited: 1 });
     if(i >= 0) f.dishes[i] = entry; else f.dishes.push(entry);
-    saveF(); closeSheet(); toast(isEdit ? '고쳤어요' : '담았어요');
-    if(cur === 'recipe') openRecipe(entry, rBack); else renderFolder();
+    saveF(); closeSheet(); toast(isEdit ? '고쳤어요' : `${f.name}에 담았어요`);
+    if(cur === 'recipe') openRecipe(entry, rBack); else if(RENDER[cur]) RENDER[cur]();
   };
 }
 
-/* ── ③ 모든 요리 ─────────────────────────────────────────
-   탐색 카드는 분류만이 아니라 난이도·시간도 섞는다. 고르는 이유가 그것뿐이 아니다. */
-const BUCKETS = [['국 · 찌개', ['국', '찌개/전골/스튜', '탕']], ['밥 · 면', ['밥', '만두/면류', '도시락/간식']],
-                 ['볶음 · 조림', ['볶음', '조림']], ['찜 · 구이', ['찜', '구이']], ['전 · 반찬', ['부침', '나물/생채/샐러드', '밑반찬/김치']]];
-D.catalog.forEach(c => c.bucket = (BUCKETS.find(b => b[1].includes(c.kind)) || ['그 밖에'])[0]);
-const catMatch = (c, cat) =>
-  cat.f === 'all' || (cat.f === 'mark' && marks.has(c.name)) || (cat.f === 'bucket' && c.bucket === cat.v)
-  || (cat.f === 'level' && c.level === cat.v) || (cat.f === 'maxmin' && c.min <= cat.v);
-/** 저장한 것이 있을 때만 맨 앞에 세운다. 대표 사진은 사진 있는 요리 중 첫 번째. */
-function catList(){
-  const cats = (marks.size ? [{ label: '저장한 요리', f: 'mark' }] : []).concat([{ label: '전체', f: 'all' }],
-    BUCKETS.map(b => b[0]).concat('그 밖에').filter(b => D.catalog.some(c => c.bucket === b)).map(b => ({ label: b, f: 'bucket', v: b })),
-    [{ label: '초보환영', f: 'level', v: '초보환영' }, { label: '30분 안에', f: 'maxmin', v: 30 }]);
-  cats.forEach(c => { const hit = D.catalog.filter(x => catMatch(x, c)); c.n = hit.length; c.pic = (hit.find(x => PHOTO[x.name]) || {}).name; });
-  return cats;
-}
-/** 정렬. 재료·단계·시간은 `적을수록 쉬운 것`이라 전부 오름차순이다. */
-const SORTS = {
-  '가나다':      c => c.name,
-  '재료 적은 순': c => [(c.ing || []).length, c.name],
-  '단계 적은 순': c => [(c.steps || []).length || 99, c.name],
-  '시간 짧은 순': c => [c.min || 999, c.name],
-};
-function renderBrowse(){
-  const f = browseFid && folders.find(x => x.id === browseFid);
-  if(browseFid && !f) browseFid = null;
-  const cats = catList();
-  const cat = cats.find(c => c.label === catKey) || cats[0];   // 고르던 묶음이 사라졌으면 맨 앞으로
-  catKey = cat.label;
-  const items = D.catalog.filter(c => catMatch(c, cat));
-  $('btitle').textContent = f ? f.name + '에 담기' : '모든 요리';
-  $('explore').innerHTML = cats.map(c => `
-    <button class="ec${c.label === catKey ? ' on' : ''}" data-b="${esc(c.label)}">
-      <span class="el">${esc(c.label)}</span>
-      <span class="ep">${c.pic && PHOTO[c.pic] ? `<img src="${PHOTO[c.pic]}" alt="">` : ''}</span>
-    </button>`).join('');
-  $('gtitle').textContent = cat.f === 'all' ? '모든 요리' : cat.label;
-  $('gcount').textContent = `${items.length}가지 · ${f ? '눌러서 고르기' : '눌러서 만드는 법 보기'}`;
-  $('sortrow').innerHTML = Object.keys(SORTS).map(k => `<button class="${k === sortKey ? 'on' : ''}" data-s="${esc(k)}">${esc(k)}</button>`).join('');
-  const skey = SORTS[sortKey] || SORTS['가나다'];
-  items.sort((a, b) => { const x = skey(a), y = skey(b);
-    return Array.isArray(x) ? (x[0] - y[0]) || String(x[1]).localeCompare(y[1], 'ko') : String(x).localeCompare(String(y), 'ko'); });
-  $('grid').innerHTML = items.length ? items.map(c => { const inF = f && has(f, c.name), on = picked.has(c.name); return `
-    <div class="card${on ? ' on' : ''}" data-n="${esc(c.name)}">
-      <button class="th" data-a="${f ? 'pick' : 'open'}">${PHOTO[c.name] ? `<img src="${PHOTO[c.name]}" alt="">` : `<span class="bowl">${BOWL}</span>`}
-        ${marks.has(c.name) ? `<i class="mk2">${MARKI}</i>` : ''}
-        ${f && !inF ? `<i class="ck2">${CHECKI}</i>` : ''}${inF ? `<i class="in">담겨 있어요</i>` : ''}</button>
-      <span class="cn">${esc(c.name)}</span>
-      <span class="tags"><i class="tg2">${esc(c.time)}</i><i class="tg2">${esc(c.level)}</i>${f ? `<button class="tg2" data-a="open">레시피</button>` : ''}</span>
-    </div>`; }).join('') : `<div class="empty" style="grid-column:span 2">여기엔 아직 요리가 없어요</div>`;
-  $('bfoot').style.display = f ? '' : 'none';
-  if(f){ $('bpick').textContent = picked.size ? `${picked.size}가지 담기` : '요리를 골라 주세요'; $('bpick').disabled = !picked.size; }
-}
-$('explore').onclick = e => { const b = e.target.closest('.ec'); if(!b) return; catKey = b.dataset.b; renderBrowse(); scrollTo(0, 0); };
-$('sortrow').onclick = e => { const b = e.target.closest('button'); if(!b) return; sortKey = b.dataset.s; renderBrowse(); };
-$('grid').onclick = e => {
-  const b = e.target.closest('button[data-a]'); if(!b) return;
-  const n = b.closest('.card').dataset.n;
-  if(b.dataset.a === 'open') return openRecipe(CAT.get(n), 'browse');
-  const f = folders.find(x => x.id === browseFid);
-  if(has(f, n)) return toast('이미 담겨 있어요');
-  picked.has(n) ? picked.delete(n) : picked.add(n);
-  renderBrowse();
-};
-$('bback').onclick = () => go(browseFid ? 'folder' : 'home');
-$('bpick').onclick = () => {
-  const f = folders.find(x => x.id === browseFid); if(!f) return;
-  [...picked].forEach(n => { if(!has(f, n)) f.dishes.push(n); });
-  saveF(); toast(`${picked.size}가지 담았어요`); picked = new Set(); browseFid = null; go('folder');
-};
-
-/* ── ④ 레시피 — 모달이 아니라 페이지다. 재료와 만드는 법(또는 영상)을 탭으로. */
+/* ── ③ 레시피 — 모달이 아니라 페이지다. 재료와 만드는 법(또는 영상)을 탭으로. */
 let rDish = null, rBack = 'home', rServ = 2, rTab = 'ing', stepI = 0;
 /** 레시피 분량. 장보기와 달리 올림하지 않는다 — 사러 갈 양이 아니라 넣을 양이다. 0.5 단위. */
 const half = v => { const r = Math.round(v * 2) / 2; return r % 1 ? r.toFixed(1) : String(r); };
@@ -846,9 +829,15 @@ function openRecipe(d, back){
   $('rtitle').textContent = d.name;
   $('rtags').innerHTML = (d.vid ? ['유튜브'] : [d.kind, d.time, d.level]).filter(Boolean).map(t => `<i>${esc(t)}</i>`).join('');
   $('rseg').innerHTML = `<button data-t="ing">재료</button><button data-t="step">${d.vid ? '영상' : '만드는 법'}</button>`;
-  paintMark(); paintTimer(); renderRecipe(); show('recipe');
+  paintMark(); paintTimer(); paintRfoot(); renderRecipe(); show('recipe');
 }
 const paintMark = () => $('rmark').classList.toggle('on', marks.has(rDish.name));
+/** 아래 고정 버튼 하나 — 현재 계획에 담기 / 담겨 있어요(누르면 뺀다). */
+function paintRfoot(){
+  const f = folder(), inF = !!(f && has(f, keyOf(rDish))), name = f ? f.name : '이번 주';
+  $('rfoot').innerHTML = `<button class="tgo${inF ? ' in' : ''}" id="radd">${esc(name)}에 ${inF ? '담겨 있어요 ' + CHECKI : '담기'}</button>`;
+  $('radd').onclick = () => { toggleDish(rDish.vid ? rDish : rDish.name); paintRfoot(); };
+}
 
 /* ── 요리 타이머 — 남은 시간을 세지 않고 `끝나는 시각`을 잡아 둔다. 돌아왔을 때 흘러간 만큼이 정확히 반영된다. */
 let tEnd = 0, tId = null, tMin = 5, actx = null;
@@ -944,17 +933,11 @@ function ytSeekTo(t){ ytSeek = t; ytNow = t; ytCmd('seekTo', [t, true]); ytCmd('
 function srcBlock(d){
   if(d.vid) return `<div class="rsrc">레시피 · 유튜브 영상 · <a href="https://youtu.be/${esc(d.vid)}" target="_blank" rel="noopener">유튜브에서 보기</a></div>`;
   const pc = D.photos[d.name];
-  return `<div class="rsrc">레시피 · ${esc(d.source || '')}` +
-    (pc ? `<br>사진 · <a href="${esc(pc.u)}" target="_blank" rel="noopener">${esc(pc.t)}</a> · ${esc(pc.l)} · 위키미디어 공용` : '') + `</div>`;
+  // AI로 만든 사진은 링크 없이 그 사실만 밝힌다. 위키미디어 사진은 라이선스 조건상 출처를 단다.
+  const photo = !pc ? '' : pc.l === 'AI' ? `<br>사진 · AI로 만든 참고 이미지예요. 실제 요리와 다를 수 있어요`
+    : `<br>사진 · <a href="${esc(pc.u)}" target="_blank" rel="noopener">${esc(pc.t)}</a> · ${esc(pc.l)} · 위키미디어 공용`;
+  return `<div class="rsrc">레시피 · ${esc(d.source || '')}${photo}</div>`;
 }
-/** 폴더 맥락(담기 모드로 훑다가 들어온 경우)에서만 `이 폴더에 담기`. */
-function addBtn(){
-  const f = browseFid && folders.find(x => x.id === browseFid);
-  if(!f || has(f, keyOf(rDish.vid ? rDish : rDish.name))) return '';
-  return `<button class="tgo radd" id="radd">${esc(f.name)}에 담기</button>`;
-}
-function bindAdd(){ const b = $('radd'); if(!b) return; b.onclick = () => {
-  const f = folders.find(x => x.id === browseFid); f.dishes.push(rDish.vid ? rDish : rDish.name); saveF(); toast('담았어요'); renderRecipe(); }; }
 
 function renderRecipe(){
   const d = rDish, base = d.servings || 2;
@@ -974,12 +957,10 @@ function renderRecipe(){
           return `<div class="ir"><span>${esc(i.n)}</span><b class="${scaled ? '' : 'raw'}">${esc(scaled || i.q || '조금')}</b></div>`;
         }).join('')).join('')}</div>` : `<p style="margin:0;font-size:13px;color:var(--l-tx3)">아직 재료가 없어요. 적어 두면 장볼 것에 들어가요.</p>`) +
       (base !== rServ ? `<p style="margin:10px 2px 0;font-size:10.5px;color:var(--l-tx3)">레시피 기준 ${base}인분에서 ${rServ}인분으로 계산했어요. <b style="font-weight:700">적당량</b>처럼 양이 안 적힌 것은 그대로예요.</p>` : '') +
-      (d.vid ? `<div class="rw"><button id="redit">재료 고치기</button></div>` : '') +
-      addBtn() + srcBlock(d);
+      (d.vid ? `<div class="rw"><button id="redit">재료 고치기</button></div>` : '') + srcBlock(d);
     $('servm').onclick = () => { rServ = Math.max(1, rServ - 1); renderRecipe(); };
     $('servp').onclick = () => { rServ = Math.min(12, rServ + 1); renderRecipe(); };
     if(d.vid) $('redit').onclick = () => ytForm({ name: d.name, vid: d.vid, url: 'https://youtu.be/' + d.vid, ing: d.ing || [], chapters: d.chapters || [] }, true);
-    bindAdd();
     return;
   }
 
@@ -992,18 +973,17 @@ function renderRecipe(){
       (ch.length ? `<div class="chs">${ch.map(c => `<button class="ch" data-t="${c.t}"><b>${mmss(c.t * 1000)}</b><span>${esc(c.label)}</span></button>`).join('')}</div>` : '') +
       `<div class="rw"><button id="back10">
          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v3h3"/></svg>10초 뒤로</button></div>` +
-      addBtn() + srcBlock(d);
+      srcBlock(d);
     $('ytf').onload = () => $('ytf').contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), '*');
-    box.querySelectorAll; $('rpane').querySelectorAll('.ch').forEach(b => b.onclick = () => ytSeekTo(+b.dataset.t));
+    $('rpane').querySelectorAll('.ch').forEach(b => b.onclick = () => ytSeekTo(+b.dataset.t));
     $('back10').onclick = () => ytSeekTo(Math.max(0, (ytNow != null ? ytNow : ytSeek) - 10));
-    bindAdd();
     return;
   }
 
   const st = d.steps || [];
   if(!st.length){
-    $('rpane').innerHTML = `<p style="font-size:13px;color:var(--l-tx3)">아직 만드는 법이 없어요.</p>` + addBtn() + srcBlock(d);
-    bindAdd(); return;
+    $('rpane').innerHTML = `<p style="font-size:13px;color:var(--l-tx3)">아직 만드는 법이 없어요.</p>` + srcBlock(d);
+    return;
   }
   const s = st[stepI];
   $('rpane').innerHTML =
@@ -1012,7 +992,7 @@ function renderRecipe(){
        <div class="stx">${esc(s.d)}${s.t ? `<span class="stip">${esc(s.t)}</span>` : ''}</div>
      </div></div>
      <div class="grow"></div>
-     ${addBtn()}${srcBlock(d)}
+     ${srcBlock(d)}
      <div class="sfoot">
        <div class="dots">${st.map((_, i) => `<i class="${i === stepI ? 'on' : ''}"></i>`).join('')}</div>
        <div class="snav">
@@ -1020,7 +1000,6 @@ function renderRecipe(){
          <button class="next" id="snext">${stepI < st.length - 1 ? '다음' : '다 만들었어요'}</button>
        </div>
      </div>`;
-  bindAdd();
   $('sprev').onclick = () => { if(stepI > 0){ stepI--; renderRecipe(); scrollTo(0, 0); } };
   // 마지막에서는 비활성 버튼으로 막아 두지 않는다. 다 만든 사람에게 필요한 건 나가는 길이다.
   $('snext').onclick = () => {
@@ -1031,13 +1010,14 @@ function renderRecipe(){
 $('rseg').onclick = e => { const b = e.target.closest('button'); if(!b) return; rTab = b.dataset.t; renderRecipe(); scrollTo(0, 0); };
 $('rback').onclick = () => go(rBack);
 
-/* ── ⑤ 장볼 것 ───────────────────────────────────────────── */
+/* ── ④ 장볼 것 ───────────────────────────────────────────── */
 let L = null;   // 지금 화면의 합산 결과
 function renderList(){
   const f = folder(), ds = dishesOf(f), p = plan(ds, f.days), a = L = aggregate(ds, f.people);
   const done = doneBy[f.id] = doneBy[f.id] || {};
   const apart = ds.reduce((s, d) => s + (d.ing || []).filter(i => i.b).length, 0);
-  $('lsub').textContent = `${f.name} · ${f.days === 1 ? '하루' : f.days + '일'} · 성인 ${f.people} · 요리 ${ds.length}가지 · 살 것 ${a.buyCount}가지`;
+  $('ltitle').textContent = `살 것 ${a.buyCount}가지`;
+  $('lsub').textContent = `${f.name} · ${spanOf(f)} · 성인 ${f.people}`;
   $('ovl').style.display = a.overlaps.length ? '' : 'none';
   $('ovl').innerHTML = `<div class="k">이 재료들이 겹쳐요</div>
     <div class="tags">${a.overlaps.map(o => `<span class="tg">${esc(o.name)}<i>${o.used}끼</i></span>`).join('')}</div>
@@ -1047,7 +1027,7 @@ function renderList(){
   if(p.mode === 'days' && p.trips.length >= 2){
     const dayOf = {}; p.days.forEach(d => d.dishes.forEach(x => { if(dayOf[x.name] == null) dayOf[x.name] = d.i; }));
     const tripOf = it => { const day = Math.min(...it.where.map(w => dayOf[w] || 1)); let k = 0; p.trips.forEach((t, i) => { if(t <= day) k = i; }); return k; };
-    secs = p.trips.map((t, k) => ({ title: `${k + 1}차 장보기`, sub: `${t}일`,
+    secs = p.trips.map((t, k) => ({ title: `${k + 1}차 장보기`, sub: `· ${t}일`,
       groups: a.groups.map(g => ({ cat: g.cat, items: g.items.filter(it => tripOf(it) === k) })).filter(g => g.items.length) }));
   }
   $('cats').innerHTML = secs.map(sec => (sec.title ? `<div class="lsec">${sec.title}<span>${sec.sub}</span></div>` : '') +
@@ -1064,7 +1044,7 @@ function renderList(){
         </button>`).join('')}
     </section>`).join('')).join('');
 }
-$('back').onclick = () => go('folder');
+$('back').onclick = () => go('plan');
 $('cats').onclick = e => { const r = e.target.closest('.row'); if(!r) return;
   const n = r.dataset.n, done = doneBy[fid]; done[n] = !done[n]; r.classList.toggle('done', done[n]); };
 
@@ -1075,7 +1055,7 @@ function shareText(){
   const n = left.reduce((a, g) => a + g.items.length, 0);
   const src = new Map(); ds.forEach(d => { const s = d.vid ? '유튜브' : d.source; src.set(s, (src.get(s) || 0) + 1); });
   const body = left.map(g => `[${g.cat}]\n` + g.items.map(it => `· ${it.name} ${it.qty}`).join('\n')).join('\n\n');
-  return { n, text: `${f.name} — ${f.days === 1 ? '하루' : f.days + '일'} · 성인 ${f.people}\n살 것 ${n}가지\n\n${body}\n\n` +
+  return { n, text: `${f.name} — ${spanOf(f)} · 성인 ${f.people}\n살 것 ${n}가지\n\n${body}\n\n` +
     `요리 · ${ds.map(d => d.name).join(' · ')}\n레시피 출처 · ${[...src].map(([x, c]) => x + ' ' + c).join(' · ')}\n보글 · BOGL°` };
 }
 $('share').onclick = async () => {
@@ -1095,15 +1075,13 @@ $('find').onclick = () => {
       <span>${esc(it.name)}</span><span class="q">${esc(it.qty)}</span>${ARROW}</a>`).join(''));
 };
 
-/* ── 진입. 공유(share_target)나 `?u=` 로 유튜브 링크가 들어오면 폴더부터 고른다. */
+/* ── 진입. 공유(share_target)나 `?u=` 로 유튜브 링크가 들어오면 바로 링크 시트로 — 계획을 고르게 하지 않는다. */
 (function entry(){
   renderHome();
   const q = new URLSearchParams(location.search);
   const raw = q.get('u') || q.get('url') || q.get('text') || '';
-  if(!ytId(raw)) return;
+  if(!ytId(raw) && !ytList(raw)) return;
   history.replaceState({}, '', location.pathname);
-  const url = (raw.match(/https?:\/\/\S+/) || [raw])[0];
-  const then = f => { fid = f.id; go('folder'); linkSheet(url); };
-  folders.length ? chooseFolderSheet(then) : newFolderSheet(then);
+  linkSheet((raw.match(/https?:\/\/\S+/) || [raw])[0]);
 })();
 </script>
