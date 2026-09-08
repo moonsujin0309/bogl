@@ -1,3 +1,5 @@
 { "name": "보글", "short_name": "BOGL°", "start_url": "./", "display": "standalone",
   "background_color": "#2b2926", "theme_color": "#2b2926",
+  "icons": [ { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+             { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" } ],
   "share_target": { "action": "./", "method": "GET", "params": { "url": "url", "text": "text", "title": "title" } } }

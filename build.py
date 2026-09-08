@@ -120,11 +120,15 @@ def canon(n):
 # 부피는 ml로 모은다. 개수 단위는 그대로 둔다. 고체의 부피→무게 환산은 재료마다 밀도가 달라 하지 않는다.
 # plan.js의 parseQty와 같은 규칙이어야 한다 — 사용자가 직접 적은 재료도 같은 눈으로 읽는다.
 ML = {"컵": 200, "큰술": 15, "T": 15, "t": 5, "작은술": 5, "ml": 1, "cc": 1, "리터": 1000, "L": 1000}
-G = {"g": 1, "kg": 1000, "그램": 1}
+G = {"g": 1, "kg": 1000, "그램": 1, "근": 600}
 # 개수 단위는 전부 한 그룹으로 본다. 대파를 "1.5뿌리 + 0.8대"로 적으면 장을 못 본다.
 COUNT = ["개", "장", "뿌리", "마리", "쪽", "모", "단", "대", "포기", "알", "톨", "줄기",
-         "통", "잎", "봉", "공기", "줌", "송이", "덩어리", "자루", "판", "토막"]
-VAGUE = ["약간", "적당량", "조금", "한줌", "기호에", "취향"]
+         "통", "잎", "봉지", "봉", "공기", "줌", "송이", "덩어리", "자루", "판", "토막", "묶음", "팩", "캔"]
+VAGUE = ["약간", "적당량", "조금", "한줌", "기호에", "기호껏", "취향", "적당히", "넉넉히"]
+# 한글 수사 → 숫자. 뒤에 공백이나 단위가 와야 한다 (`두부`의 `두`가 아니다). plan.js KNUM_RE와 같다.
+KNUM = {"한두": 2, "두세": 3, "다섯": 5, "여섯": 6, "한": 1, "두": 2, "세": 3, "네": 4, "반": 0.5}
+KNUM_RE = re.compile("^(한두|두세|다섯|여섯|한|두|세|네|반)(?=\\s|$|" +
+                     "|".join(u for u in list(ML) + list(G) + COUNT if re.search(r"[ㄱ-힣]", u)) + ")")
 
 
 def parse_qty(s):
@@ -133,6 +137,7 @@ def parse_qty(s):
     if not s or any(v in s for v in VAGUE):
         return None
     s = s.replace("½", "1/2").replace("¼", "1/4").replace("⅓", "1/3")
+    s = KNUM_RE.sub(lambda m: str(KNUM[m.group(1)]), s)
     m = re.match(r"^\s*(\d+)\s*과\s*(\d+)\s*/\s*(\d+)\s*(.*)$", s)      # 1과1/2
     if m:
         val, unit = int(m.group(1)) + int(m.group(2)) / int(m.group(3)), m.group(4)
@@ -216,22 +221,29 @@ def ing_row(n, ty, q):
     return row
 
 
+# 매운 요리 — 재료 이름으로 본다. 홈 탐색 칩 `안 매워요`가 spicy 없는 것만 남긴다.
+SPICY = ("고춧가루", "고추장", "청양", "매운", "불닭")
+
 catalog = []
 for n in names:
     rid = by_name[n]
     m = meta[rid]
-    catalog.append({"name": n, "kind": m.get("TY_NM") or "기타",
-                    "time": m.get("COOKING_TIME"), "min": minutes(m), "level": m.get("LEVEL_NM"),
-                    "servings": servings(m),
-                    # 출처는 레시피마다 붙인다. 다른 곳 레시피를 더하면 이 줄만 바꾼다.
-                    "source": "농림수산식품교육문화정보원",
-                    "ing": [ing_row(nm2, ty, q) for nm2, (ty, q) in ing[rid].items()],
-                    "steps": steps.get(rid, [])})
+    rows = [ing_row(nm2, ty, q) for nm2, (ty, q) in ing[rid].items()]
+    c = {"name": n, "kind": m.get("TY_NM") or "기타",
+         "time": m.get("COOKING_TIME"), "min": minutes(m), "level": m.get("LEVEL_NM"),
+         "servings": servings(m),
+         # 출처는 레시피마다 붙인다. 다른 곳 레시피를 더하면 이 줄만 바꾼다.
+         "source": "농림수산식품교육문화정보원",
+         "ing": rows, "steps": steps.get(rid, [])}
+    if any(k in r["n"] for r in rows for k in SPICY):
+        c["spicy"] = 1
+    catalog.append(c)
 
 no_steps = [c["name"] for c in catalog if not c["steps"]]
-print("요리 %d개 · 장볼 재료 평균 %.1f가지 · 조리법 %d개"
+print("요리 %d개 · 장볼 재료 평균 %.1f가지 · 조리법 %d개 · 매운 요리 %d개"
       % (len(catalog), sum(sum(1 for i in c["ing"] if i.get("b")) for c in catalog) / len(catalog),
-         len(catalog) - len(no_steps)) + ("  ※ 조리법 없음: " + " · ".join(no_steps) if no_steps else ""))
+         len(catalog) - len(no_steps), sum(1 for c in catalog if c.get("spicy")))
+      + ("  ※ 조리법 없음: " + " · ".join(no_steps) if no_steps else ""))
 
 # 요리 사진 출처. 대부분 CC BY / CC BY-SA라 표기가 의무다.
 # 크레딧 파일은 _design/에 있어 저장소에 안 올라가므로, 여기서 data.json에 실어 앱이 직접 밝히게 한다.

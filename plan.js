@@ -43,15 +43,19 @@ function perish(name){
 
 // ───────────────────────────────────────────── 수량 (build.py parse_qty 이식 — 같은 입력에 같은 결과)
 const ML = { '컵': 200, '큰술': 15, 'T': 15, 't': 5, '작은술': 5, 'ml': 1, 'cc': 1, '리터': 1000, 'L': 1000 };
-const G = { 'g': 1, 'kg': 1000, '그램': 1 };
+const G = { 'g': 1, 'kg': 1000, '그램': 1, '근': 600 };
 const COUNT = ['개', '장', '뿌리', '마리', '쪽', '모', '단', '대', '포기', '알', '톨', '줄기',
-               '통', '잎', '봉', '공기', '줌', '송이', '덩어리', '자루', '판', '토막'];
-const VAGUE = ['약간', '적당량', '조금', '한줌', '기호에', '취향'];
+               '통', '잎', '봉지', '봉', '공기', '줌', '송이', '덩어리', '자루', '판', '토막', '묶음', '팩', '캔'];
+const VAGUE = ['약간', '적당량', '조금', '한줌', '기호에', '기호껏', '취향', '적당히', '넉넉히'];
+// 한글 수사는 숫자로 바꾼 뒤 기존 규칙을 탄다. `두부`의 `두`를 2로 읽지 않게 뒤에 공백이나 단위가 와야 한다.
+const KNUM = { '한두': 2, '두세': 3, '다섯': 5, '여섯': 6, '한': 1, '두': 2, '세': 3, '네': 4, '반': 0.5 };
+const KNUM_RE = new RegExp('^(한두|두세|다섯|여섯|한|두|세|네|반)(?=\\s|$|' +
+  Object.keys(ML).concat(Object.keys(G), COUNT).filter(u => /[ㄱ-힣]/.test(u)).join('|') + ')');
 
 function parseQty(s){
   s = String(s || '').trim();
   if(!s || VAGUE.some(v => s.includes(v))) return null;
-  s = s.replace(/½/g, '1/2').replace(/¼/g, '1/4').replace(/⅓/g, '1/3');
+  s = s.replace(/½/g, '1/2').replace(/¼/g, '1/4').replace(/⅓/g, '1/3').replace(KNUM_RE, (m, k) => KNUM[k]);
   let m, val, unit;
   if((m = s.match(/^\s*(\d+)\s*과\s*(\d+)\s*\/\s*(\d+)\s*(.*)$/))){ val = +m[1] + m[2] / m[3]; unit = m[4]; }
   else if((m = s.match(/^\s*(\d+(?:\.\d+)?)\s*[~\-]\s*(\d+(?:\.\d+)?)\s*(.*)$/))){ val = Math.max(+m[1], +m[2]); unit = m[3]; }
@@ -98,15 +102,17 @@ function aggregate(dishes, people){
     for(const i of d.ing || []){
       if(!i.b) continue;
       let a = agg.get(i.n);
-      if(!a) agg.set(i.n, a = { sum: {}, units: {}, used: 0, where: [] });
+      if(!a) agg.set(i.n, a = { sum: {}, units: {}, used: 0, where: [], by: [] });
       a.used++; a.where.push(d.name);
-      if(i.v != null && i.u){ a.sum[i.u] = (a.sum[i.u] || 0) + i.v * scale; a.units[i.u] = (a.units[i.u] || 0) + 1; }
+      const has = i.v != null && i.u;
+      a.by.push({ dish: d.name, v: has ? i.v * scale : null, u: has ? i.u : null, q: i.q || '조금' });   // 올림 전 원값. 헤더(살 양)만 올림한다
+      if(has){ a.sum[i.u] = (a.sum[i.u] || 0) + i.v * scale; a.units[i.u] = (a.units[i.u] || 0) + 1; }
     }
   }
   const by = {};
   [...agg.entries()].sort((x, y) => (y[1].used - x[1].used) || x[0].localeCompare(y[0], 'ko')).forEach(([n, a]) => {
     const got = pickQty(a.sum, a.units) || { qty: '조금', value: null, unit: null };
-    (by[category(n)] = by[category(n)] || []).push({ name: n, qty: got.qty, value: got.value, unit: got.unit, used: a.used, where: a.where });
+    (by[category(n)] = by[category(n)] || []).push({ name: n, qty: got.qty, value: got.value, unit: got.unit, used: a.used, where: a.where, by: a.by });
   });
   const groups = CAT_ORDER.filter(c => by[c]).map(c => ({ cat: c, items: by[c] }));
   const overlaps = [...agg.entries()].filter(([, a]) => a.used >= 2)
@@ -117,9 +123,13 @@ function aggregate(dishes, people){
 
 // ───────────────────────────────────────────── 배치
 const ROLE = { '부침': 'fresh', '구이': 'fresh', '밥': 'fresh', '만두/면류': 'fresh',
-               '조림': 'ahead', '찜': 'ahead', '밑반찬/김치': 'ahead', '나물/생채/샐러드': 'ahead',
+               '조림': 'ahead', '찜': 'ahead', '밑반찬/김치': 'ahead',   // 나물·생채는 전날에 가면 물이 난다 (2026-09-08)
                '국': 'soup', '찌개/전골/스튜': 'soup', '탕': 'soup' };
 const role = d => ROLE[d.kind] || '';
+// 하루 모드 슬롯. 사용자가 고른 when(ahead·day·fresh)이 kind 판정보다 앞선다. 며칠 모드에서는 안 쓴다.
+const SLOT = { ahead: 0, day: 1, fresh: 2 };
+const slotOf = d => d.when in SLOT ? SLOT[d.when] : role(d) === 'ahead' ? 0 : role(d) === 'fresh' ? 2 : 1;
+const minOf = d => d.min && d.min < 999 ? d.min : 0;
 const buyOf = d => (d.ing || []).filter(i => i.b).map(i => i.n);
 const shared = (a, b) => { const s = new Set(buyOf(b)); return buyOf(a).filter(n => s.has(n)); };
 // 잔재료는 밑작업으로 알릴 값어치가 없다. 대파·마늘까지 적으면 진짜 손질거리(가지·무)가 묻힌다. 배치 점수에는 그대로 쓴다.
@@ -179,11 +189,13 @@ function* candidates(dishes){
   }
 }
 
-/** dishes: [{name, kind, ing:[{n,b}]}], days: 1~7 */
-function plan(dishes, days){
+/** dishes: [{name, kind, min?, when?, ing:[{n,b}]}], days: 1~7, opts: {once} — 장보기 한 번에 */
+function plan(dishes, days, opts){
+  opts = opts || {};
   if(days <= 1){
     const slots = [{ label: '전날', dishes: [] }, { label: '당일 아침', dishes: [] }, { label: '먹기 직전', dishes: [] }];
-    for(const d of dishes) slots[role(d) === 'ahead' ? 0 : role(d) === 'fresh' ? 2 : 1].dishes.push(d);
+    for(const d of dishes) slots[slotOf(d)].dishes.push(d);
+    slots.forEach(s => s.dishes.sort((a, b) => minOf(b) - minOf(a)));   // 같은 칸에서는 오래 걸리는 것부터
     const prep = [];
     for(const a of slots[0].dishes) for(const o of slots[1].dishes.concat(slots[2].dishes)){
       const sh = major(shared(a, o));
@@ -196,7 +208,8 @@ function plan(dishes, days){
     const byDay = assign(p, days), s = scoreOf(byDay);
     if(s < bestScore){ best = byDay; bestScore = s; }
   }
-  const trips = tripsOf(best);
+  // 한 번에 장보면 태그만 사라진다. 점수는 그대로라 상하는 재료는 이미 앞쪽 날에 가 있다.
+  const trips = opts.once ? [1] : tripsOf(best);
   const prep = [];
   for(let i = 0; i + 1 < best.length; i++){
     const ings = new Set(), names = new Set();
@@ -213,7 +226,7 @@ const STEP_HEAD = /만드는\s*법|조리|레시피|순서/;
 
 // 한 줄을 `이름 / 수량`으로 가른다. 마지막 공백(또는 :) 뒤가 수량으로 읽히면 거기서, 아니면 그 앞 칸에서 한 번 더.
 function splitLine(s){
-  s = s.trim().replace(/^[-•·*]+\s*/, '').replace(/^\d+[.)]\s+/, '');
+  s = s.replace(/\([^)]*\)/g, ' ').trim().replace(/^[-•·*]+\s*/, '').replace(/^\d+[.)]\s+/, '').replace(/\s+/g, ' ');
   let cut = s.length;
   for(let k = 0; k < 2; k++){
     const i = Math.max(s.lastIndexOf(' ', cut - 1), s.lastIndexOf(':', cut - 1));
@@ -226,19 +239,35 @@ function splitLine(s){
   return { n: s, q: '', b: 1 };
 }
 
+// `돼지고기 300g, 양파 1개`처럼 한 줄에 여럿이면 나눈다. 수량이 둘 이상 읽힐 때만 — `소금, 후추 약간`은 한 줄이다.
+// `1/2모`의 `/`는 분수라 자르지 않는다.
+function pushLine(line, ing){
+  const parts = line.replace(/(\d)\/(\d)/g, '$1\u0001$2').split(/\s*[·,\/]\s*/)
+    .map(s => s.replace(/\u0001/g, '/').trim()).filter(Boolean);   // lookbehind 없이 — iOS 16.4 미만은 lookbehind에서 파싱 자체가 죽는다
+  const items = parts.length >= 2 ? parts.map(splitLine) : [];
+  if(items.filter(i => i.q).length >= 2){ items.forEach(i => { if(i.n) ing.push(i); }); return; }
+  const it = splitLine(line);
+  if(it.n) ing.push(it);
+}
+
 function parseDesc(text){
   const chapters = [], ing = [];
   let inIng = false, blank = 0;
   for(const raw of String(text || '').split(/\r?\n/)){
     const m = raw.match(CHAP);
     if(m){ chapters.push({ t: (+(m[1] || 0)) * 3600 + (+m[2]) * 60 + (+m[3]), label: m[4].trim() }); inIng = false; continue; }
-    if(!inIng){ if(ING_HEAD.test(raw)){ inIng = true; blank = 0; } continue; }
-    if(!raw.trim()){ if(++blank >= 2) inIng = false; continue; }
+    const line = raw.replace(/\([^)]*\)/g, ' ');   // `(2인분 기준)` 같은 괄호는 뗀다
+    if(!inIng){
+      if(ING_HEAD.test(line)){ inIng = true; blank = 0;
+        const rest = line.split(/[:：]/).slice(1).join(':').trim();   // `재료 : 돼지고기 300g, 양파 1개` — 같은 줄에 달린 재료
+        if(rest) pushLine(rest, ing); }
+      continue;
+    }
+    if(!line.trim()){ if(++blank >= 2) inIng = false; continue; }
     blank = 0;
-    if(STEP_HEAD.test(raw)){ inIng = false; continue; }
-    if(/^\s*[\[【(].*[\]】)]\s*:?\s*$/.test(raw)) continue;   // [양념] 같은 소제목
-    const it = splitLine(raw);
-    if(it.n) ing.push(it);
+    if(STEP_HEAD.test(line)){ inIng = false; continue; }
+    if(/^\s*[\[【].*[\]】]\s*:?\s*$/.test(line)) continue;   // [양념] 같은 소제목
+    pushLine(line, ing);
   }
   return { ing, chapters };
 }
@@ -249,4 +278,4 @@ function ytId(url){
 }
 function ytList(url){ const m = String(url || '').match(/[?&]list=([\w-]+)/); return m ? m[1] : null; }
 
-if(typeof module !== 'undefined') module.exports = { CATS, CAT_ORDER, category, perish, parseQty, fmt, pickQty, aggregate, plan, parseDesc, ytId, ytList };
+if(typeof module !== 'undefined') module.exports = { CATS, CAT_ORDER, category, perish, parseQty, fmt, pickQty, aggregate, plan, parseDesc, splitLine, ytId, ytList };
