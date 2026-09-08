@@ -2,6 +2,21 @@
 const assert = require('assert');
 const P = require('./plan.js');
 
+// Shared links must belong to YouTube, never a lookalike host or nested URL.
+assert.strictEqual(P.ytId('https://example.com/watch?v=dQw4w9WgXcQ'), null);
+assert.strictEqual(P.ytId('https://youtube.com.evil.test/watch?v=dQw4w9WgXcQ'), null);
+assert.strictEqual(P.ytId('https://youtu.be/dQw4w9WgXcQextra'), null);
+assert.strictEqual(P.ytId('이거 만들자 https://m.youtube.com/watch?v=dQw4w9WgXcQ'), 'dQw4w9WgXcQ');
+assert.strictEqual(P.ytList('https://example.com/?list=PLabc'), null);
+assert.strictEqual(P.parseDesc('재료\n양파 1개\nhttps://shop.example.com\n구독 좋아요').ing.length, 1);
+assert.deepStrictEqual(P.parseDesc('00:00 시작\n01:20 볶기\n01:20 볶기\n00:30 손질').chapters.map(c => c.t), [0, 30, 80]);
+assert.equal(P.parseDesc('[재료]\n두부 1모\n대파 1대\n[만드는 법]\n1. 볶는다\n[Ingredients]\n1 block tofu\n1 green onion\n[Directions]\n1. Fry tofu').ing.length,2);
+assert.equal(P.parseDesc('[Ingredients]\nTofu 200g\n[Directions]\n1. Fry tofu').ing.length,1);
+{
+  const many = Array.from({length:200},(_,i)=>({name:'영상 '+i,kind:'기타',ing:[{n:'두부',v:1,u:'모',b:1}]}));
+  assert.equal(P.plan(many,7).days.flatMap(day=>day.dishes).length,200);
+}
+
 const ing = (...ns) => ns.map(n => ({ n, b: 1, v: 1, u: '개' }));
 const dish = (name, kind, ...ns) => ({ name, kind, servings: 2, ing: ing(...ns) });
 

@@ -182,7 +182,9 @@ function* candidates(dishes){
   // ponytail: 8개 넘으면 표본 탐색. 전수는 40,320부터 체감된다
   yield dishes.slice();
   const r = rng(20260907);
-  for(let k = 0; k < 3000; k++){
+  // Large playlists must not freeze the main thread. Bound pair comparisons.
+  const attempts = dishes.length <= 12 ? 3000 : Math.max(1, Math.floor(80000 / (dishes.length * dishes.length)));
+  for(let k = 0; k < attempts; k++){
     const p = dishes.slice();
     for(let i = p.length - 1; i > 0; i--){ const j = Math.floor(r() * (i + 1)); [p[i], p[j]] = [p[j], p[i]]; }
     yield p;
@@ -222,7 +224,7 @@ function plan(dishes, days, opts){
 // ───────────────────────────────────────────── 유튜브 설명란
 const CHAP = /^\s*(?:(\d{1,2}):)?(\d{1,2}):(\d{2})\s*[-–—:]?\s*(.+)$/;
 const ING_HEAD = /재료|Ingredients|준비물/i;
-const STEP_HEAD = /만드는\s*법|조리|레시피|순서/;
+const STEP_HEAD = /만드는\s*법|조리|레시피|순서|\b(?:directions|instructions|method)\b/i;
 
 // 한 줄을 `이름 / 수량`으로 가른다. 마지막 공백(또는 :) 뒤가 수량으로 읽히면 거기서, 아니면 그 앞 칸에서 한 번 더.
 function splitLine(s){
@@ -257,6 +259,9 @@ function parseDesc(text){
     const m = raw.match(CHAP);
     if(m){ chapters.push({ t: (+(m[1] || 0)) * 3600 + (+m[2]) * 60 + (+m[3]), label: m[4].trim() }); inIng = false; continue; }
     const line = raw.replace(/\([^)]*\)/g, ' ');   // `(2인분 기준)` 같은 괄호는 뗀다
+    // Bilingual descriptions repeat the same recipe. Prefer the Korean ingredient list.
+    if(/\bingredients\b/i.test(line) && ing.some(i => /[가-힣]/.test(i.n))){ inIng = false; continue; }
+    if(/https?:\/\/|구독|좋아요|협찬|광고|문의|인스타그램|instagram|copyright/i.test(line)){ inIng = false; continue; }
     if(!inIng){
       if(ING_HEAD.test(line)){ inIng = true; blank = 0;
         const rest = line.split(/[:：]/).slice(1).join(':').trim();   // `재료 : 돼지고기 300g, 양파 1개` — 같은 줄에 달린 재료
@@ -269,13 +274,24 @@ function parseDesc(text){
     if(/^\s*[\[【].*[\]】]\s*:?\s*$/.test(line)) continue;   // [양념] 같은 소제목
     pushLine(line, ing);
   }
-  return { ing, chapters };
+  return { ing, chapters: [...new Map(chapters.map(c => [c.t, c])).values()].sort((a, b) => a.t - b.t) };
 }
 
-function ytId(url){
-  const m = String(url || '').match(/(?:youtu\.be\/|watch\?(?:[^#]*&)?v=|\/shorts\/|\/live\/|\/embed\/)([\w-]{11})/);
-  return m ? m[1] : null;
+function youtubeURL(text){
+  const raw = String(text || '').trim(), found = raw.match(/https?:\/\/[^\s<>]+/);
+  try{
+    const u = new URL(found ? found[0] : raw);
+    return ['https:', 'http:'].includes(u.protocol) &&
+      ['youtube.com', 'www.youtube.com', 'm.youtube.com', 'music.youtube.com', 'youtu.be', 'www.youtube-nocookie.com'].includes(u.hostname) ? u : null;
+  }catch(e){ return null; }
 }
-function ytList(url){ const m = String(url || '').match(/[?&]list=([\w-]+)/); return m ? m[1] : null; }
+function ytId(text){
+  const u = youtubeURL(text); if(!u) return null;
+  const paths = u.pathname.split('/').filter(Boolean);
+  const id = u.hostname === 'youtu.be' ? paths[0] : u.pathname === '/watch' ? u.searchParams.get('v') :
+    ['shorts', 'live', 'embed'].includes(paths[0]) ? paths[1] : null;
+  return /^[\w-]{11}$/.test(id || '') ? id : null;
+}
+function ytList(text){ const u = youtubeURL(text), id = u && u.searchParams.get('list'); return /^[\w-]+$/.test(id || '') ? id : null; }
 
 if(typeof module !== 'undefined') module.exports = { CATS, CAT_ORDER, category, perish, parseQty, fmt, pickQty, aggregate, plan, parseDesc, splitLine, ytId, ytList };
