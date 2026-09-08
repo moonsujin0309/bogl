@@ -960,8 +960,14 @@ function renameSheet(){
 $('pname').onclick = renameSheet;
 $('pmenu').onclick = () => {
   const f = folder();
-  openSheet(`<button class="lk" id="mrn">이름 바꾸기${ARROW}</button><button class="lk" id="mdel">계획 지우기${ARROW}</button>`);
+  openSheet((f.list ? `<a class="lk" href="https://www.youtube.com/playlist?list=${esc(f.list)}" target="_blank" rel="noopener">유튜브에서 재생목록 열기${ARROW}</a>` +
+      (YTKEY ? `<button class="lk" id="mre">재생목록 다시 불러오기${ARROW}</button>` : '') : '') +
+    `<button class="lk" id="mrn">이름 바꾸기${ARROW}</button><button class="lk" id="mdel">계획 지우기${ARROW}</button>`);
   $('mrn').onclick = renameSheet;
+  // 재생목록에 영상을 더한 뒤 25일을 기다릴 수는 없다. 메뉴에서 바로 당겨온다.
+  if($('mre')) $('mre').onclick = async () => { sheet.classList.remove('on'); toast('불러오는 중…');
+    try{ await pullList(f); saveF(); renderPlan(); toast('다시 불러왔어요'); }
+    catch(e){ toast("재생목록을 못 읽었어요. 공개 상태가 '미등록'인지 확인해 주세요"); } };
   $('mdel').onclick = () => {
     openSheet(`<h3>${esc(f.name)} 계획을 지울까요</h3><p class="sub">담은 요리 ${dishesOf(f).length}가지가 같이 지워져요. 되돌릴 수 없어요.</p>
       <button class="sbtn warn" id="delgo">지우기</button>`);
@@ -1027,7 +1033,8 @@ async function makeListFolder(list){
 function linkSheet(url){
   openSheet(`<h3>유튜브에서 담기</h3>
     <input id="lku" value="${esc(url)}" placeholder="유튜브 링크" inputmode="url">
-    <button class="sbtn" id="lkgo">불러오기</button>`);
+    <button class="sbtn" id="lkgo">불러오기</button>
+    <a class="lk" href="https://www.youtube.com/feed/playlists" target="_blank" rel="noopener">내 재생목록 열기 — 공유 → 링크 복사${ARROW}</a>`);
   $('lkgo').onclick = () => loadLink($('lku').value.trim());
   if(url) loadLink(url);
 }
