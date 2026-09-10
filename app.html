@@ -302,7 +302,7 @@ if(document.getElementById('bogl-data').textContent.trim().startsWith('_')){
   .rsrc{margin-top:26px;padding-top:15px;border-top:1px solid var(--l-line);
         font-size:12px;line-height:1.75;color:var(--l-tx3)}
   .rsrc a{text-decoration:underline;text-underline-offset:2px}
-  /* 영상 요리 — 만드는 법 대신 영상. 챕터를 누르면 그 자리로 간다. */
+  /* 영상 요리 — 만드는 법 대신 영상. 단계를 누르면 그 자리로 간다. */
   .yt{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:var(--l-thumb)}
   .yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
   .chs{margin-top:12px;background:var(--l-card);border-radius:16px;padding:4px 16px}
@@ -430,6 +430,10 @@ if(document.getElementById('bogl-data').textContent.trim().startsWith('_')){
   .sheet details{margin:12px 0}.sheet summary{min-height:44px;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center}
   .sheet .sub,.sheet .lk .q{color:var(--l-tx2)}
   .form-error{font-size:13px;line-height:1.6;margin:8px 0;color:var(--ink)}
+  .howto{list-style:none;margin:6px 0 14px;padding:0;display:grid;gap:8px}
+  .howto li{display:flex;align-items:center;gap:10px;font-size:13px;line-height:1.5}
+  .howto b{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--l-card);font-size:11px;font-weight:800;display:grid;place-items:center}
+  .howto i{font-style:normal;font-weight:700;display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:8px;background:var(--l-thumb);margin:0 2px}
   .link-preview{display:flex;align-items:center;gap:12px;margin:10px 0 18px}.link-preview img{width:110px;aspect-ratio:16/9;object-fit:cover;border-radius:10px}.link-preview p{font-size:12px;line-height:1.6;color:var(--l-tx2)}
   #recipe.video-recipe .rhead{padding-bottom:16px}#recipe.video-recipe .rth{display:none}
   #recipe.video-recipe .rtitle{font-size:24px;line-height:1.35}
@@ -506,8 +510,11 @@ if(document.getElementById('bogl-data').textContent.trim().startsWith('_')){
   #home{--d-bg:var(--bogl-paper);--d-card:#EAE9DF;--d-card2:#DDDFD1;--d-line:var(--bogl-rule);--d-tx2:#62645B;--d-tx3:#67695E;--cream:var(--bogl-text);--ink:var(--bogl-paper);--l-tx2:#62645B;--l-line:var(--bogl-rule);background:var(--bogl-paper);color:var(--bogl-text)}
   #home .top{padding:calc(22px + var(--sa-t)) 24px 20px;min-height:86px;border-bottom:1px solid var(--bogl-rule)}
   #home .mk{color:var(--bogl-text);font-size:28px!important;letter-spacing:-.07em}#home .deg{color:var(--bogl-orange);font-size:28px!important}
-  #home #ytbtn{background:transparent;color:var(--bogl-text);font-weight:500;padding:0;gap:10px;border-radius:0}
-  #home #ytbtn>svg{box-sizing:content-box;background:var(--bogl-orange);padding:13px;border-radius:50%;color:var(--bogl-text)}
+  /* 링크 붙여넣기 — 화면의 유일한 주 동작. 늘 같은 자리, 유튜브에 다녀오면 버밀리언으로 켜진다 */
+  #home #ytbtn{width:auto;margin:0;height:44px;padding:0 18px 0 14px;gap:8px;border-radius:22px;background:var(--bogl-text);color:var(--bogl-paper);font-size:13px;font-weight:700;transition:background-color .18s,color .18s,transform .15s cubic-bezier(.2,0,0,1)}
+  #home #ytbtn>svg{flex-shrink:0}
+  #home #ytbtn:active{transform:scale(.96)}
+  #home.pending #ytbtn{background:var(--bogl-orange);color:var(--bogl-text)}
   #home .library-tabs{gap:24px;border:0;margin:0;padding:0 24px;border-bottom:1px solid var(--bogl-rule)}
   #home .library-tabs button{min-height:50px;border:0;border-radius:0;padding:0;font-size:12px;font-weight:500;color:#62645B}
   #home .library-tabs button.on{background:none;color:var(--bogl-text);box-shadow:inset 0 -2px var(--bogl-text);font-weight:700}
@@ -515,15 +522,14 @@ if(document.getElementById('bogl-data').textContent.trim().startsWith('_')){
   #home .hero-copy h1{font-family:'Noto Serif KR',serif;font-size:64px;font-weight:400;letter-spacing:-.075em;line-height:1.18;color:var(--bogl-text);margin:16px 0 22px}
   #home .hero-copy h1 span{color:var(--bogl-text)}
   #home:not(.discovering) .hero-copy h1{font-family:'Noto Sans KR',sans-serif;font-size:30px;font-weight:700;line-height:1.4;margin:6px 0 14px}
-  #home .hero-copy p{font-size:12px;margin:0;color:#62645B;line-height:1.9}
+  #home .hero-copy p{font-size:13px;margin:0;color:#62645B;line-height:1.75;text-wrap:balance;word-break:keep-all;max-width:34em}
+  #home .hero-copy h1{text-wrap:balance}
   #home .hero-copy .eyebrow{display:flex;align-items:center;gap:9px;font-family:Archivo,sans-serif;font-size:10px;letter-spacing:.08em;color:var(--bogl-text)}
   .eyebrow::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--bogl-orange)}
-  #home .hero-copy .hero-next{display:inline-flex;align-items:center;gap:24px;margin-top:26px;font-size:13px;font-weight:700;min-height:44px;color:var(--bogl-text)}
-  .hero-next span{font-size:24px;color:var(--bogl-orange-ink)}
   #home .finder{padding:0 24px 32px}
   #home .menu-picker{background:transparent;color:var(--bogl-text);border:0;border-radius:0;padding:0;box-shadow:none;margin-bottom:36px}
   #home .menu-picker .ideas-head{margin:0;padding:18px 0 10px;border-top:1px solid var(--bogl-rule)}
-  #home .menu-picker .ideas-head h2{font-size:14px;font-weight:500;letter-spacing:-.025em;color:var(--bogl-text)}
+  #home .menu-picker .ideas-head h2{font-size:18px;font-weight:700;letter-spacing:-.04em;color:var(--bogl-text)}
   #home .menu-picker .ideas-head>span{display:block;color:#62645B;font-size:10px;font-family:Archivo,sans-serif;letter-spacing:.04em}
   #home .menu-picker>.find-note{font-size:11px;color:#62645B;margin-bottom:6px}
   #home .cuisine-tabs{gap:2px;margin:0 0 16px}
@@ -541,8 +547,10 @@ if(document.getElementById('bogl-data').textContent.trim().startsWith('_')){
   #home .find-input{background:transparent;border-color:var(--bogl-rule);border-radius:0}
   #home .find-input:focus-within{outline-color:var(--bogl-orange-ink)}
   #home .finder .find-go{background:var(--bogl-text);border:0;border-radius:0;color:var(--bogl-paper);font-weight:500}
-  #home .find-return{background:transparent;border:0;border-top:1px solid var(--bogl-rule);border-radius:0;padding:20px 0 0}
-  #home .find-return button{color:var(--bogl-text)}
+  .find-more{border-top:1px solid var(--bogl-rule);border-bottom:1px solid var(--bogl-rule)}
+  .find-more>summary{list-style:none;cursor:pointer;display:flex;align-items:center;min-height:52px;font-size:13px;font-weight:700;color:var(--bogl-text)}
+  .find-more>summary::-webkit-details-marker{display:none}.find-more>summary::after{content:'+';margin-left:auto;font-size:22px;font-weight:400}.find-more[open]>summary::after{content:'−'}
+  .find-more form{padding-top:6px}.find-more .find-go{margin-bottom:4px}.find-more>.find-note{margin:0 0 18px}
   #home .pref-options button{border-radius:0}#home .pref-options button[aria-pressed=true]{background:var(--bogl-text);border-color:var(--bogl-text);color:var(--bogl-paper)}
   #home .resume{background:var(--bogl-orange);color:var(--bogl-text);border-radius:0}#home .resume small{color:#382B20}
   #home .srch{background:#EAE9DF;border-radius:0}#home .card .th{background:#EAE9DF}
@@ -568,10 +576,12 @@ if(document.getElementById('bogl-data').textContent.trim().startsWith('_')){
   #home .menu-picker .dish-ideas{border:0;gap:20px 14px}
   #home .menu-picker .dish-ideas a{display:flex;flex-direction:column;align-items:stretch;border:0;border-bottom:1px solid var(--bogl-rule);padding:0 0 12px;min-height:0;gap:0}
   #home .menu-picker .dish-ideas a:hover,#home .menu-picker .dish-ideas a:focus-visible{background:transparent}
-  #home .menu-picker .dish-ideas .menu-photo{display:block;width:100%;height:auto;aspect-ratio:1.2;object-fit:cover;border-radius:2px;background:#E5E3D7;margin-bottom:12px}
+  #home .menu-picker .dish-ideas .menu-photo{display:block;width:100%;height:auto;aspect-ratio:1.2;object-fit:cover;border-radius:2px;background:#E5E3D7;margin-bottom:12px;outline:1px solid rgba(0,0,0,.08);outline-offset:-1px}
+  #home .card .th img{outline:1px solid rgba(0,0,0,.08);outline-offset:-1px}
+  #home .menu-picker .dish-ideas a{transition:transform .15s cubic-bezier(.2,0,0,1)}#home .menu-picker .dish-ideas a:active{transform:scale(.96)}
+  #home .cuisine-tabs button{transition:background-color .18s,color .18s,transform .15s cubic-bezier(.2,0,0,1)}#home .cuisine-tabs button:active{transform:scale(.96)}
   #home .menu-picker .dish-ideas .menu-caption{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
   #home .menu-picker .dish-ideas strong{font-size:15px;font-weight:700;line-height:1.55;align-self:auto}
-  #home .menu-picker .dish-ideas .menu-hint{font-size:10px;font-weight:400;color:#62645B;margin-top:3px;letter-spacing:0}
   #home .menu-picker .dish-ideas small{font-size:21px;margin:0;color:var(--bogl-orange-ink)}
   #home .menu-picker .dish-ideas a.featured{grid-column:1/-1}
   #home .menu-picker .dish-ideas a.featured .menu-photo{aspect-ratio:1.75}
@@ -595,12 +605,12 @@ if(document.getElementById('bogl-data').textContent.trim().startsWith('_')){
     #home.discovering .hero-copy h1{font-size:clamp(32px,10.5cqw,43px);line-height:1.16;margin:8px 0 12px;letter-spacing:-.075em}
     #home.discovering .hero-copy h1 br{display:none}
     #home.discovering .hero-copy h1 span{font-family:'Noto Sans KR',sans-serif;font-weight:700;letter-spacing:-.065em;margin-left:8px}
-    #home .hero-copy p{font-size:11px;line-height:1.6}
-    #home .hero-copy .hero-next{display:none}
+    #home .hero-copy p{font-size:12px;line-height:1.7}
     #home .finder{padding:0 20px 30px}
     #home .menu-picker .ideas-head{padding:14px 0 8px}
     #home .menu-picker .ideas-head h2{font-size:12px}
-    #home .menu-picker>.find-note{display:none}
+    #home .menu-picker .ideas-head{display:none}
+    #home .menu-picker{border-top:1px solid var(--bogl-rule);padding-top:14px}
     #home .cuisine-tabs{margin-bottom:12px}#home .cuisine-tabs button{min-height:44px}
   }
   @media(max-height:650px){.cookmedia{position:relative}}
@@ -614,27 +624,27 @@ if(document.getElementById('bogl-data').textContent.trim().startsWith('_')){
       <div style="display:flex;align-items:flex-start;gap:.01em">
         <span class="mk" style="font-size:19px">BOGL</span><span class="deg" style="font-size:19px">°</span>
       </div>
-      <button class="ytbtn" id="ytbtn" aria-label="유튜브 링크 붙여넣기"></button>
+      <button class="ytbtn" id="ytbtn" aria-label="유튜브 영상 가져오기"></button>
     </div>
     <nav class="library-tabs" id="librarytabs" aria-label="레시피 탐색"></nav>
     <div class="hero-copy" id="homehero"></div>
     <button class="resume" id="resume" hidden></button>
     <section class="finder" id="finder" aria-label="유튜브 요리 찾기">
       <div class="menu-picker">
-        <div class="ideas-head"><h2 id="menutitle">메뉴를 골라보세요</h2><span>THE MENU / 01</span></div>
-        <p class="find-note">각 메뉴를 누르면 YouTube 검색으로 이동해요.</p>
+        <div class="ideas-head"><h2 id="menutitle">메뉴 고르기</h2></div>
         <nav class="cuisine-tabs" id="cuisines" aria-label="좋아하는 요리 종류"></nav>
         <div class="dish-ideas" id="dishideas" aria-live="polite"></div>
       </div>
-      <form id="findform" action="https://www.youtube.com/results" target="_blank" rel="noopener" method="get">
-        <label for="findquery">다른 메뉴나 재료로 찾고 싶다면</label>
-        <div class="find-input"><span aria-hidden="true">⌕</span><input id="findquery" placeholder="예: 두부, 계란, 김치찌개" maxlength="100" autocomplete="off" enterkeyhint="search" required></div>
-        <input type="hidden" name="search_query" id="findterms">
-        <details class="find-prefs" id="findprefs"><summary><span id="prefsummary">어떤 레시피가 좋아요? · 선택</span></summary><div id="prefgroups"></div><button type="button" class="pref-reset" id="prefreset">취향 초기화</button></details>
-        <button class="find-go" id="findgo" type="submit"></button>
-      </form>
-      <p class="find-note">일반 영상·쇼츠 모두 볼 수 있어요. 영상 종류는 YouTube 검색 필터에서 골라주세요.</p>
-      <div class="find-return"><p id="findreturntext">마음에 드는 영상을 찾았다면</p><button id="findimport">링크 붙여넣고 레시피 보기 <span aria-hidden="true">＋</span></button></div>
+      <details class="find-more" id="findmore"><summary>다른 메뉴나 재료로 찾기</summary>
+        <form id="findform" action="https://www.youtube.com/results" target="_blank" rel="noopener" method="get">
+          <label for="findquery">메뉴나 재료 이름</label>
+          <div class="find-input"><span aria-hidden="true">⌕</span><input id="findquery" placeholder="예: 두부, 계란, 김치찌개" maxlength="100" autocomplete="off" enterkeyhint="search" required></div>
+          <input type="hidden" name="search_query" id="findterms">
+          <details class="find-prefs" id="findprefs"><summary><span id="prefsummary">어떤 레시피가 좋아요? · 선택</span></summary><div id="prefgroups"></div><button type="button" class="pref-reset" id="prefreset">취향 초기화</button></details>
+          <button class="find-go" id="findgo" type="submit"></button>
+        </form>
+        <p class="find-note">일반 영상·쇼츠 모두 볼 수 있어요. 영상 종류는 YouTube 검색 필터에서 골라주세요.</p>
+      </details>
       <button class="catalog-link" data-mode="catalog" id="cataloglink">영상 없이 기본 레시피 74개 보기 →</button>
       <details class="menu-credits"><summary>메뉴 사진 정보</summary><div id="menucredits"></div></details>
     </section>
@@ -833,6 +843,7 @@ const CHECKI = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stro
 const PLUSI = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>';
 const PLAYI = '<svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5v11l9-5.5z"/></svg>';
 const YOUTUBEI = '<svg class="youtube-mark" viewBox="0 0 28.57 20" aria-hidden="true"><path fill="#FF0000" d="M27.97 3.12A3.58 3.58 0 0 0 25.45.6C23.23 0 14.29 0 14.29 0S5.34 0 3.12.6A3.58 3.58 0 0 0 .6 3.12C0 5.35 0 10 0 10s0 4.65.6 6.88a3.58 3.58 0 0 0 2.52 2.52C5.34 20 14.29 20 14.29 20s8.94 0 11.16-.6a3.58 3.58 0 0 0 2.52-2.52c.6-2.23.6-6.88.6-6.88s0-4.65-.6-6.88Z"/><path fill="#FFF" d="m11.43 14.29 7.43-4.29-7.43-4.29Z"/></svg>';
+const SHAREI = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 5l7 6-7 6V13c-6 0-9 2-11 6 0-7 4-11 11-11V5z"/></svg>';
 const ARROW = '<svg class="ar" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>';
 const ARROWR = '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
 // 요리 사진. 없는 요리는 그릇 글리프로 남는다. 영상 요리는 유튜브 썸네일.
@@ -963,15 +974,18 @@ const savedCuisine = load('bogl.cuisine','골고루');
 let cuisine = Object.hasOwn(MENU_IDEAS,savedCuisine) ? savedCuisine : '골고루';
 // 사진은 메뉴를 고르기 위한 참고용이다. 다른 출처의 레시피/재료를 결합하지 않는다.
 const menuPhotoName = name => name === '김치찌개' ? '참치김치찌개' : name;
-const menuPhoto = name => name === '알리오 올리오 파스타' ? 'assets/discovery/aglio-olio.jpg' : PHOTO[menuPhotoName(name)];
+const MENU_PHOTO = {'알리오 올리오 파스타':'aglio-olio','토마토 파스타':'tomato-pasta','크림 리조또':'cream-risotto','감바스':'gambas','프렌치 토스트':'french-toast','감자 수프':'potato-soup',
+  '카레':'japanese-curry','오므라이스':'omurice','규동':'gyudon','우동':'udon','돈카츠':'tonkatsu','오야코동':'oyakodon',
+  '마파두부':'mapo-tofu','계란볶음밥':'egg-fried-rice','토마토 계란볶음':'tomato-egg','가지볶음':'eggplant-stirfry','고추잡채':'gochu-japchae','깐풍기':'kkanpunggi'};
+const menuPhoto = name => MENU_PHOTO[name] ? `assets/discovery/${MENU_PHOTO[name]}.jpg` : PHOTO[menuPhotoName(name)];
 function paintMenuIdeas(){
   $('cuisines').innerHTML = Object.keys(MENU_IDEAS).map(c => `<button type="button" data-cuisine="${c}" aria-pressed="${cuisine === c}">${c}</button>`).join('');
   $('dishideas').innerHTML = MENU_IDEAS[cuisine].map((name,i) => {
     const photo = menuPhoto(name), featured = !!photo && (i === 0 || i === 3);
-    return `<a class="${featured ? 'featured' : ''}" data-dish-search="${name}" target="_blank" rel="noopener" aria-label="${name} YouTube에서 찾기">${photo ? `<img class="menu-photo" src="${photo}" alt="" width="600" height="400" loading="${i === 0 ? 'eager' : 'lazy'}">` : `<span class="menu-type" aria-hidden="true"><b>0${i+1}</b><span>${name}</span></span>`}<span class="menu-caption"><strong>${name}</strong><small aria-hidden="true">↗</small></span><span class="menu-hint">YouTube에서 레시피 찾기</span></a>`;
+    return `<a class="${featured ? 'featured' : ''}" data-dish-search="${name}" target="_blank" rel="noopener" aria-label="${name} YouTube에서 찾기">${photo ? `<img class="menu-photo" src="${photo}" alt="" width="600" height="400" loading="${i === 0 ? 'eager' : 'lazy'}">` : `<span class="menu-type" aria-hidden="true"><b>0${i+1}</b><span>${name}</span></span>`}<span class="menu-caption"><strong>${name}</strong><small aria-hidden="true">↗</small></span></a>`;
   }).join('');
   $('menucredits').innerHTML = '<p>메뉴를 고르기 위한 참고 사진이며, 특정 영상의 완성 사진이 아닙니다.</p>' + MENU_IDEAS[cuisine].map(name => {
-    if(name === '알리오 올리오 파스타') return '<p>알리오 올리오 파스타 · AI 생성 참고 이미지 (OpenAI ImageGen)</p>';
+    if(MENU_PHOTO[name]) return `<p>${esc(name)} · AI 생성 참고 이미지 (${name === '알리오 올리오 파스타' ? 'OpenAI ImageGen' : 'FLUX.1 schnell'})</p>`;
     const p = D.photos[menuPhotoName(name)]; if(!p || !menuPhoto(name)) return '';
     return `<p>${esc(name)} · ${p.l === 'AI' ? esc(p.t) : `<a href="${esc(p.u)}" target="_blank" rel="noopener">${esc(p.t)} · ${esc(p.l)} · Wikimedia Commons</a>`}</p>`;
   }).join('');
@@ -1000,10 +1014,15 @@ $('prefgroups').onclick = e => {
 };
 $('prefreset').onclick = () => { Object.keys(preferences).forEach(k => delete preferences[k]); save('bogl.preferences',preferences); paintPreferences(); };
 $('findquery').oninput = updateFindLinks;
-function searched(){ save('bogl.searchPending',true); $('findreturntext').textContent = '영상의 공유 → 링크 복사 후, 여기 붙여넣으세요'; }
+function searched(){ save('bogl.searchPending',true); paintPending(); }
+/** 유튜브에 다녀왔으면 헤더의 붙여넣기 버튼이 그 자리에서 버밀리언으로 켜진다. 입구는 늘 하나다. */
+function paintPending(){
+  const p = !!load('bogl.searchPending',false);
+  $('home').classList.toggle('pending',p);
+  $('ytbtn').innerHTML = `${PLUSI}<span>${p ? '복사한 영상 가져오기' : '영상 가져오기'}</span>`;
+}
 $('findform').onsubmit = () => { updateFindLinks(); searched(); };
 $('dishideas').onclick = e => { if(e.target.closest('[data-dish-search]')) searched(); };
-$('findimport').onclick = () => linkSheet('');
 function setLibraryMode(mode){ libraryMode = mode; q = ''; $('q').value = ''; renderGrid(); }
 $('cataloglink').onclick = () => setLibraryMode('catalog');
 $('cataloghead').onclick = () => setLibraryMode('discover');
@@ -1018,10 +1037,8 @@ function renderHome(){
   $('home').classList.toggle('hasvideos',videoLibrary().length > 0);
   paintPlans(); paintBar(); paintToday();
   paintResume();
-  $('ytbtn').innerHTML = `${PLUSI}<span>링크 붙여넣기</span>`;
   $('findgo').innerHTML = `${YOUTUBEI}<span>YouTube에서 검색 ↗</span>`;
   paintMenuIdeas();
-  $('findreturntext').textContent = load('bogl.searchPending',false) ? '영상의 공유 → 링크 복사 후, 여기 붙여넣으세요' : '마음에 드는 영상을 찾았다면';
   paintPreferences();
   renderGrid();
 }
@@ -1059,8 +1076,8 @@ function renderGrid(){
   $('home').classList.toggle('discovering',discover);
   $('librarytabs').innerHTML = [['discover','요리 찾기',null],['video','내 영상',videos.length]].map(([mode,label,n]) =>
     `<button data-mode="${mode}" class="${libraryMode === mode ? 'on' : ''}" aria-pressed="${libraryMode === mode}">${label}${n === null ? '' : `<small>${n}</small>`}</button>`).join('');
-  $('homehero').innerHTML = discover ? '<p class="eyebrow">On the menu, today.</p><h1>오늘은,<br><span>뭐 먹지?</span></h1><p>당기는 메뉴를 고르면, YouTube 레시피로 이어져요.</p><button class="hero-next" id="pickmenu">메뉴 고르기 <span aria-hidden="true">↗</span></button>' : catalog ? '<h1>기본 레시피</h1>' : '<h1>내가 담은 요리</h1><p>영상을 열면 재료와 챕터를 함께 볼 수 있어요.</p>';
-  if($('pickmenu')) $('pickmenu').onclick = () => { const first = $('dishideas').querySelector('a'); first?.scrollIntoView({block:'center',behavior:'instant'}); first?.focus({preventScroll:true}); };
+  $('homehero').innerHTML = discover ? '<p class="eyebrow">On the menu, today.</p><h1>오늘은,<br><span>뭐 먹지?</span></h1><p>메뉴를 고르면 YouTube로 가요. 마음에 든 영상은 링크를 복사해 가져와요.</p>' : catalog ? '<h1>기본 레시피</h1>' : '<h1>내가 담은 요리</h1><p>영상을 열면 재료와 단계를 같이 볼 수 있어요.</p>';
+  paintPending();
   $('finder').hidden = !discover; $('cataloghead').hidden = !catalog;
   $('librarysearch').hidden = discover || (!catalog && !videos.length);
   $('grid').hidden = discover; $('sortrow').hidden = discover || (!catalog && videos.length < 2);
@@ -1071,10 +1088,10 @@ function renderGrid(){
   $('explore').hidden = !catalog;
   if(discover) return;
   if(libraryMode === 'video'){
-    $('sortrow').innerHTML = ['전체','즐겨찾기','재료 있는 영상','챕터 있는 영상'].map(label => `<button data-vfilter="${label}" aria-pressed="${videoFilter === label}" class="${videoFilter === label ? 'on' : ''}">${label}</button>`).join('');
+    $('sortrow').innerHTML = ['전체','즐겨찾기','재료 있는 영상','단계 있는 영상'].map(label => `<button data-vfilter="${label}" aria-pressed="${videoFilter === label}" class="${videoFilter === label ? 'on' : ''}">${label}</button>`).join('');
     const items = videos.filter(d => (!q || (d.name + ' ' + (d.channel || '')).toLowerCase().includes(q.toLowerCase()) || (d.ing || []).some(i => i.n.includes(q))) &&
       (videoFilter === '전체' || (videoFilter === '즐겨찾기' ? marks.has(keyOf(d)) : videoFilter === '재료 있는 영상' ? d.ing?.length : d.chapters?.length))).reverse();
-    $('grid').innerHTML = items.length ? items.map(d => `<article class="card" data-vid="${esc(d.vid)}"><button class="th" data-a="video" aria-label="${esc(d.name)} 영상 레시피 열기"><img src="${dishPic(d)}" alt="" loading="lazy"><span class="video-label">${PLAYI} YouTube</span></button><button class="cb" data-a="video"><span class="cn">${esc(d.name)}</span><span class="cm">${esc(d.channel || 'YouTube')} · ${d.ing?.length ? '재료 ' + d.ing.length + '개' : '재료 미입력'}${d.chapters?.length ? ' · 챕터 ' + d.chapters.length + '개' : ''}</span></button></article>`).join('') :
+    $('grid').innerHTML = items.length ? items.map(d => `<article class="card" data-vid="${esc(d.vid)}"><button class="th" data-a="video" aria-label="${esc(d.name)} 영상 레시피 열기"><img src="${dishPic(d)}" alt="" loading="lazy"><span class="video-label">${PLAYI} YouTube</span></button><button class="cb" data-a="video"><span class="cn">${esc(d.name)}</span><span class="cm">${esc(d.channel || 'YouTube')} · ${d.ing?.length ? '재료 ' + d.ing.length + '개' : '재료 미입력'}${d.chapters?.length ? ' · 단계 ' + d.chapters.length + '개' : ''}</span></button></article>`).join('') :
       `<div class="library-empty"><h2>${videos.length ? '맞는 영상을 찾지 못했어요' : '아직 담은 영상이 없어요'}</h2><p>${videos.length ? '다른 요리 이름이나 재료로 찾아보세요.' : '만들고 싶은 요리부터 찾아보세요.<br>영상 링크를 붙여넣으면 여기에 모여요.'}</p><button id="emptyaction">${videos.length ? '필터 초기화' : '요리 찾으러 가기 →'}</button></div>`;
     if($('emptyaction')) $('emptyaction').onclick = () => { if(videos.length){ q = ''; $('q').value = ''; videoFilter = '전체'; }else libraryMode = 'discover'; renderGrid(); };
     return;
@@ -1107,7 +1124,14 @@ $('mprow').onclick = e => {
   const b = e.target.closest('.pc'); if(!b) return;
   setCur(b.dataset.id); openPlan();
 };
-$('ytbtn').onclick = () => linkSheet('');
+$('ytbtn').onclick = async () => {
+  // 시트는 바로 열고, 복사해 온 유튜브 링크가 있으면 붙여넣는 손질을 생략한다. 권한이 없거나 거절하면 빈 시트 그대로.
+  linkSheet('');
+  const version = sheetVersion;
+  try{ const t = (await navigator.clipboard.readText()).trim();
+    if(version === sheetVersion && (ytId(t) || ytList(t))){ const url = (t.match(/https?:\/\/\S+/) || [t])[0]; $('lku').value = url; loadLink(url); }
+  }catch(e){}
+};
 $('q').oninput = e => { q = e.target.value.trim(); renderGrid(); };
 $('today').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return;
   const f = folder(), en = f && f.dishes.find(x => keyOf(x) === b.dataset.k), d = en && dishOf(en); if(d) openRecipe(d, 'home', true); };
@@ -1301,12 +1325,13 @@ async function makeListFolder(list){
 }
 /** 링크 하나로 다 받는다 — 재생목록이면 새 계획, 영상이면 현재 계획에 한 요리. */
 function linkSheet(url){
-  openSheet(`<h3>유튜브 레시피 담기</h3>
-    <label for="lku">영상 또는 재생목록 링크</label>
-    <input id="lku" value="${esc(url)}" placeholder="https://youtu.be/…" inputmode="url" autocomplete="off" aria-describedby="linkerror">
+  openSheet(`<h3>유튜브 영상 가져오기</h3>
+    <ol class="howto"><li><b>1</b>유튜브에서 영상 아래 <i>${SHAREI}공유</i>를 눌러요</li><li><b>2</b><i>링크 복사</i>를 눌러요</li><li><b>3</b>여기로 돌아와 붙여넣어요</li></ol>
+    <label for="lku">복사한 링크</label>
+    <input id="lku" value="${esc(url)}" placeholder="여기를 길게 눌러 붙여넣기" inputmode="url" autocomplete="off" aria-describedby="linkerror">
     <p id="linkerror" class="form-error" role="status"></p>
-    <button class="sbtn" id="lkgo">영상 불러오기</button>
-    <p class="sub" style="margin-top:12px">재료는 나중에 적어도 돼요. 영상부터 담아두세요.</p>
+    <button class="sbtn" id="lkgo">영상 가져오기</button>
+    <p class="sub" style="margin-top:12px">재료와 단계는 영상 설명에서 자동으로 찾아요. 없으면 나중에 적어도 돼요.</p>
     <details><summary>재생목록으로 한 번에 담기</summary><p class="sub">공개 또는 미등록 재생목록을 가져올 수 있어요. 비공개·나중에 볼 동영상·좋아요 목록은 가져올 수 없어요.</p><button class="sbtn sub2" id="listgo">재생목록 전체 불러오기</button></details>`);
   const submit = () => loadLink($('lku').value.trim());
   $('lkgo').onclick = submit;
@@ -1335,19 +1360,36 @@ async function loadLink(url, wholeList = false){
   }
   if(version !== sheetVersion) return;
   const parsed = parseDesc(desc);
-  ytForm({name:cleanTitle(title), vid, url:'https://youtu.be/' + vid, ing:parsed.ing, chapters:parsed.chapters, channel, fetched}, false);
+  saveVideo({name:cleanTitle(title), vid, url:'https://youtu.be/' + vid, ing:parsed.ing, chapters:parsed.chapters, channel, fetched}, {manual:!fetched});
+}
+/** 영상 하나를 현재 계획에 넣고 레시피 화면을 연다. 첫 저장(폼 없음)과 정리 폼 저장이 같이 쓴다. */
+function saveVideo(d, {name, ing, chapters, serv, manual = false, customChapters = false, isEdit = false} = {}){
+  name = name || d.name || '저장한 영상'; ing = ing || d.ing || []; chapters = chapters || d.chapters || []; serv = serv || d.servings || 2;
+  const owner = isEdit && (folders.find(f => f.dishes.includes(d)) || folders.find(f => f.dishes.some(e => keyOf(e) === 'yt:' + d.vid)));
+  const f = owner || ensureF(), i = f.dishes.findIndex(e => keyOf(e) === 'yt:' + d.vid);
+  const entry = Object.assign({src:'yt', vid:d.vid, url:'https://youtu.be/' + d.vid, at:Date.now(), link:1},
+    i >= 0 ? f.dishes[i] : {}, {name, ing, chapters, channel:d.channel || '', servings:serv, edited:manual ? 1 : 0, when:d.when || 'day', customChapters:!!(d.customChapters || customChapters), fetched:!!d.fetched});
+  if(i >= 0) f.dishes[i] = entry; else f.dishes.push(entry);
+  if(isEdit){
+    // One video has one recipe even when it is in several plans; keep each plan's timing.
+    folders.forEach(other => { other.dishes = other.dishes.map(e => e?.vid === d.vid ? Object.assign({},entry,{when:e.when || 'day',link:e.link}) : e); });
+    if(cur === 'recipe' && keyOf(rDish) === keyOf(d) && JSON.stringify(rDish.ing) !== JSON.stringify(ing)) checkedIngredients.clear();
+  }
+  saveF(); closeSheet(); libraryMode = 'video'; save('bogl.searchPending',false);
+  openRecipe(entry, cur === 'recipe' ? rBack : 'home', isEdit && rCtx);
+  toast(isEdit ? '레시피를 정리했어요' : '내 영상에 저장했어요');
 }
 /** 영상 저장은 재료 입력과 독립적이다. 원문에서 추출한 내용은 확인·수정할 수 있다. */
 function ytForm(d, isEdit){
   let serv = d.servings || 2, chapters = d.chapters || [], manuallyParsed = false;
   const originalIng = (d.ing || []).map(i => i.n + (i.q ? ' ' + i.q : '')).join('\n');
   openSheet(`<h3>${isEdit ? '레시피 정리' : '영상 레시피 저장'}</h3>
-    <div class="link-preview"><img src="https://i.ytimg.com/vi/${esc(d.vid)}/mqdefault.jpg" alt=""><p>${esc(d.channel || 'YouTube')}<br>${d.ing?.length ? '설명란에서 재료를 찾았어요.' : '영상은 바로 저장할 수 있어요.'}</p></div>
-    <label for="yfn">요리 이름</label><input id="yfn" value="${esc(d.name)}" placeholder="이름은 나중에 바꿔도 돼요" maxlength="140">
-    <details id="recipefields" ${isEdit || d.ing?.length ? 'open' : ''}><summary>재료와 챕터 정리 · 선택</summary>
-      <label for="yfdesc">영상 설명란 붙여넣기</label><textarea id="yfdesc" placeholder="재료와 00:00 형태의 챕터가 있는 설명란" style="height:110px"></textarea>
-      <button class="sbtn sub2" id="yfparse">설명란에서 정리하기</button>
-      <p id="parseinfo" class="sub" role="status">${chapters.length ? '챕터 ' + chapters.length + '개' : '자동으로 찾지 못한 내용은 직접 적을 수 있어요.'}</p>
+    <div class="link-preview"><img src="https://i.ytimg.com/vi/${esc(d.vid)}/mqdefault.jpg" alt=""><p>${esc(d.channel || 'YouTube')}<br>${d.ing?.length ? '영상 설명에서 찾은 재료예요. 틀린 곳만 고치세요.' : '재료를 한 줄에 하나씩 적어요.'}</p></div>
+    <label for="yfn">요리 이름</label><input id="yfn" value="${esc(d.name)}" placeholder="예: 두부조림" maxlength="140">
+    <details id="recipefields" ${isEdit || d.ing?.length ? 'open' : ''}><summary>재료와 단계 정리 · 선택</summary>
+      <label for="yfdesc">영상 설명 붙여넣기</label><textarea id="yfdesc" placeholder="유튜브 영상 아래 '더보기'를 누르면 나오는 글을 그대로 붙여넣어요" style="height:110px"></textarea>
+      <button class="sbtn sub2" id="yfparse">영상 설명으로 정리하기</button>
+      <p id="parseinfo" class="sub" role="status">${chapters.length ? '단계 ' + chapters.length + '개' : '자동으로 찾지 못한 내용은 직접 적을 수 있어요.'}</p>
       <label for="yfi">재료 · 한 줄에 하나</label><textarea id="yfi" placeholder="돼지고기 300g&#10;대파 1대">${esc(originalIng)}</textarea>
       <div class="serv" style="margin:12px 0"><span>영상 기준 인분</span><div class="servc"><span id="yfs">${serv}인분</span><button class="servb" id="yfsm" aria-label="한 인분 줄이기">−</button><button class="servb" id="yfsp" aria-label="한 인분 늘리기">+</button></div></div>
     </details>
@@ -1359,25 +1401,13 @@ function ytForm(d, isEdit){
     if(parsed.ing.length) $('yfi').value = parsed.ing.map(i => i.n + (i.q ? ' ' + i.q : '')).join('\n');
     if(parsed.chapters.length) chapters = parsed.chapters;
     manuallyParsed = true;
-    $('parseinfo').textContent = `재료 ${parsed.ing.length}개 · 챕터 ${parsed.chapters.length}개를 찾았어요. 저장 전에 확인해 주세요.`;
+    $('parseinfo').textContent = `재료 ${parsed.ing.length}개 · 단계 ${parsed.chapters.length}개를 찾았어요. 저장 전에 확인해 주세요.`;
   };
   $('yfgo').onclick = () => {
     const name = $('yfn').value.trim() || d.name || '저장한 영상';
     const ing = $('yfi').value.split('\n').map(s => s.trim()).filter(Boolean).map(splitLine).filter(i => i.n);
     const manual = manuallyParsed || $('yfi').value !== originalIng || name !== d.name || !d.fetched;
-    const owner = isEdit && (folders.find(f => f.dishes.includes(d)) || folders.find(f => f.dishes.some(e => keyOf(e) === 'yt:' + d.vid)));
-    const f = owner || ensureF(), i = f.dishes.findIndex(e => keyOf(e) === 'yt:' + d.vid);
-    const entry = Object.assign({src:'yt', vid:d.vid, url:'https://youtu.be/' + d.vid, at:Date.now(), link:1},
-      i >= 0 ? f.dishes[i] : {}, {name, ing, chapters, channel:d.channel || '', servings:serv, edited:manual ? 1 : 0, when:d.when || 'day', customChapters:!!(d.customChapters || manuallyParsed), fetched:!!d.fetched});
-    if(i >= 0) f.dishes[i] = entry; else f.dishes.push(entry);
-    if(isEdit){
-      // One video has one recipe even when it is in several plans; keep each plan's timing.
-      folders.forEach(other => { other.dishes = other.dishes.map(e => e?.vid === d.vid ? Object.assign({},entry,{when:e.when || 'day',link:e.link}) : e); });
-      if(cur === 'recipe' && keyOf(rDish) === keyOf(d) && JSON.stringify(rDish.ing) !== JSON.stringify(ing)) checkedIngredients.clear();
-    }
-    saveF(); closeSheet(); libraryMode = 'video'; save('bogl.searchPending',false);
-    openRecipe(entry, cur === 'recipe' ? rBack : 'home', isEdit && rCtx);
-    toast(isEdit ? '레시피를 정리했어요' : '내 영상에 저장했어요');
+    saveVideo(d, {name, ing, chapters, serv, manual, customChapters:manuallyParsed, isEdit});
   };
 }
 
@@ -1407,7 +1437,7 @@ function openRecipe(d, back, ctx){
   $('rtags').innerHTML = (d.vid ? [d.channel || '유튜브'] : [d.kind, d.time, d.level]).filter(Boolean).map(t => `<i>${esc(t)}</i>`).join('');
   $('recipe').classList.toggle('video-recipe', !!d.vid);
   $('cookmedia').hidden = !d.vid;
-  $('rseg').innerHTML = `<button data-t="ing">재료${d.ing?.length ? ' · ' + d.ing.length : ''}</button><button data-t="step">${d.vid ? '챕터' : '만드는 법'}</button>`;
+  $('rseg').innerHTML = `<button data-t="ing">재료${d.ing?.length ? ' · ' + d.ing.length : ''}</button><button data-t="step">${d.vid ? '단계' : '만드는 법'}</button>`;
   paintMark(); paintTimer(); paintRfoot(); renderRecipe(); show('recipe');
   if(d.vid) mountPlayer(d);
   rememberRecipe();
@@ -1528,7 +1558,7 @@ $('rmark').onclick = () => {
   saveMarks(); paintMark(); toast(marks.has(key) ? '저장했어요' : '저장을 지웠어요');
 };
 
-/* 공식 IFrame API. 플레이어는 재료/챕터 탭 밖에서 한 번만 만든다. */
+/* 공식 IFrame API. 플레이어는 재료/단계 탭 밖에서 한 번만 만든다. */
 let player = null, playerReady = false, playerGeneration = 0, playerTicker = null, playerTimeout = null, ytNow = 0;
 let checkedIngredients = new Set(), apiPromise = null;
 function rememberRecipe(){
@@ -1571,8 +1601,8 @@ async function mountPlayer(d){
   const generation = playerGeneration, start = ytNow;
   const org = /^https?:/.test(location.protocol) ? '&origin=' + encodeURIComponent(location.origin) : '';
   $('cookmedia').innerHTML = `<div class="yt"><iframe id="ytf" title="${esc(d.name)} — YouTube 영상" src="https://www.youtube-nocookie.com/embed/${esc(d.vid)}?enablejsapi=1&playsinline=1&start=${Math.floor(start)}${org}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
-    <div class="player-tools"><button id="back10" disabled>10초 뒤로</button><button id="playpause" disabled>재생</button><button id="nextchapter" disabled>다음 챕터</button></div>
-    <div class="player-status"><span id="playerstatus" role="status">영상 준비 중…</span> · <a href="https://youtu.be/${esc(d.vid)}" target="_blank" rel="noopener">원본 보기</a></div>`;
+    <div class="player-tools"><button id="back10" disabled>10초 뒤로</button><button id="playpause" disabled>재생</button><button id="nextchapter" disabled>다음 단계</button></div>
+    <div class="player-status"><span id="playerstatus" role="status">영상 준비 중…</span> · <a href="https://youtu.be/${esc(d.vid)}" target="_blank" rel="noopener">유튜브에서 열기</a></div>`;
   $('back10').onclick = () => ytSeekTo(ytNow - 10);
   $('playpause').onclick = () => { if(!playerReady) return; player.getPlayerState() === 1 ? player.pauseVideo() : player.playVideo(); };
   $('nextchapter').onclick = () => { const next = (d.chapters || []).find(c => c.t > ytNow + 1); if(next) ytSeekTo(next.t); };
@@ -1652,9 +1682,9 @@ function renderRecipe(){
 
   if(d.vid){
     const chapters = d.chapters || [];
-    $('rpane').innerHTML = (chapters.length ? `<p class="recipe-note">보고 싶은 순서를 누르면 영상이 그 위치로 이동해요.</p><div class="chs">${chapters.map(c => `<button class="ch" data-t="${c.t}" ${playerReady ? '' : 'disabled'}><b>${mmss(c.t * 1000)}</b><span>${esc(c.label)}</span></button>`).join('')}</div>` :
-      `<div class="library-empty"><h2>아직 챕터가 없어요</h2><p>설명란에 시간 표시가 있다면 붙여넣어 정리해 보세요. 영상은 그대로 볼 수 있어요.</p></div>`) +
-      `<div class="rw"><button id="chapteredit">설명란으로 정리하기</button></div>` + srcBlock(d);
+    $('rpane').innerHTML = (chapters.length ? `<p class="recipe-note">보고 싶은 단계를 누르면 영상이 그 자리로 가요.</p><div class="chs">${chapters.map(c => `<button class="ch" data-t="${c.t}" ${playerReady ? '' : 'disabled'}><b>${mmss(c.t * 1000)}</b><span>${esc(c.label)}</span></button>`).join('')}</div>` :
+      `<div class="library-empty"><h2>아직 단계가 없어요</h2><p>영상 설명에 00:00 같은 시간이 있으면 붙여넣어 정리할 수 있어요. 영상은 그대로 볼 수 있어요.</p></div>`) +
+      `<div class="rw"><button id="chapteredit">영상 설명으로 정리하기</button></div>` + srcBlock(d);
     $('rpane').querySelectorAll('.ch').forEach(b => b.onclick = () => ytSeekTo(+b.dataset.t));
     $('chapteredit').onclick = () => ytForm(d,true); paintChapter(); return;
   }

@@ -39,7 +39,7 @@ const watchdog = setTimeout(() => { console.error('FAIL: browser tests exceeded 
   await page.waitForFunction(()=>[...document.querySelectorAll('#dishideas .menu-photo')].filter(i=>i.loading==='eager').every(i=>i.complete&&i.naturalWidth>0));
   assert.equal(await page.evaluate(()=>new Set([...document.querySelectorAll('#dishideas .menu-photo')].map(i=>i.src)).size),6,'six distinct food photos, no repeated drawing');
   assert.equal(await page.locator('[data-dish-search="알리오 올리오 파스타"]').count(),1);
-  assert.ok(await page.evaluate(()=>document.getElementById('dishideas').getBoundingClientRect().top<document.getElementById('findquery').getBoundingClientRect().top),'concrete menu choices come before open search');
+  assert.ok(await page.evaluate(()=>document.getElementById('dishideas').getBoundingClientRect().top<document.getElementById('findmore').getBoundingClientRect().top),'concrete menu choices come before open search');
   for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`discovery no overflow at ${width}`);}
   assert.ok(await page.evaluate(()=>document.getElementById('homehero').getBoundingClientRect().right<=document.getElementById('finder').getBoundingClientRect().left+1),'desktop title sits beside menu');
   await page.click('#previewtoggle');
@@ -52,7 +52,8 @@ const watchdog = setTimeout(() => { console.error('FAIL: browser tests exceeded 
   if(process.env.BOGL_QA_DIR) await page.screenshot({path:path.join(process.env.BOGL_QA_DIR,'discover-mobile-first.png'),fullPage:false});
   if(process.env.BOGL_QA_DIR){fs.mkdirSync(process.env.BOGL_QA_DIR,{recursive:true});await page.screenshot({path:path.join(process.env.BOGL_QA_DIR,'discover-mobile.png'),fullPage:true});}
   assert.ok(await page.evaluate(()=>document.querySelector('#dishideas .menu-photo').getBoundingClientRect().bottom<innerHeight),'first food photo fully visible without scrolling on mobile');
-  await page.click('#findprefs summary');await page.click('[data-value="간단하게"]');await page.click('[data-value="한 그릇"]');
+  assert.equal(await page.locator('#ytbtn').textContent(),'영상 가져오기');
+  await page.click('#findmore summary');await page.click('#findprefs summary');await page.click('[data-value="간단하게"]');await page.click('[data-value="한 그릇"]');
   await page.fill('#findquery','두부 & 계란');
   assert.equal(await page.locator('#findterms').inputValue(),'두부 & 계란 레시피 간단하게 한 그릇');
   assert.match(await page.locator('#dishideas a').first().getAttribute('href'),/search_query=/);
@@ -60,8 +61,9 @@ const watchdog = setTimeout(() => { console.error('FAIL: browser tests exceeded 
   const popupPromise=context.waitForEvent('page');await page.locator('#findquery').press('Enter');const popup=await popupPromise;await popup.waitForLoadState();
   assert.equal(new URL(popup.url()).searchParams.get('search_query'),'두부 & 계란 레시피 간단하게 한 그릇');await popup.close();
   await page.reload();assert.equal(await page.locator('#prefsummary').textContent(),'간단하게 · 한 그릇');
-  assert.match(await page.locator('#findreturntext').textContent(),/링크 복사/);
-  await page.click('#findprefs summary');await page.click('#prefreset');assert.equal(await page.locator('#findterms').inputValue(),'요리 레시피');
+  assert.match(await page.locator('#ytbtn').textContent(),/복사한 영상/,'same button, louder after YouTube');
+  assert.ok(await page.locator('#home.pending').count()===1);
+  await page.click('#findmore summary');await page.click('#findprefs summary');await page.click('#prefreset');assert.equal(await page.locator('#findterms').inputValue(),'요리 레시피');
   await page.click('[data-cuisine="양식"]');assert.equal(await page.locator('[data-dish-search="김치찌개"]').count(),0);
   const menuPopupPromise=context.waitForEvent('page');await page.click('[data-dish-search="알리오 올리오 파스타"]');const menuPopup=await menuPopupPromise;await menuPopup.waitForLoadState();
   assert.equal(new URL(menuPopup.url()).searchParams.get('search_query'),'알리오 올리오 파스타 레시피');await menuPopup.close();
@@ -72,9 +74,9 @@ const watchdog = setTimeout(() => { console.error('FAIL: browser tests exceeded 
   await page.click('#ytbtn'); await page.fill('#lku','https://example.com/watch?v=abcdefghijk');await page.click('#lkgo');
   assert.match(await page.locator('#linkerror').textContent(),/유튜브/);
   await page.fill('#lku','https://youtube.com/watch?v=abcdefghijk&list=PLexample');await page.click('#lkgo');
-  await page.locator('#yfgo').waitFor();
-  assert.equal(await page.locator('#yfi').inputValue(),'두부 1모\n양파 1개\n간장 2큰술');
-  await page.click('#yfgo'); await page.waitForFunction(()=>document.getElementById('back10')?.disabled===false);
+  await page.waitForFunction(()=>document.getElementById('back10')?.disabled===false);
+  assert.equal(await page.locator('#recipe.on').count(),1,'video saves without a form and opens the recipe');
+  await page.click('#redit'); assert.equal(await page.locator('#yfi').inputValue(),'두부 1모\n양파 1개\n간장 2큰술'); await page.keyboard.press('Escape');
   assert.equal(await page.locator('#recipe.on').count(),1); assert.equal(await page.locator('#ytf').count(),1);
   await page.evaluate(()=>window.originalFrame=document.getElementById('ytf'));
   await page.click('[data-ingredient="0"]');
@@ -106,7 +108,7 @@ const watchdog = setTimeout(() => { console.error('FAIL: browser tests exceeded 
   // No-key path still stores video before ingredients, metadata and chapter inputs are optional.
   await page.route(base,async route=>{const html=fs.readFileSync(path.join(root,'index.html'),'utf8').replace(/const YTKEY = '[^']*';/,"const YTKEY = '';"); await route.fulfill({contentType:'text/html; charset=utf-8',body:html});});
   await page.goto(base);await page.click('#ytbtn');await page.fill('#lku','https://youtu.be/zyxwvutsrqp');await page.click('#lkgo');
-  await page.locator('#yfgo').waitFor(); await page.click('#yfgo');
+  await page.locator('#recipe.on').waitFor();
   assert.equal(await page.locator('#rtitle').textContent(),'저장한 영상');
   await page.click('#redit');await page.fill('#yfdesc','재료\n달걀 2개\n소금 1g\n00:00 준비\n00:45 익히기');await page.click('#yfparse');await page.click('#yfgo');
   assert.equal(await page.locator('[data-ingredient]').count(),2);
